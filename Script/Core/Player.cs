@@ -9,7 +9,7 @@ using UnrealSharp.SlateCore;
 namespace ManagedCropoutSampleProject.Core;
 
 [UClass]
-public class Player_CS : Pawn
+public class CropoutPlayer : Pawn
 {
     [UProperty(DefaultComponent = true, RootComponent = true)]
     public SceneComponent Root { get; set; }
