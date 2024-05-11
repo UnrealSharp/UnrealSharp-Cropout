@@ -13,7 +13,7 @@ This project is an ongoing effort to convert the "Cropout" sample project, origi
 
 To get started with UnrealSharp-Cropout, follow these steps:
 
-1. **Clone the Repository**:
+1. **Clone the Repository**
 
 2. **Set Up UnrealSharp**:
     - Clone the UnrealSharp repository into the `Plugins` folder located in the root directory of the UnrealSharp-Cropout project:
