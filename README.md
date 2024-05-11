@@ -33,9 +33,7 @@ If you need help or wish to discuss UnrealSharp, join our community on Discord:
 [Discord community](https://discord.gg/HQuJUYFxeV)
 
 ## Contributing
-
-We welcome contributions to UnrealSharp-Cropout!
+I accept pull requests and any contributions you make are **greatly appreciated**.
 
 ## License
-
-UnrealSharp-Cropout is distributed under the MIT License. For more details, see the `LICENSE` file in the repository.
+Distributed under the MIT License. See `LICENSE` for more information.
