@@ -68,6 +68,14 @@ public class CropoutPlayer : Pawn
         base.ReceiveBeginPlay();
     }
 
+    public override void ReceivePossessed(Controller newController)
+    {
+        CropoutPlayerController newPlayerController = (CropoutPlayerController) newController;
+        newPlayerController.OnKeySwitch += OnKeySwitch;
+        
+        base.ReceivePossessed(newController);
+    }
+
     public override void ReceiveActorBeginOverlap(Actor otherActor)
     {
         if (HoveredActor is null)
@@ -89,6 +97,27 @@ public class CropoutPlayer : Pawn
         }
         
         base.ReceiveActorEndOverlap(otherActor);
+    }
+    
+    [UFunction]
+    void OnKeySwitch(InputType newInput)
+    {
+        _inputType = newInput;
+        
+        switch (_inputType)
+        {
+            case InputType.Gamepad:
+                PlayerCollision.SetRelativeLocation(new Vector(0.0f, 0.0f, 10.0f), false, out _, false);
+                CursorMesh.SetHiddenInGame(false, true);
+                break;
+            case InputType.KeyMouse:
+                CursorMesh.SetHiddenInGame(false, true);
+                break;
+            case InputType.Touch:
+                CursorMesh.SetHiddenInGame(true, true);
+                PlayerCollision.SetRelativeLocation(new Vector(0.0f, 0.0f, -500.0f), false, out _, false);
+                break;
+        }
     }
 
     [UFunction]

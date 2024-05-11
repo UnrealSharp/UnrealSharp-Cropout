@@ -13,11 +13,6 @@ public partial class OnKeySwitch : MulticastDelegate<OnKeySwitch.OnKeySwitchDele
 [UClass]
 public class CropoutPlayerController : PlayerController
 {
-    protected override void ReceiveBeginPlay()
-    {
-        SetupInput();
-        base.ReceiveBeginPlay();
-    }
     [UProperty(PropertyFlags.BlueprintAssignable)]
     public OnKeySwitch OnKeySwitch { get; set; }
     
@@ -36,6 +31,12 @@ public class CropoutPlayerController : PlayerController
             _inputType = value;
             OnKeySwitch.Invoke(_inputType);
         }
+    }
+    
+    protected override void ReceiveBeginPlay()
+    {
+        SetupInput();
+        base.ReceiveBeginPlay();
     }
 
     void SetupInput()
