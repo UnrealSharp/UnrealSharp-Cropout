@@ -1,9 +1,12 @@
-﻿using UnrealSharp;
+﻿using ManagedCropoutSampleProject.Villagers;
+using UnrealSharp;
 using UnrealSharp.Attributes;
 using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
 using UnrealSharp.EnhancedInput;
 using UnrealSharp.InputCore;
+using UnrealSharp.NavigationSystem;
+using UnrealSharp.Niagara;
 using UnrealSharp.SlateCore;
 
 namespace ManagedCropoutSampleProject.Core;
@@ -47,16 +50,37 @@ public class CropoutPlayer : Pawn
     [UProperty(PropertyFlags.EditAnywhere, Category = "Movement")]
     public InputAction DragMoveAction { get; set; }
     
+    [UProperty(PropertyFlags.EditAnywhere, Category = "Mapping Context")]
+    public InputMappingContext DragMoveMappingContext { get; set; }
+
+    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Mapping Context")]
+    public InputMappingContext BaseInputMappingContext { get; set; }
+    
+    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Mapping Context")]
+    public InputMappingContext VillagerModeMappingContext { get; set; }
+    
+    [UProperty(PropertyFlags.EditAnywhere, Category = "Interaction")]
+    public InputAction VillagerModeAction { get; set; }
+    
     [UProperty(PropertyFlags.BlueprintReadOnly, Category = "Interaction")]
     public Actor? HoveredActor { get; set; }
     
-    PlayerController PlayerController => (PlayerController) Controller;
+    [UProperty(PropertyFlags.BlueprintReadOnly, Category = "Interaction")]
+    public NiagaraSystem? TargetEffect { get; set; }
+    
+    PlayerController? PlayerController => (PlayerController) Controller;
 
     private float _zoomValue = 0.5f;
     private float _zoomDirection;
     private Vector _targetHandle;
     private Vector _storedMove;
     private InputType _inputType = InputType.KeyMouse;
+
+    private Actor? _villagerAction;
+    private Actor? _selected;
+    
+    private NiagaraComponent _targetEffectComponent;
+    private TimerHandle updatePathHandle;
     
     private TimerHandle _closestHoverCheckHandle;
 
@@ -74,6 +98,183 @@ public class CropoutPlayer : Pawn
         newPlayerController.OnKeySwitch += OnKeySwitch;
         
         base.ReceivePossessed(newController);
+    }
+    
+    private void SetupInput()
+    {
+        if (InputComponent is not EnhancedInputComponent enhancedInputComponent)
+        {
+            return;
+        }
+        
+        AddMappingContext(BaseInputMappingContext);
+        AddMappingContext(VillagerModeMappingContext);
+        
+        enhancedInputComponent.BindAction(MoveAction, ETriggerEvent.Triggered, Move);
+        enhancedInputComponent.BindAction(ZoomAction, ETriggerEvent.Triggered, Zoom);
+        enhancedInputComponent.BindAction(SpinAction, ETriggerEvent.Triggered, Spin);
+        enhancedInputComponent.BindAction(DragMoveAction, ETriggerEvent.Triggered, DragMove);
+        return;
+        
+        enhancedInputComponent.BindAction(VillagerModeAction, ETriggerEvent.Triggered, VillagerMode_Triggered);
+        enhancedInputComponent.BindAction(VillagerModeAction, ETriggerEvent.Started, VillagerMode_Started);
+        enhancedInputComponent.BindAction(VillagerModeAction, ETriggerEvent.Canceled, VillagerMode_Canceled);
+        enhancedInputComponent.BindAction(VillagerModeAction, ETriggerEvent.Completed, VillagerMode_Completed);
+    }
+    
+    [UFunction]
+    void VillagerMode_Triggered(InputActionValue value)
+    {
+        _villagerAction = HoveredActor;
+    }
+    
+    [UFunction]
+    void VillagerMode_Started(InputActionValue value)
+    {
+        if (!SingleTouchCheck())
+        {
+            return;
+        }
+        
+        PositionCheck();
+        
+        if (VillagerOverlapCheck(out Actor? overlappedActor))
+        {
+            VillagerSelect(overlappedActor!);
+        }
+        else
+        {
+            AddMappingContext(DragMoveMappingContext);
+        }
+    }
+    
+    [UFunction]
+    void VillagerMode_Canceled(InputActionValue value)
+    {
+        VillagerMode_Completed(value);
+    }
+    
+    [UFunction]
+    void VillagerMode_Completed(InputActionValue value)
+    {
+        ModifyContextOptions modifyContextOptions = new ModifyContextOptions
+        {
+            IgnoreAllPressedKeysUntilRelease = true,
+            ForceImmediately = true,
+            NotifyUserSettings = false
+        };
+
+        RemoveMappingContext(DragMoveMappingContext, modifyContextOptions);
+
+        if (_villagerAction != null && _villagerAction.IsValid && _selected is IVillager villager)
+        {
+            villager.Action(_villagerAction);
+            
+            SystemLibrary.ClearAndInvalidateTimerHandle(this, ref updatePathHandle);
+            _targetEffectComponent.DestroyComponent(this);
+            _selected = null;
+        }
+        
+        _villagerAction = null;
+    }
+
+    [UFunction]
+    void Move(InputActionValue value)
+    {
+        Vector2D input = value.GetAxis2D();
+        AddMovementInput(GetActorForwardVector(), input.Y.ToFloat());
+        AddMovementInput(GetActorRightVector(), input.X.ToFloat());
+    }
+    
+    [UFunction]
+    void DragMove(InputActionValue value)
+    {
+        TrackMove();
+    }
+
+    [UFunction]
+    void Zoom(InputActionValue value)
+    {
+        _zoomDirection = value.GetAxis1D();
+        UpdateZoom();
+    }
+    
+    [UFunction]
+    void Spin(InputActionValue value)
+    {
+        AddActorLocalRotation(new Rotator(0.0f, value.GetAxis1D(), 0.0f), false, out _, false);
+    }
+    
+    // TODO: Support BlueprintCallable interface methods from C++.
+    [UFunction(FunctionFlags.BlueprintEvent)]
+    public extern void AddMappingContext(InputMappingContext mappingContext, ModifyContextOptions options = default);
+    
+    // TODO: Support BlueprintCallable interface methods from C++.
+    [UFunction(FunctionFlags.BlueprintEvent)]
+    public extern void RemoveMappingContext(InputMappingContext mappingContext, ModifyContextOptions options = default);
+
+    bool SingleTouchCheck()
+    {
+        if (PlayerController == null)
+        {
+            return false;
+        }
+
+        PlayerController.GetInputTouchState(ETouchIndex.Touch1, out _, out _, out bool bIsCurrentlyPressed);
+        return !bIsCurrentlyPressed;
+    }
+
+    bool VillagerOverlapCheck(out Actor? overlappedActor)
+    {
+        GetOverlappingActors(out IList<Actor> overlappingActors);
+        
+        if (overlappingActors.Count == 0)
+        {
+            overlappedActor = null;
+            return false;
+        }
+        
+        overlappedActor = overlappingActors[0];
+        return true;
+    }
+    
+    void VillagerSelect(Actor actor)
+    {
+        _selected = actor;
+
+        if (TargetEffect == null)
+        {
+            PrintString("No Target Effect Set!");
+            return;
+        }
+        
+        _targetEffectComponent = NiagaraFunctionLibrary.SpawnSystemAttached(TargetEffect, RootComponent, Name.None, Vector.Zero, Rotator.ZeroRotator, EAttachLocation.SnapToTarget, false);
+        updatePathHandle = SystemLibrary.SetTimer(UpdatePath, 0.01f, true);
+    }
+
+    [UFunction]
+    void UpdatePath()
+    {
+        if (_selected == null)
+        {
+            SystemLibrary.ClearAndInvalidateTimerHandle(this, ref updatePathHandle);
+            return;
+        }
+
+
+        NavigationPath newPath = NavigationSystemV1.FindPathToLocationSynchronously(this, PlayerCollision.GetWorldLocation(), _selected.GetActorLocation());
+        
+        if (newPath.PathPoints.Count == 0)
+        {
+            return;
+        }
+
+        Vector[] pathPoints = newPath.PathPoints.ToArray();
+        
+        pathPoints[0] = PlayerCollision.GetWorldLocation();
+        pathPoints[pathPoints.Length - 1] = _selected.GetActorLocation();
+        
+        NiagaraDataInterfaceArrayFunctionLibrary.SetNiagaraArrayVector(_targetEffectComponent, "TargetPath", pathPoints);
     }
 
     public override void ReceiveActorBeginOverlap(Actor otherActor)
@@ -119,7 +320,7 @@ public class CropoutPlayer : Pawn
                 break;
         }
     }
-
+    
     [UFunction]
     private void ClosestHoverCheck()
     {
@@ -276,6 +477,15 @@ public class CropoutPlayer : Pawn
             CursorMesh.SetWorldTransform(newTransform, false, out _, false);
         }
     }
+
+    void PositionCheck()
+    {
+        _targetHandle = Vector.Zero;
+        if (_inputType == InputType.Touch)
+        {
+            PlayerCollision.SetWorldLocation(_targetHandle, false, out _, false);
+        }
+    }
     
     bool ProjectMouseToGroundPlane(out Vector2D screenPosition, out Vector intersection)
     {
@@ -361,46 +571,6 @@ public class CropoutPlayer : Pawn
     {
         PlayerController.GetViewportSize(out int width, out int height);
         return new Vector2D(width / 2.0, height / 2.0);
-    }
-
-    private void SetupInput()
-    {
-        if (InputComponent is not EnhancedInputComponent enhancedInputComponent)
-        {
-            return;
-        }
-        
-        enhancedInputComponent.BindAction(MoveAction, ETriggerEvent.Triggered, Move);
-        enhancedInputComponent.BindAction(ZoomAction, ETriggerEvent.Triggered, Zoom);
-        enhancedInputComponent.BindAction(SpinAction, ETriggerEvent.Triggered, Spin);
-        enhancedInputComponent.BindAction(DragMoveAction, ETriggerEvent.Triggered, DragMove);
-    }
-
-    [UFunction]
-    void Move(InputActionValue value)
-    {
-        Vector2D input = value.GetAxis2D();
-        AddMovementInput(GetActorForwardVector(), input.Y.ToFloat());
-        AddMovementInput(GetActorRightVector(), input.X.ToFloat());
-    }
-    
-    [UFunction]
-    void DragMove(InputActionValue value)
-    {
-        TrackMove();
-    }
-
-    [UFunction]
-    void Zoom(InputActionValue value)
-    {
-        _zoomDirection = value.GetAxis1D();
-        UpdateZoom();
-    }
-    
-    [UFunction]
-    void Spin(InputActionValue value)
-    {
-        AddActorLocalRotation(new Rotator(0.0f, value.GetAxis1D(), 0.0f), false, out _, false);
     }
 
     void UpdateZoom()
