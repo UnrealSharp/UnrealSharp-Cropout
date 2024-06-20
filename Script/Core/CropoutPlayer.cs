@@ -131,7 +131,6 @@ public class CropoutPlayer : Pawn
     [UFunction]
     void VillagerMode_Started(InputActionValue value)
     {
-        PrintString("Villager Mode Started!");
         if (!SingleTouchCheck())
         {
             return;
