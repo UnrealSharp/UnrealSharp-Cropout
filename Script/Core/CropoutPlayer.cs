@@ -65,7 +65,7 @@ public class CropoutPlayer : Pawn
     [UProperty(PropertyFlags.BlueprintReadOnly, Category = "Interaction")]
     public Actor? HoveredActor { get; set; }
     
-    [UProperty(PropertyFlags.BlueprintReadOnly, Category = "Interaction")]
+    [UProperty(PropertyFlags.BlueprintReadOnly | PropertyFlags.EditDefaultsOnly, Category = "Interaction")]
     public NiagaraSystem? TargetEffect { get; set; }
     
     PlayerController? PlayerController => (PlayerController) Controller;
@@ -114,12 +114,12 @@ public class CropoutPlayer : Pawn
         enhancedInputComponent.BindAction(ZoomAction, ETriggerEvent.Triggered, Zoom);
         enhancedInputComponent.BindAction(SpinAction, ETriggerEvent.Triggered, Spin);
         enhancedInputComponent.BindAction(DragMoveAction, ETriggerEvent.Triggered, DragMove);
-        return;
         
-        enhancedInputComponent.BindAction(VillagerModeAction, ETriggerEvent.Triggered, VillagerMode_Triggered);
-        enhancedInputComponent.BindAction(VillagerModeAction, ETriggerEvent.Started, VillagerMode_Started);
-        enhancedInputComponent.BindAction(VillagerModeAction, ETriggerEvent.Canceled, VillagerMode_Canceled);
-        enhancedInputComponent.BindAction(VillagerModeAction, ETriggerEvent.Completed, VillagerMode_Completed);
+        // TODO: Uncomment when we have implemented the action system in C#
+        // enhancedInputComponent.BindAction(VillagerModeAction, ETriggerEvent.Triggered, VillagerMode_Triggered);
+        // enhancedInputComponent.BindAction(VillagerModeAction, ETriggerEvent.Started, VillagerMode_Started);
+        // enhancedInputComponent.BindAction(VillagerModeAction, ETriggerEvent.Canceled, VillagerMode_Canceled);
+        // enhancedInputComponent.BindAction(VillagerModeAction, ETriggerEvent.Completed, VillagerMode_Completed);
     }
     
     [UFunction]
@@ -131,6 +131,7 @@ public class CropoutPlayer : Pawn
     [UFunction]
     void VillagerMode_Started(InputActionValue value)
     {
+        PrintString("Villager Mode Started!");
         if (!SingleTouchCheck())
         {
             return;
@@ -480,14 +481,16 @@ public class CropoutPlayer : Pawn
 
     void PositionCheck()
     {
-        _targetHandle = Vector.Zero;
+        ProjectMouseToGroundPlane(out _, out Vector intersection);
+        _targetHandle = intersection;
         if (_inputType == InputType.Touch)
         {
             PlayerCollision.SetWorldLocation(_targetHandle, false, out _, false);
         }
     }
     
-    bool ProjectMouseToGroundPlane(out Vector2D screenPosition, out Vector intersection)
+    [UFunction(FunctionFlags.BlueprintCallable)]
+    public bool ProjectMouseToGroundPlane(out Vector2D screenPosition, out Vector intersection)
     {
         screenPosition = new Vector2D();
         bool isKeyMousePressed = false;
