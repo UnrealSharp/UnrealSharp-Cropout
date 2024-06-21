@@ -6,7 +6,7 @@ This project is an ongoing effort to convert [Cropout](https://www.unrealengine.
 
 ## Requirements
 
-- **Engine Version**: Unreal Engine 5.3
+- **Engine Version**: Unreal Engine 5.4
 - **UnrealSharp**
 
 ## Installation
