@@ -8,8 +8,8 @@ namespace ManagedCropoutSampleProject.Villagers;
 public interface IVillager
 {
     [UFunction(FunctionFlags.BlueprintCallable)]
-    public void Action(Actor? actor);
+    public void Action(AActor? actor);
 
     [UFunction(FunctionFlags.BlueprintCallable)]
-    public void ChangeJob(Name newJob);
+    public void ChangeJob(FName newJob);
 }

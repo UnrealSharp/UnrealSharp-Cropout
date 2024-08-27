@@ -5,7 +5,7 @@ using UnrealSharp.Engine;
 namespace ManagedCropoutSampleProject.Core.GameMode;
 
 [UClass]
-public class CropoutGameInstance : GameInstance, IGameInstance
+public class UCropoutGameInstance : UGameInstance, IGameInstance
 {
     public void UpdateAllVillagers()
     {

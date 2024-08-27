@@ -12,97 +12,97 @@ using UnrealSharp.SlateCore;
 namespace ManagedCropoutSampleProject.Core;
 
 [UClass]
-public class CropoutPlayer : Pawn
+public class ACropoutPlayer : APawn
 {
     [UProperty(DefaultComponent = true, RootComponent = true)]
-    public SceneComponent Root { get; set; }
+    public USceneComponent Root { get; set; }
     
     [UProperty(DefaultComponent = true, AttachmentComponent = nameof(Root))]
-    public SpringArmComponent CameraBoom { get; set; }
+    public USpringArmComponent CameraBoom { get; set; }
     
     [UProperty(DefaultComponent = true, AttachmentComponent = nameof(CameraBoom))]
-    public CameraComponent PlayerCamera { get; set; }
+    public UCameraComponent PlayerCamera { get; set; }
     
     [UProperty(DefaultComponent = true, AttachmentComponent = nameof(Root))]
-    public SphereComponent PlayerCollision { get; set; }
+    public USphereComponent PlayerCollision { get; set; }
     
     [UProperty(DefaultComponent = true, AttachmentComponent = nameof(Root))]
-    public StaticMeshComponent CursorMesh { get; set; }
+    public UStaticMeshComponent CursorMesh { get; set; }
     
     [UProperty(DefaultComponent = true)]
-    public FloatingPawnMovement PawnMovement { get; set; }
+    public UFloatingPawnMovement PawnMovement { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere, Category = "Camera")]
-    public CurveFloat CameraZoomCurve { get; set; }
+    public UCurveFloat CameraZoomCurve { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere, Category = "Camera")]
     public float EdgeMoveDistance { get; set; } = 50.0f;
     
     [UProperty(PropertyFlags.EditAnywhere, Category = "Movement")]
-    public InputAction MoveAction { get; set; }
+    public UInputAction MoveAction { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere, Category = "Movement")]
-    public InputAction ZoomAction { get; set; }
+    public UInputAction ZoomAction { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere, Category = "Movement")]
-    public InputAction SpinAction { get; set; }
+    public UInputAction SpinAction { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere, Category = "Movement")]
-    public InputAction DragMoveAction { get; set; }
+    public UInputAction DragMoveAction { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere, Category = "Mapping Context")]
-    public InputMappingContext DragMoveMappingContext { get; set; }
+    public UInputMappingContext DragMoveMappingContext { get; set; }
 
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Mapping Context")]
-    public InputMappingContext BaseInputMappingContext { get; set; }
+    public UInputMappingContext BaseInputMappingContext { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Mapping Context")]
-    public InputMappingContext VillagerModeMappingContext { get; set; }
+    public UInputMappingContext VillagerModeMappingContext { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere, Category = "Interaction")]
-    public InputAction VillagerModeAction { get; set; }
+    public UInputAction VillagerModeAction { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly, Category = "Interaction")]
-    public Actor? HoveredActor { get; set; }
+    public AActor? HoveredActor { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly | PropertyFlags.EditDefaultsOnly, Category = "Interaction")]
-    public NiagaraSystem? TargetEffect { get; set; }
+    public UNiagaraSystem? TargetEffect { get; set; }
     
-    PlayerController? PlayerController => (PlayerController) Controller;
+    APlayerController? PlayerController => (APlayerController) Controller;
 
     private float _zoomValue = 0.5f;
     private float _zoomDirection;
-    private Vector _targetHandle;
-    private Vector _storedMove;
-    private InputType _inputType = InputType.KeyMouse;
+    private FVector _targetHandle;
+    private FVector _storedMove;
+    private EInputType _inputType = EInputType.KeyMouse;
 
-    private Actor? _villagerAction;
-    private Actor? _selected;
+    private AActor? _villagerAction;
+    private AActor? _selected;
     
-    private NiagaraComponent _targetEffectComponent;
-    private TimerHandle updatePathHandle;
+    private UNiagaraComponent _targetEffectComponent;
+    private FTimerHandle updatePathHandle;
     
-    private TimerHandle _closestHoverCheckHandle;
+    private FTimerHandle _closestHoverCheckHandle;
 
-    protected override void ReceiveBeginPlay()
+    protected override void BeginPlay()
     {
         UpdateZoom();
         SetupInput();
-        SystemLibrary.SetTimer(UpdateMovement, 0.01f, true);
-        base.ReceiveBeginPlay();
+        SystemLibrary.SetTimer(this, "UpdateMovement", 0.01f, true);
+        base.BeginPlay();
     }
 
-    public override void ReceivePossessed(Controller newController)
+    public override void Possessed(AController newController)
     {
-        CropoutPlayerController newPlayerController = (CropoutPlayerController) newController;
+        ACropoutPlayerController newPlayerController = (ACropoutPlayerController) newController;
         newPlayerController.OnKeySwitch += OnKeySwitch;
-        
-        base.ReceivePossessed(newController);
+
+        base.Possessed(newController);
     }
-    
+
     private void SetupInput()
     {
-        if (InputComponent is not EnhancedInputComponent enhancedInputComponent)
+        if (InputComponent is not UEnhancedInputComponent enhancedInputComponent)
         {
             return;
         }
@@ -123,13 +123,13 @@ public class CropoutPlayer : Pawn
     }
     
     [UFunction]
-    void VillagerMode_Triggered(InputActionValue value)
+    void VillagerMode_Triggered(FInputActionValue value)
     {
         _villagerAction = HoveredActor;
     }
     
     [UFunction]
-    void VillagerMode_Started(InputActionValue value)
+    void VillagerMode_Started(FInputActionValue value)
     {
         if (!SingleTouchCheck())
         {
@@ -138,7 +138,7 @@ public class CropoutPlayer : Pawn
         
         PositionCheck();
         
-        if (VillagerOverlapCheck(out Actor? overlappedActor))
+        if (VillagerOverlapCheck(out AActor? overlappedActor))
         {
             VillagerSelect(overlappedActor!);
         }
@@ -149,15 +149,15 @@ public class CropoutPlayer : Pawn
     }
     
     [UFunction]
-    void VillagerMode_Canceled(InputActionValue value)
+    void VillagerMode_Canceled(FInputActionValue value)
     {
         VillagerMode_Completed(value);
     }
     
     [UFunction]
-    void VillagerMode_Completed(InputActionValue value)
+    void VillagerMode_Completed(FInputActionValue value)
     {
-        ModifyContextOptions modifyContextOptions = new ModifyContextOptions
+        FModifyContextOptions modifyContextOptions = new FModifyContextOptions
         {
             IgnoreAllPressedKeysUntilRelease = true,
             ForceImmediately = true,
@@ -179,39 +179,39 @@ public class CropoutPlayer : Pawn
     }
 
     [UFunction]
-    void Move(InputActionValue value)
+    void Move(FInputActionValue value)
     {
-        Vector2D input = value.GetAxis2D();
+        FVector2D input = value.GetAxis2D();
         AddMovementInput(GetActorForwardVector(), input.Y.ToFloat());
         AddMovementInput(GetActorRightVector(), input.X.ToFloat());
     }
     
     [UFunction]
-    void DragMove(InputActionValue value)
+    void DragMove(FInputActionValue value)
     {
         TrackMove();
     }
 
     [UFunction]
-    void Zoom(InputActionValue value)
+    void Zoom(FInputActionValue value)
     {
         _zoomDirection = value.GetAxis1D();
         UpdateZoom();
     }
     
     [UFunction]
-    void Spin(InputActionValue value)
+    void Spin(FInputActionValue value)
     {
-        AddActorLocalRotation(new Rotator(0.0f, value.GetAxis1D(), 0.0f), false, out _, false);
+        AddActorLocalRotation(new FRotator(0.0f, value.GetAxis1D(), 0.0f), false, out _, false);
     }
     
     // TODO: Support BlueprintCallable interface methods from C++.
     [UFunction(FunctionFlags.BlueprintEvent)]
-    public extern void AddMappingContext(InputMappingContext mappingContext, ModifyContextOptions options = default);
+    public extern void AddMappingContext(UInputMappingContext mappingContext, FModifyContextOptions options = default);
     
     // TODO: Support BlueprintCallable interface methods from C++.
     [UFunction(FunctionFlags.BlueprintEvent)]
-    public extern void RemoveMappingContext(InputMappingContext mappingContext, ModifyContextOptions options = default);
+    public extern void RemoveMappingContext(UInputMappingContext mappingContext, FModifyContextOptions options = default);
 
     bool SingleTouchCheck()
     {
@@ -224,9 +224,9 @@ public class CropoutPlayer : Pawn
         return !bIsCurrentlyPressed;
     }
 
-    bool VillagerOverlapCheck(out Actor? overlappedActor)
+    bool VillagerOverlapCheck(out AActor? overlappedActor)
     {
-        GetOverlappingActors(out IList<Actor> overlappingActors);
+        GetOverlappingActors(out IList<AActor> overlappingActors);
         
         if (overlappingActors.Count == 0)
         {
@@ -238,7 +238,7 @@ public class CropoutPlayer : Pawn
         return true;
     }
     
-    void VillagerSelect(Actor actor)
+    void VillagerSelect(AActor actor)
     {
         _selected = actor;
 
@@ -248,8 +248,8 @@ public class CropoutPlayer : Pawn
             return;
         }
         
-        _targetEffectComponent = NiagaraFunctionLibrary.SpawnSystemAttached(TargetEffect, RootComponent, Name.None, Vector.Zero, Rotator.ZeroRotator, EAttachLocation.SnapToTarget, false);
-        updatePathHandle = SystemLibrary.SetTimer(UpdatePath, 0.01f, true);
+        _targetEffectComponent = UNiagaraFunctionLibrary.SpawnSystemAttached(TargetEffect, RootComponent, FName.None, FVector.Zero, FRotator.ZeroRotator, EAttachLocation.SnapToTarget, false);
+        updatePathHandle = SystemLibrary.SetTimer(this, "UpdatePath", 0.01f, true);
     }
 
     [UFunction]
@@ -262,61 +262,61 @@ public class CropoutPlayer : Pawn
         }
 
 
-        NavigationPath newPath = NavigationSystemV1.FindPathToLocationSynchronously(this, PlayerCollision.GetWorldLocation(), _selected.GetActorLocation());
+        UNavigationPath newPath = UNavigationSystemV1.FindPathToLocationSynchronously(this, PlayerCollision.GetWorldLocation(), _selected.GetActorLocation());
         
         if (newPath.PathPoints.Count == 0)
         {
             return;
         }
 
-        Vector[] pathPoints = newPath.PathPoints.ToArray();
+        FVector[] pathPoints = newPath.PathPoints.ToArray();
         
         pathPoints[0] = PlayerCollision.GetWorldLocation();
         pathPoints[pathPoints.Length - 1] = _selected.GetActorLocation();
         
-        NiagaraDataInterfaceArrayFunctionLibrary.SetNiagaraArrayVector(_targetEffectComponent, "TargetPath", pathPoints);
+        UNiagaraDataInterfaceArrayFunctionLibrary.NiagaraSetVectorArray(_targetEffectComponent, "TargetPath", pathPoints);
     }
 
-    public override void ReceiveActorBeginOverlap(Actor otherActor)
+    public override void ActorBeginOverlap(AActor otherActor)
     {
         if (HoveredActor is null)
         {
             HoveredActor = otherActor;
         }
 
-        _closestHoverCheckHandle = SystemLibrary.SetTimer(ClosestHoverCheck, 0.01f, true);
-        base.ReceiveActorBeginOverlap(otherActor);
+        _closestHoverCheckHandle = SystemLibrary.SetTimer(this, "ClosestHoverCheck", 0.01f, true);
+        base.ActorBeginOverlap(otherActor);
     }
 
-    public override void ReceiveActorEndOverlap(Actor otherActor)
+    public override void ActorEndOverlap(AActor otherActor)
     {
         GetOverlappingActors(out var overlappingActors);
-        
+
         if (overlappingActors.Count == 0)
         {
             HoveredActor = null;
         }
-        
-        base.ReceiveActorEndOverlap(otherActor);
+
+        base.ActorEndOverlap(otherActor);
     }
-    
+
     [UFunction]
-    void OnKeySwitch(InputType newInput)
+    void OnKeySwitch(EInputType newInput)
     {
         _inputType = newInput;
         
         switch (_inputType)
         {
-            case InputType.Gamepad:
-                PlayerCollision.SetRelativeLocation(new Vector(0.0f, 0.0f, 10.0f), false, out _, false);
+            case EInputType.Gamepad:
+                PlayerCollision.SetRelativeLocation(new FVector(0.0f, 0.0f, 10.0f), false, out _, false);
                 CursorMesh.SetHiddenInGame(false, true);
                 break;
-            case InputType.KeyMouse:
+            case EInputType.KeyMouse:
                 CursorMesh.SetHiddenInGame(false, true);
                 break;
-            case InputType.Touch:
+            case EInputType.Touch:
                 CursorMesh.SetHiddenInGame(true, true);
-                PlayerCollision.SetRelativeLocation(new Vector(0.0f, 0.0f, -500.0f), false, out _, false);
+                PlayerCollision.SetRelativeLocation(new FVector(0.0f, 0.0f, -500.0f), false, out _, false);
                 break;
         }
     }
@@ -324,7 +324,7 @@ public class CropoutPlayer : Pawn
     [UFunction]
     private void ClosestHoverCheck()
     {
-        PlayerCollision.GetOverlappingActors(out IList<Actor> overlappingActors);
+        PlayerCollision.GetOverlappingActors(out IList<AActor> overlappingActors);
         
         if (overlappingActors.Count == 0)
         {
@@ -332,7 +332,7 @@ public class CropoutPlayer : Pawn
             return;
         }
         
-        Actor? newHoveredActor = null;
+        AActor? newHoveredActor = null;
         
         for (int i = 0; i < overlappingActors.Count; i++)
         {
@@ -342,9 +342,9 @@ public class CropoutPlayer : Pawn
                 continue;
             }
             
-            Vector playerCollisionLocation = PlayerCollision.GetWorldLocation();
-            if (Vector.Distance(overlappingActors[i].GetActorLocation(), playerCollisionLocation) 
-                < Vector.Distance(playerCollisionLocation, overlappingActors[i].GetActorLocation()))
+            FVector playerCollisionLocation = PlayerCollision.GetWorldLocation();
+            if (FVector.Distance(overlappingActors[i].GetActorLocation(), playerCollisionLocation) 
+                <FVector.Distance(playerCollisionLocation, overlappingActors[i].GetActorLocation()))
             {
                 newHoveredActor = overlappingActors[i];
             }
@@ -359,47 +359,47 @@ public class CropoutPlayer : Pawn
     [UFunction]
     private void TrackMove()
     {
-        ProjectMouseToGroundPlane(out _, out Vector intersection);
+        ProjectMouseToGroundPlane(out _, out FVector intersection);
 
-        Vector xOffset = CameraBoom.GetForwardVector() * (CameraBoom.TargetArmLength - CameraBoom.SocketOffset.X) * -1.0f;
-        Vector zOffset = CameraBoom.GetUpVector() * CameraBoom.SocketOffset.Z;
-        Vector newLocation = (xOffset + zOffset + CameraBoom.GetWorldLocation()) - PlayerCamera.GetWorldLocation();
+        FVector xOffset = CameraBoom.GetForwardVector() * (CameraBoom.TargetArmLength - CameraBoom.SocketOffset.X) * -1.0f;
+        FVector zOffset = CameraBoom.GetUpVector() * CameraBoom.SocketOffset.Z;
+        FVector newLocation = (xOffset + zOffset + CameraBoom.GetWorldLocation()) - PlayerCamera.GetWorldLocation();
         
         _storedMove = _targetHandle - intersection - newLocation;
-        AddActorWorldOffset(new Vector(_storedMove.X, _storedMove.Y, 0), false, out _, false);
+        AddActorWorldOffset(new FVector(_storedMove.X, _storedMove.Y, 0), false, out _, false);
     }
 
     [UFunction]
     void UpdateMovement()
     {
         // Keep player within playspace
-        Vector actorLocation = GetActorLocation();
+        FVector actorLocation = GetActorLocation();
         double scaleValue = (actorLocation.Length() - 9000) / 5000;
 
-        MathLibrary.Normalize(ref actorLocation);
-        Vector worldDirection = new Vector(actorLocation.X, actorLocation.Y, 0) * -1.0;
+        MathLibrary.Vector_Normalize(ref actorLocation);
+        FVector worldDirection = new FVector(actorLocation.X, actorLocation.Y, 0) * -1.0;
         AddMovementInput(worldDirection, Math.Max(scaleValue, 0.0).ToFloat());
         
         // Syncs 3D Cursor and Collision Position
         UpdateCursorPosition();
         
         // Edge of screen movement
-        EdgeMove(out Vector direction, out float strength);
+        EdgeMove(out FVector direction, out float strength);
         AddMovementInput(direction, strength);
         
         // Position Collision On Ground Plane Projection
-        ProjectMouseToGroundPlane(out _, out Vector playerCollisionLocation);
+        ProjectMouseToGroundPlane(out _, out FVector playerCollisionLocation);
         playerCollisionLocation.Z += 10.0f;
         PlayerCollision.SetWorldLocation(playerCollisionLocation, false, out _, false);
     }
 
-    void EdgeMove(out Vector direction, out float strength)
+    void EdgeMove(out FVector direction, out float strength)
     {
         PlayerController.GetViewportSize(out int width, out int height);
-        Vector2D centerScreen = new Vector2D(width / 2.0, height / 2.0);
+        FVector2D centerScreen = new FVector2D(width / 2.0, height / 2.0);
         
-        ProjectMouseToGroundPlane(out Vector2D screenPosition, out Vector intersection);
-        Vector2D cursorPosition = screenPosition - centerScreen;
+        ProjectMouseToGroundPlane(out FVector2D screenPosition, out FVector intersection);
+        FVector2D cursorPosition = screenPosition - centerScreen;
         
         CursorDistanceFromViewportCenter(cursorPosition, out direction, out strength);
         direction = MathLibrary.TransformDirection(GetActorTransform(), direction);
@@ -410,13 +410,13 @@ public class CropoutPlayer : Pawn
         float inputMultiplier;
         switch (_inputType)
         {
-            case InputType.KeyMouse:
+            case EInputType.KeyMouse:
                 inputMultiplier = 1.0f;
                 break;
-            case InputType.Gamepad:
+            case EInputType.Gamepad:
                 inputMultiplier = 2.0f;
                 break;
-            case InputType.Touch:
+            case EInputType.Touch:
                 inputMultiplier = 2.0f;
                 break;
             default:
@@ -426,10 +426,10 @@ public class CropoutPlayer : Pawn
         return EdgeMoveDistance * inputMultiplier;
     }
     
-    void CursorDistanceFromViewportCenter(Vector2D cursorPosition, out Vector direction, out float strength)
+    void CursorDistanceFromViewportCenter(FVector2D cursorPosition, out FVector direction, out float strength)
     {
         PlayerController.GetViewportSize(out int width, out int height);
-        Vector2D viewportHalfSize = new Vector2D(width / 2.0, height / 2.0);
+        FVector2D viewportHalfSize = new FVector2D(width / 2.0, height / 2.0);
         
         // TODO: Negate operator for float
         viewportHalfSize.X -= GetEdgeMoveDistance();
@@ -444,25 +444,25 @@ public class CropoutPlayer : Pawn
         float signedX = Math.Sign(cursorPosition.X);
         float signedY = Math.Sign(cursorPosition.Y);
         
-        direction = new Vector((signedY * yDeadZone) * -1.0f, signedX * xDeadZone, 0.0f);
+        direction = new FVector((signedY * yDeadZone) * -1.0f, signedX * xDeadZone, 0.0f);
         strength = 1.0f;
     }
 
     void UpdateCursorPosition()
     {
-        if (_inputType is InputType.KeyMouse or InputType.Gamepad)
+        if (_inputType is EInputType.KeyMouse or EInputType.Gamepad)
         {
-            Transform target = new Transform();
+            FTransform target = new FTransform();
             if (HoveredActor != null)
             {
-                HoveredActor.GetActorBounds(true, out Vector origin, out Vector extent);
-                target.Translation = new Vector(origin.X, origin.Y, 20.0f);
+                HoveredActor.GetActorBounds(true, out FVector origin, out FVector extent);
+                target.Translation = new FVector(origin.X, origin.Y, 20.0f);
 
-                double x = MathLibrary.GetAbsMax(new Vector2D(extent.X, extent.Y)) / 50.0f;
+                double x = MathLibrary.GetAbsMax2D(new FVector2D(extent.X, extent.Y)) / 50.0f;
                 double y = Math.Sin(SystemLibrary.GetGameTimeInSeconds(this) * 5.0f) * 0.25;
 
                 double newScale = x + y + 1;
-                target.Scale3D = new Vector(newScale, newScale, 1.0f);
+                target.Scale3D = new FVector(newScale, newScale, 1.0f);
             }
             else
             {
@@ -472,44 +472,44 @@ public class CropoutPlayer : Pawn
                 target.Scale3D.Z = 1.0f;
             }
             
-            double worldDeltaSeconds = GameplayStatics.GetWorldDeltaSeconds(this);
-            Transform newTransform = MathLibrary.InterpTo(CursorMesh.GetWorldTransform(), target, worldDeltaSeconds.ToFloat(), 12.0f);
+            double worldDeltaSeconds = UGameplayStatics.GetWorldDeltaSeconds(this);
+            FTransform newTransform = MathLibrary.TInterpTo(CursorMesh.GetWorldTransform(), target, worldDeltaSeconds.ToFloat(), 12.0f);
             CursorMesh.SetWorldTransform(newTransform, false, out _, false);
         }
     }
 
     void PositionCheck()
     {
-        ProjectMouseToGroundPlane(out _, out Vector intersection);
+        ProjectMouseToGroundPlane(out _, out FVector intersection);
         _targetHandle = intersection;
-        if (_inputType == InputType.Touch)
+        if (_inputType == EInputType.Touch)
         {
             PlayerCollision.SetWorldLocation(_targetHandle, false, out _, false);
         }
     }
     
     [UFunction(FunctionFlags.BlueprintCallable)]
-    public bool ProjectMouseToGroundPlane(out Vector2D screenPosition, out Vector intersection)
+    public bool ProjectMouseToGroundPlane(out FVector2D screenPosition, out FVector intersection)
     {
-        screenPosition = new Vector2D();
+        screenPosition = new FVector2D();
         bool isKeyMousePressed = false;
         bool isTouchPressed = false;
         
         switch (_inputType)
         {
-            case InputType.Unknown:
-            case InputType.Gamepad:
+            case EInputType.Unknown:
+            case EInputType.Gamepad:
             {
                 PlayerController.GetViewportSize(out int width, out int height);
-                screenPosition = new Vector2D(width / 2.0, height / 2.0);
+                screenPosition = new FVector2D(width / 2.0, height / 2.0);
                 break;
             }
-            case InputType.KeyMouse:
+            case EInputType.KeyMouse:
             {
                 if (PlayerController.GetMousePosition(out float x, out float y))
                 {
                     isKeyMousePressed = true;
-                    screenPosition = new Vector2D(x, y);
+                    screenPosition = new FVector2D(x, y);
                 }
                 else
                 {
@@ -517,12 +517,12 @@ public class CropoutPlayer : Pawn
                 }
                 break;
             }
-            case InputType.Touch:
+            case EInputType.Touch:
             {
                 PlayerController.GetInputTouchState(ETouchIndex.Touch1, out float x, out float y, out isTouchPressed);
                 if (isTouchPressed)
                 {
-                    screenPosition = new Vector2D(x, y);
+                    screenPosition = new FVector2D(x, y);
                 }
                 else
                 {
@@ -532,11 +532,11 @@ public class CropoutPlayer : Pawn
             }
         }
         
-        GameplayStatics.DeprojectScreenToWorld(PlayerController, screenPosition, out Vector origin, out Vector direction);
-        Plane newPlane = MathLibrary.MakePlaneFromPointAndNormal(new Vector(), new Vector(0, 0, 1));
+        UGameplayStatics.DeprojectScreenToWorld(PlayerController, screenPosition, out FVector origin, out FVector direction);
+        FPlane newPlane = MathLibrary.MakePlaneFromPointAndNormal(new FVector(), new FVector(0, 0, 1));
         MathLibrary.LinePlaneIntersection(origin, origin + direction * 100000, newPlane, out _, out intersection);
 
-        if (_inputType == InputType.Touch)
+        if (_inputType == EInputType.Touch)
         {
             intersection.Z += isTouchPressed ? 0 : -500;
         }
@@ -544,22 +544,22 @@ public class CropoutPlayer : Pawn
         bool returnValue = false;
         switch (_inputType)
         {
-            case InputType.Unknown:
+            case EInputType.Unknown:
             {
                 returnValue = false;
                 break;
             }
-            case InputType.Gamepad:
+            case EInputType.Gamepad:
             {
                 returnValue = true;
                 break;
             }
-            case InputType.KeyMouse:
+            case EInputType.KeyMouse:
             {
                 returnValue = isKeyMousePressed;
                 break;
             }
-            case InputType.Touch:
+            case EInputType.Touch:
             {
                 returnValue = isTouchPressed;
                 break;
@@ -569,10 +569,10 @@ public class CropoutPlayer : Pawn
         return returnValue;
     }
     
-    Vector2D GetLockProjectionCenterScreen()
+    FVector2D GetLockProjectionCenterScreen()
     {
         PlayerController.GetViewportSize(out int width, out int height);
-        return new Vector2D(width / 2.0, height / 2.0);
+        return new FVector2D(width / 2.0, height / 2.0);
     }
 
     void UpdateZoom()
@@ -583,7 +583,7 @@ public class CropoutPlayer : Pawn
         CameraBoom.TargetArmLength = MathLibrary.Lerp(800, 40000, alpha).ToFloat();
         
         double pitch = MathLibrary.Lerp(-40, -55, alpha);
-        CameraBoom.SetRelativeRotation(new Rotator(pitch, 0, 0), false, out _, false);
+        CameraBoom.SetRelativeRotation(new FRotator(pitch, 0, 0), false, out _, false);
         
         PawnMovement.MaxSpeed = MathLibrary.Lerp(1000, 6000, alpha).ToFloat();
         UpdateDepthOfField();
@@ -592,8 +592,8 @@ public class CropoutPlayer : Pawn
 
     void UpdateDepthOfField()
     {
-        PostProcessSettings postProcessSettings = PlayerCamera.PostProcessSettings;
-        postProcessSettings.DepthOfFieldFocalDistance = CameraBoom.TargetArmLength;
+        FPostProcessSettings postProcessSettings = PlayerCamera.PostProcessSettings;
+        postProcessSettings.FocalDistance = CameraBoom.TargetArmLength;
         postProcessSettings.DepthOfFieldSensorWidth = 150.0f;
         postProcessSettings.DepthOfFieldFstop = 3.0f;
         PlayerCamera.PostProcessSettings = postProcessSettings;
