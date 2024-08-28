@@ -3,7 +3,7 @@
 namespace ManagedCropoutSampleProject.Core;
 
 [UEnum]
-public enum InputType : byte
+public enum EInputType : byte
 {
     Unknown,
     KeyMouse,

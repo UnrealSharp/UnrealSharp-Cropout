@@ -7,18 +7,18 @@ using UnrealSharp.Engine;
 namespace ManagedCropoutSampleProject;
 
 [UClass]
-public class CropoutVillager : Pawn, IVillager
+public class ACropoutVillager : APawn, IVillager
 {
     [UProperty(PropertyFlags.BlueprintReadOnly)]
-    public Actor? Target { get; set; }
+    public AActor? Target { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly)]
-    public Name CurrentJob { get; set; }
+    public FName CurrentJob { get; set; }
     
     // This is where villagers are assigned new jobs.
     // The Event Action is sent from the player and passes along the target for the villager.
     // Read the Tag from the target and try to change jobs based on that tag name.
-    public void Action(Actor? actor)
+    public void Action(AActor? actor)
     {
         if (actor == null || !actor.IsValid || actor.Tags.Count == 0)
         {
@@ -27,11 +27,11 @@ public class CropoutVillager : Pawn, IVillager
         
         ChangeJob(actor.Tags[0]);
 
-        IGameInstance gameInstance = (IGameInstance) GameplayStatics.GetGameInstance(this);
+        IGameInstance gameInstance = (IGameInstance) UGameplayStatics.GetGameInstance(this);
         gameInstance.UpdateAllVillagers();
     }
 
-    public void ChangeJob(Name newJob)
+    public void ChangeJob(FName newJob)
     {
         CurrentJob = newJob;
     }

@@ -5,26 +5,28 @@ using UnrealSharp.InputCore;
 
 namespace ManagedCropoutSampleProject.Core;
 
-public partial class OnKeySwitch : MulticastDelegate<OnKeySwitch.OnKeySwitchDelegate>
-{
-    public delegate void OnKeySwitchDelegate(InputType newInput);
-}
+/// <summary>
+/// Multicast delegate  (see https://www.unrealsharp.com/delegates.html)
+/// </summary>
+public delegate void OnKeySwitchDelegate(EInputType newInput);
+
 
 [UClass]
-public class CropoutPlayerController : PlayerController
+public class ACropoutPlayerController : APlayerController
 {
     [UProperty(PropertyFlags.BlueprintAssignable)]
-    public OnKeySwitch OnKeySwitch { get; set; }
-    
+    public TMulticastDelegate<OnKeySwitchDelegate> OnKeySwitch { get; set; }
+
+
     [UFunction(FunctionFlags.BlueprintPure | FunctionFlags.BlueprintCallable)]
-    public InputType GetInputType()
+    public EInputType GetInputType()
     {
         return _inputType;
     }
     
-    private InputType _inputType = InputType.KeyMouse;
+    private EInputType _inputType = EInputType.KeyMouse;
 
-    public InputType InputType
+    public EInputType InputType
     {
         set
         {
@@ -33,10 +35,10 @@ public class CropoutPlayerController : PlayerController
         }
     }
     
-    protected override void ReceiveBeginPlay()
+    protected override void BeginPlay()
     {
         SetupInput();
-        base.ReceiveBeginPlay();
+        base.BeginPlay();
     }
 
     void SetupInput()
@@ -47,16 +49,16 @@ public class CropoutPlayerController : PlayerController
     }
     
     [UFunction]
-    void KeyDetect(Key key)
+    void KeyDetect(FKey key)
     {
-        if (InputLibrary.Key_IsGamepadKey(key))
+        if (InputLibrary.IsGamepadKey(key))
         {
             switch (_inputType)
             {
-                case InputType.Touch:
-                case InputType.Unknown:
-                case InputType.KeyMouse: 
-                    InputType = InputType.Gamepad; 
+                case EInputType.Touch:
+                case EInputType.Unknown:
+                case EInputType.KeyMouse: 
+                    InputType = EInputType.Gamepad; 
                     break;
             }
         }
@@ -69,10 +71,10 @@ public class CropoutPlayerController : PlayerController
         {
             switch (_inputType)
             {
-                case InputType.Gamepad:
-                case InputType.Unknown:
-                case InputType.Touch:
-                    InputType = InputType.KeyMouse;
+                case EInputType.Gamepad:
+                case EInputType.Unknown:
+                case EInputType.Touch:
+                    InputType = EInputType.KeyMouse;
                     break;
             }
         }
@@ -83,10 +85,10 @@ public class CropoutPlayerController : PlayerController
     {
         switch (_inputType)
         {
-            case InputType.Gamepad:
-            case InputType.Unknown:
-            case InputType.KeyMouse:
-                InputType = InputType.Touch;
+            case EInputType.Gamepad:
+            case EInputType.Unknown:
+            case EInputType.KeyMouse:
+                InputType = EInputType.Touch;
                 break;
         }
     }

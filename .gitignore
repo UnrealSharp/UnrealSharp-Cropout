@@ -78,3 +78,6 @@ Plugins/*/Intermediate/*
 # Cache files for the editor to use
 DerivedDataCache/*
 Plugins/UnrealSharp/
+
+# Don't include launchSettings (contains local dev paths)
+/Script/Properties/launchSettings.json
