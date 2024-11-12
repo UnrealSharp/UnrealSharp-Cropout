@@ -31,7 +31,7 @@ public class ACropoutPlayerController : APlayerController
         set
         {
             _inputType = value;
-            OnKeySwitch.Invoke(_inputType);
+            OnKeySwitch.InnerDelegate.Invoke(_inputType);
         }
     }
     

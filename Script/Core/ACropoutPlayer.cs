@@ -121,7 +121,7 @@ public class ACropoutPlayer : APawn
         // enhancedInputComponent.BindAction(VillagerModeAction, ETriggerEvent.Canceled, VillagerMode_Canceled);
         // enhancedInputComponent.BindAction(VillagerModeAction, ETriggerEvent.Completed, VillagerMode_Completed);
     }
-    
+
     [UFunction]
     void VillagerMode_Triggered(FInputActionValue value)
     {
@@ -179,28 +179,28 @@ public class ACropoutPlayer : APawn
     }
 
     [UFunction]
-    void Move(FInputActionValue value)
+    void Move(FInputActionValue value, float arg2, float arg3, UInputAction action)
     {
         FVector2D input = value.GetAxis2D();
-        AddMovementInput(GetActorForwardVector(), input.Y.ToFloat());
-        AddMovementInput(GetActorRightVector(), input.X.ToFloat());
+        AddMovementInput(ActorForwardVector, input.Y.ToFloat());
+        AddMovementInput(ActorRightVector, input.X.ToFloat());
     }
     
     [UFunction]
-    void DragMove(FInputActionValue value)
+    void DragMove(FInputActionValue value, float arg2, float arg3, UInputAction action)
     {
         TrackMove();
     }
 
     [UFunction]
-    void Zoom(FInputActionValue value)
+    void Zoom(FInputActionValue value, float arg2, float arg3, UInputAction action)
     {
         _zoomDirection = value.GetAxis1D();
         UpdateZoom();
     }
     
     [UFunction]
-    void Spin(FInputActionValue value)
+    void Spin(FInputActionValue value, float arg2, float arg3, UInputAction action)
     {
         AddActorLocalRotation(new FRotator(0.0f, value.GetAxis1D(), 0.0f), false, out _, false);
     }
@@ -262,7 +262,7 @@ public class ACropoutPlayer : APawn
         }
 
 
-        UNavigationPath newPath = UNavigationSystemV1.FindPathToLocationSynchronously(this, PlayerCollision.GetWorldLocation(), _selected.GetActorLocation());
+        UNavigationPath newPath = UNavigationSystemV1.FindPathToLocationSynchronously(this, PlayerCollision.WorldLocation, _selected.ActorLocation);
         
         if (newPath.PathPoints.Count == 0)
         {
@@ -271,8 +271,8 @@ public class ACropoutPlayer : APawn
 
         FVector[] pathPoints = newPath.PathPoints.ToArray();
         
-        pathPoints[0] = PlayerCollision.GetWorldLocation();
-        pathPoints[pathPoints.Length - 1] = _selected.GetActorLocation();
+        pathPoints[0] = PlayerCollision.WorldLocation;
+        pathPoints[pathPoints.Length - 1] = _selected.ActorLocation;
         
         UNiagaraDataInterfaceArrayFunctionLibrary.NiagaraSetVectorArray(_targetEffectComponent, "TargetPath", pathPoints);
     }
@@ -342,9 +342,9 @@ public class ACropoutPlayer : APawn
                 continue;
             }
             
-            FVector playerCollisionLocation = PlayerCollision.GetWorldLocation();
-            if (FVector.Distance(overlappingActors[i].GetActorLocation(), playerCollisionLocation) 
-                <FVector.Distance(playerCollisionLocation, overlappingActors[i].GetActorLocation()))
+            FVector playerCollisionLocation = PlayerCollision.WorldLocation;
+            if (FVector.Distance(overlappingActors[i].ActorLocation, playerCollisionLocation) 
+                <FVector.Distance(playerCollisionLocation, overlappingActors[i].ActorLocation))
             {
                 newHoveredActor = overlappingActors[i];
             }
@@ -361,9 +361,9 @@ public class ACropoutPlayer : APawn
     {
         ProjectMouseToGroundPlane(out _, out FVector intersection);
 
-        FVector xOffset = CameraBoom.GetForwardVector() * (CameraBoom.TargetArmLength - CameraBoom.SocketOffset.X) * -1.0f;
-        FVector zOffset = CameraBoom.GetUpVector() * CameraBoom.SocketOffset.Z;
-        FVector newLocation = (xOffset + zOffset + CameraBoom.GetWorldLocation()) - PlayerCamera.GetWorldLocation();
+        FVector xOffset = CameraBoom.ForwardVector * (CameraBoom.TargetArmLength - CameraBoom.SocketOffset.X) * -1.0f;
+        FVector zOffset = CameraBoom.UpVector * CameraBoom.SocketOffset.Z;
+        FVector newLocation = (xOffset + zOffset + CameraBoom.WorldLocation) - PlayerCamera.WorldLocation;
         
         _storedMove = _targetHandle - intersection - newLocation;
         AddActorWorldOffset(new FVector(_storedMove.X, _storedMove.Y, 0), false, out _, false);
@@ -373,7 +373,7 @@ public class ACropoutPlayer : APawn
     void UpdateMovement()
     {
         // Keep player within playspace
-        FVector actorLocation = GetActorLocation();
+        FVector actorLocation = ActorLocation;
         double scaleValue = (actorLocation.Length() - 9000) / 5000;
 
         MathLibrary.Vector_Normalize(ref actorLocation);
@@ -402,7 +402,7 @@ public class ACropoutPlayer : APawn
         FVector2D cursorPosition = screenPosition - centerScreen;
         
         CursorDistanceFromViewportCenter(cursorPosition, out direction, out strength);
-        direction = MathLibrary.TransformDirection(GetActorTransform(), direction);
+        direction = MathLibrary.TransformDirection(ActorTransform, direction);
     }
 
     private float GetEdgeMoveDistance()
@@ -456,24 +456,24 @@ public class ACropoutPlayer : APawn
             if (HoveredActor != null)
             {
                 HoveredActor.GetActorBounds(true, out FVector origin, out FVector extent);
-                target.Translation = new FVector(origin.X, origin.Y, 20.0f);
+                target.Location = new FVector(origin.X, origin.Y, 20.0f);
 
                 double x = MathLibrary.GetAbsMax2D(new FVector2D(extent.X, extent.Y)) / 50.0f;
                 double y = Math.Sin(SystemLibrary.GetGameTimeInSeconds(this) * 5.0f) * 0.25;
 
                 double newScale = x + y + 1;
-                target.Scale3D = new FVector(newScale, newScale, 1.0f);
+                target.Scale = new FVector(newScale, newScale, 1.0f);
             }
             else
             {
-                target = PlayerCollision.GetWorldTransform();
-                target.Scale3D.X = 2.0f;
-                target.Scale3D.Y = 2.0f;
-                target.Scale3D.Z = 1.0f;
+                target = PlayerCollision.WorldTransform;
+                target.Scale.X = 2.0f;
+                target.Scale.Y = 2.0f;
+                target.Scale.Z = 1.0f;
             }
             
             double worldDeltaSeconds = UGameplayStatics.GetWorldDeltaSeconds(this);
-            FTransform newTransform = MathLibrary.TInterpTo(CursorMesh.GetWorldTransform(), target, worldDeltaSeconds.ToFloat(), 12.0f);
+            FTransform newTransform = MathLibrary.TInterpTo(CursorMesh.WorldTransform, target, worldDeltaSeconds.ToFloat(), 12.0f);
             CursorMesh.SetWorldTransform(newTransform, false, out _, false);
         }
     }
@@ -587,7 +587,7 @@ public class ACropoutPlayer : APawn
         
         PawnMovement.MaxSpeed = MathLibrary.Lerp(1000, 6000, alpha).ToFloat();
         UpdateDepthOfField();
-        PlayerCamera.SetFieldOfView(MathLibrary.Lerp(20, 15, alpha).ToFloat());
+        PlayerCamera.FieldOfView = MathLibrary.Lerp(20, 15, alpha).ToFloat();
     }
 
     void UpdateDepthOfField()
