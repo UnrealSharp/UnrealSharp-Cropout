@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <CopyLocalLockFileAssembliesName>true</CopyLocalLockFileAssembliesName>
@@ -9,9 +9,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="UnrealSharp">
-      <HintPath>..\Plugins\UnrealSharp\Binaries\Managed\net8.0\UnrealSharp.dll</HintPath>
+      <HintPath>..\..\Plugins\UnrealSharp\Binaries\Managed\net9.0\UnrealSharp.dll</HintPath>
     </Reference>
-    <Analyzer Include="..\Plugins\UnrealSharp\Binaries\Managed\UnrealSharp.SourceGenerators.dll" />
-    <Compile Include="obj/generated/**/*.cs" />
+    <Analyzer Include="..\..\Plugins\UnrealSharp\Binaries\Managed\UnrealSharp.SourceGenerators.dll" />
   </ItemGroup>
 </Project>

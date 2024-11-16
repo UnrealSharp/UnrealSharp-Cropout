@@ -8,8 +8,8 @@ namespace ManagedCropoutSampleProject.Core;
 /// <summary>
 /// Multicast delegate  (see https://www.unrealsharp.com/delegates.html)
 /// </summary>
+[UMultiDelegate]
 public delegate void OnKeySwitchDelegate(EInputType newInput);
-
 
 [UClass]
 public class ACropoutPlayerController : APlayerController
@@ -24,14 +24,14 @@ public class ACropoutPlayerController : APlayerController
         return _inputType;
     }
     
-    private EInputType _inputType = EInputType.KeyMouse;
+    private EInputType _inputType = Core.EInputType.KeyMouse;
 
     public EInputType InputType
     {
         set
         {
             _inputType = value;
-            OnKeySwitch.Invoke(_inputType);
+            OnKeySwitch.InnerDelegate.Invoke(_inputType);
         }
     }
     
