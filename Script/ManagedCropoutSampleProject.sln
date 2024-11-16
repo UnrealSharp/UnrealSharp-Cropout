@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagedCropoutSampleProject", "ManagedCropoutSampleProject.csproj", "{E7F31821-7183-421F-B368-2147958D8169}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectGlue", "ProjectGlue\ProjectGlue.csproj", "{456CE0B9-B193-4D13-B5AD-0025BD4E131D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagedCropoutSampleProject", "ManagedCropoutSampleProject\ManagedCropoutSampleProject.csproj", "{2CEE6B59-3118-4036-9321-288F6849015C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,9 +16,13 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E7F31821-7183-421F-B368-2147958D8169}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E7F31821-7183-421F-B368-2147958D8169}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E7F31821-7183-421F-B368-2147958D8169}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E7F31821-7183-421F-B368-2147958D8169}.Release|Any CPU.Build.0 = Release|Any CPU
+		{456CE0B9-B193-4D13-B5AD-0025BD4E131D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{456CE0B9-B193-4D13-B5AD-0025BD4E131D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{456CE0B9-B193-4D13-B5AD-0025BD4E131D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{456CE0B9-B193-4D13-B5AD-0025BD4E131D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CEE6B59-3118-4036-9321-288F6849015C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CEE6B59-3118-4036-9321-288F6849015C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CEE6B59-3118-4036-9321-288F6849015C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CEE6B59-3118-4036-9321-288F6849015C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
