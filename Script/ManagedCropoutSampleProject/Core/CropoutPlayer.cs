@@ -68,7 +68,7 @@ public class ACropoutPlayer : APawn
     [UProperty(PropertyFlags.BlueprintReadOnly | PropertyFlags.EditDefaultsOnly, Category = "Interaction")]
     public UNiagaraSystem? TargetEffect { get; set; }
     
-    APlayerController? PlayerController => (APlayerController) Controller;
+    private APlayerController PlayerController => (APlayerController) Controller;
 
     private float _zoomValue = 0.5f;
     private float _zoomDirection;
