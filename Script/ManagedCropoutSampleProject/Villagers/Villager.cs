@@ -12,4 +12,16 @@ public interface IVillager
 
     [UFunction(FunctionFlags.BlueprintCallable)]
     public void ChangeJob(FName newJob);
+    
+    [UFunction(FunctionFlags.BlueprintCallable)]
+    public void PlayWorkAnim(float delay);
+
+    [UFunction(FunctionFlags.BlueprintCallable)]
+    public float PlayDeliverAnim(float progressBuilding);
+    
+    [UFunction(FunctionFlags.BlueprintCallable)]
+    public void ReturnToDefaultBt();
+    
+    [UFunction(FunctionFlags.BlueprintCallable)]
+    public float ProgressBuilding(float investedTime);
 }
