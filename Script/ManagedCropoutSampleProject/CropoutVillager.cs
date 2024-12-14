@@ -27,7 +27,7 @@ public class ACropoutVillager : APawn, IVillager
         
         ChangeJob(actor.Tags[0]);
 
-        IGameInstance gameInstance = (IGameInstance) UGameplayStatics.GetGameInstance(this);
+        IGameInstance gameInstance = (IGameInstance) UGameplayStatics.GetGameInstance();
         gameInstance.UpdateAllVillagers();
     }
 

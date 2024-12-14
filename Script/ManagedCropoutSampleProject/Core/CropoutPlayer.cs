@@ -170,7 +170,7 @@ public class ACropoutPlayer : APawn
         {
             villager.Action(_villagerAction);
             
-            SystemLibrary.ClearAndInvalidateTimerHandle(this, ref updatePathHandle);
+            SystemLibrary.ClearAndInvalidateTimerHandle(ref updatePathHandle);
             _targetEffectComponent.DestroyComponent(this);
             _selected = null;
         }
@@ -257,12 +257,12 @@ public class ACropoutPlayer : APawn
     {
         if (_selected == null)
         {
-            SystemLibrary.ClearAndInvalidateTimerHandle(this, ref updatePathHandle);
+            SystemLibrary.ClearAndInvalidateTimerHandle(ref updatePathHandle);
             return;
         }
 
 
-        UNavigationPath newPath = UNavigationSystemV1.FindPathToLocationSynchronously(this, PlayerCollision.WorldLocation, _selected.ActorLocation);
+        UNavigationPath newPath = UNavigationSystemV1.FindPathToLocationSynchronously(PlayerCollision.WorldLocation, _selected.ActorLocation);
         
         if (newPath.PathPoints.Count == 0)
         {
@@ -328,7 +328,7 @@ public class ACropoutPlayer : APawn
         
         if (overlappingActors.Count == 0)
         {
-            SystemLibrary.ClearAndInvalidateTimerHandle(this, ref _closestHoverCheckHandle);
+            SystemLibrary.ClearAndInvalidateTimerHandle(ref _closestHoverCheckHandle);
             return;
         }
         
@@ -459,7 +459,7 @@ public class ACropoutPlayer : APawn
                 target.Location = new FVector(origin.X, origin.Y, 20.0f);
 
                 double x = MathLibrary.GetAbsMax2D(new FVector2D(extent.X, extent.Y)) / 50.0f;
-                double y = Math.Sin(SystemLibrary.GetGameTimeInSeconds(this) * 5.0f) * 0.25;
+                double y = Math.Sin(SystemLibrary.GetGameTimeInSeconds() * 5.0f) * 0.25;
 
                 double newScale = x + y + 1;
                 target.Scale = new FVector(newScale, newScale, 1.0f);
@@ -472,7 +472,7 @@ public class ACropoutPlayer : APawn
                 target.Scale.Z = 1.0f;
             }
             
-            double worldDeltaSeconds = UGameplayStatics.GetWorldDeltaSeconds(this);
+            double worldDeltaSeconds = UGameplayStatics.GetWorldDeltaSeconds();
             FTransform newTransform = MathLibrary.TInterpTo(CursorMesh.WorldTransform, target, worldDeltaSeconds.ToFloat(), 12.0f);
             CursorMesh.SetWorldTransform(newTransform, false, out _, false);
         }
