@@ -2,7 +2,9 @@
 using ManagedCropoutSampleProject.Villagers;
 using UnrealSharp;
 using UnrealSharp.Attributes;
+using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
+using UnrealSharp.UnrealSharpCore;
 
 namespace ManagedCropoutSampleProject;
 
@@ -27,7 +29,7 @@ public class ACropoutVillager : APawn, IVillager
         
         ChangeJob(actor.Tags[0]);
 
-        IGameInstance gameInstance = (IGameInstance) UGameplayStatics.GetGameInstance();
+        IGameInstance gameInstance = (IGameInstance) UGameplayStatics.GameInstance;
         gameInstance.UpdateAllVillagers();
     }
 

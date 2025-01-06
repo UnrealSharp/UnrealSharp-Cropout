@@ -1,18 +1,19 @@
-﻿using ManagedCropoutSampleProject.Villagers;
+﻿using ManagedCropoutSampleProject.Interactable;
+using ManagedCropoutSampleProject.Villagers;
 using UnrealSharp;
 using UnrealSharp.Attributes;
+using UnrealSharp.CommonUI;
 using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
 using UnrealSharp.EnhancedInput;
 using UnrealSharp.InputCore;
 using UnrealSharp.NavigationSystem;
 using UnrealSharp.Niagara;
-using UnrealSharp.SlateCore;
 
 namespace ManagedCropoutSampleProject.Core;
 
 [UClass]
-public class ACropoutPlayer : APawn
+public class ACropoutPlayer : APawn, IPlayer
 {
     [UProperty(DefaultComponent = true, RootComponent = true)]
     public USceneComponent Root { get; set; }
@@ -62,11 +63,17 @@ public class ACropoutPlayer : APawn
     [UProperty(PropertyFlags.EditAnywhere, Category = "Interaction")]
     public UInputAction VillagerModeAction { get; set; }
     
+    [UProperty(PropertyFlags.EditAnywhere, Category = "Interaction")]
+    public UInputAction BuildMove { get; set; }
+    
     [UProperty(PropertyFlags.BlueprintReadOnly, Category = "Interaction")]
     public AActor? HoveredActor { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly | PropertyFlags.EditDefaultsOnly, Category = "Interaction")]
     public UNiagaraSystem? TargetEffect { get; set; }
+    
+    [UProperty(PropertyFlags.EditAnywhere)]
+    public UMaterialParameterCollection CropoutMaterialCollection { get; set; }
     
     APlayerController? PlayerController => (APlayerController) Controller;
 
@@ -75,6 +82,12 @@ public class ACropoutPlayer : APawn
     private FVector _targetHandle;
     private FVector _storedMove;
     private EInputType _inputType = EInputType.KeyMouse;
+
+    private TSubclassOf<AInteractable> _targetSpawnClass;
+    private IDictionary<EResourceType, int>? _resourceCost;
+    public AInteractable? spawn;
+    private UStaticMeshComponent? spawnOverlay;
+    private bool canDrop;
 
     private AActor? _villagerAction;
     private AActor? _selected;
@@ -115,21 +128,40 @@ public class ACropoutPlayer : APawn
         enhancedInputComponent.BindAction(SpinAction, ETriggerEvent.Triggered, Spin);
         enhancedInputComponent.BindAction(DragMoveAction, ETriggerEvent.Triggered, DragMove);
         
-        // TODO: Uncomment when we have implemented the action system in C#
-        // enhancedInputComponent.BindAction(VillagerModeAction, ETriggerEvent.Triggered, VillagerMode_Triggered);
-        // enhancedInputComponent.BindAction(VillagerModeAction, ETriggerEvent.Started, VillagerMode_Started);
-        // enhancedInputComponent.BindAction(VillagerModeAction, ETriggerEvent.Canceled, VillagerMode_Canceled);
-        // enhancedInputComponent.BindAction(VillagerModeAction, ETriggerEvent.Completed, VillagerMode_Completed);
+        enhancedInputComponent.BindAction(VillagerModeAction, ETriggerEvent.Triggered, VillagerMode_Triggered);
+        enhancedInputComponent.BindAction(VillagerModeAction, ETriggerEvent.Started, VillagerMode_Started);
+        enhancedInputComponent.BindAction(VillagerModeAction, ETriggerEvent.Canceled, VillagerMode_Canceled);
+        enhancedInputComponent.BindAction(VillagerModeAction, ETriggerEvent.Completed, VillagerMode_Completed);
+        
+        enhancedInputComponent.BindAction(BuildMove, ETriggerEvent.Triggered, Build_Move_Triggered);
+        enhancedInputComponent.BindAction(BuildMove, ETriggerEvent.Completed, Build_Move_Completed);
+    }
+    
+    [UFunction]
+    void Build_Move_Triggered(FInputActionValue value, float f, float arg3, UInputAction arg4)
+    {
+        UpdateBuildAsset();
+    }
+    
+    [UFunction]
+    void Build_Move_Completed(FInputActionValue value, float f, float arg3, UInputAction arg4)
+    {
+        if (spawn == null)
+        {
+            return;
+        }
+        
+        spawn.SetActorLocation(ConvertToSteppedPos(spawn.ActorLocation), false, out _, false);
     }
 
     [UFunction]
-    void VillagerMode_Triggered(FInputActionValue value)
+    void VillagerMode_Triggered(FInputActionValue value, float f, float arg3, UInputAction arg4)
     {
         _villagerAction = HoveredActor;
     }
     
     [UFunction]
-    void VillagerMode_Started(FInputActionValue value)
+    void VillagerMode_Started(FInputActionValue value, float f, float arg3, UInputAction arg4)
     {
         if (!SingleTouchCheck())
         {
@@ -149,22 +181,15 @@ public class ACropoutPlayer : APawn
     }
     
     [UFunction]
-    void VillagerMode_Canceled(FInputActionValue value)
+    void VillagerMode_Canceled(FInputActionValue value, float f, float arg3, UInputAction arg4)
     {
-        VillagerMode_Completed(value);
+        VillagerMode_Completed(value, f, arg3, arg4);
     }
     
     [UFunction]
-    void VillagerMode_Completed(FInputActionValue value)
+    void VillagerMode_Completed(FInputActionValue value, float f, float arg3, UInputAction arg4)
     {
-        FModifyContextOptions modifyContextOptions = new FModifyContextOptions
-        {
-            IgnoreAllPressedKeysUntilRelease = true,
-            ForceImmediately = true,
-            NotifyUserSettings = false
-        };
-
-        RemoveMappingContext(DragMoveMappingContext, modifyContextOptions);
+        RemoveMappingContext(DragMoveMappingContext);
 
         if (_villagerAction != null && _villagerAction.IsValid && _selected is IVillager villager)
         {
@@ -205,13 +230,19 @@ public class ACropoutPlayer : APawn
         AddActorLocalRotation(new FRotator(0.0f, value.GetAxis1D(), 0.0f), false, out _, false);
     }
     
-    // TODO: Support BlueprintCallable interface methods from C++.
-    [UFunction(FunctionFlags.BlueprintEvent)]
-    public extern void AddMappingContext(UInputMappingContext mappingContext, FModifyContextOptions options = default);
+    public void AddMappingContext(UInputMappingContext mappingContext, FModifyContextOptions options = default)
+    {
+        APlayerController playerController = UGameplayStatics.GetPlayerController(0);
+        UEnhancedInputLocalPlayerSubsystem enhancedInputLocalPlayerSubsystem = GetLocalPlayerSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController);
+        enhancedInputLocalPlayerSubsystem.AddMappingContext(mappingContext, 0, options);
+    }
     
-    // TODO: Support BlueprintCallable interface methods from C++.
-    [UFunction(FunctionFlags.BlueprintEvent)]
-    public extern void RemoveMappingContext(UInputMappingContext mappingContext, FModifyContextOptions options = default);
+    public void RemoveMappingContext(UInputMappingContext mappingContext)
+    {
+        APlayerController playerController = UGameplayStatics.GetPlayerController(0);
+        UEnhancedInputLocalPlayerSubsystem enhancedInputLocalPlayerSubsystem = GetLocalPlayerSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController);
+        enhancedInputLocalPlayerSubsystem.RemoveMappingContext(mappingContext);
+    }
 
     bool SingleTouchCheck()
     {
@@ -260,8 +291,7 @@ public class ACropoutPlayer : APawn
             SystemLibrary.ClearAndInvalidateTimerHandle(ref updatePathHandle);
             return;
         }
-
-
+        
         UNavigationPath newPath = UNavigationSystemV1.FindPathToLocationSynchronously(PlayerCollision.WorldLocation, _selected.ActorLocation);
         
         if (newPath.PathPoints.Count == 0)
@@ -459,7 +489,7 @@ public class ACropoutPlayer : APawn
                 target.Location = new FVector(origin.X, origin.Y, 20.0f);
 
                 double x = MathLibrary.GetAbsMax2D(new FVector2D(extent.X, extent.Y)) / 50.0f;
-                double y = Math.Sin(SystemLibrary.GetGameTimeInSeconds() * 5.0f) * 0.25;
+                double y = Math.Sin(SystemLibrary.GameTimeInSeconds * 5.0f) * 0.25;
 
                 double newScale = x + y + 1;
                 target.Scale = new FVector(newScale, newScale, 1.0f);
@@ -472,7 +502,7 @@ public class ACropoutPlayer : APawn
                 target.Scale.Z = 1.0f;
             }
             
-            double worldDeltaSeconds = UGameplayStatics.GetWorldDeltaSeconds();
+            double worldDeltaSeconds = UGameplayStatics.WorldDeltaSeconds;
             FTransform newTransform = MathLibrary.TInterpTo(CursorMesh.WorldTransform, target, worldDeltaSeconds.ToFloat(), 12.0f);
             CursorMesh.SetWorldTransform(newTransform, false, out _, false);
         }
@@ -597,5 +627,173 @@ public class ACropoutPlayer : APawn
         postProcessSettings.DepthOfFieldSensorWidth = 150.0f;
         postProcessSettings.DepthOfFieldFstop = 3.0f;
         PlayerCamera.PostProcessSettings = postProcessSettings;
+    }
+
+    void CreateBuildOverlay()
+    {
+        if (spawnOverlay != null)
+        {
+            return;
+        }
+        
+        GetActorBounds(false, out FVector origin, out FVector extent);
+        FTransform buildTransform = new FTransform
+        {
+            Scale = extent / 50.0f,
+        };
+        spawnOverlay = AddComponentByClass<UStaticMeshComponent>(true, buildTransform);
+        spawnOverlay.AttachToComponent(spawn.Mesh, FName.None, EAttachmentRule.SnapToTarget,
+            EAttachmentRule.KeepWorld, EAttachmentRule.KeepWorld, true);
+        
+        UpdateBuildAsset();
+    }
+
+    void UpdateBuildAsset()
+    {
+        if (spawn != null)
+        {
+            return;
+        }
+
+        FVector targetLocation = ConvertToSteppedPos(FVector.Zero);
+        FVector newLocation = MathLibrary.VInterpTo(spawn.ActorLocation, targetLocation, UGameplayStatics.WorldDeltaSeconds.ToFloat(), 10.0f);
+        spawn.SetActorLocation(newLocation, false, out _, false);
+        
+        spawn.GetOverlappingActors(out IList<AActor> overlappingActors, typeof(AInteractable));
+        canDrop = overlappingActors.Count > 0 && CornersInNav();
+
+        FLinearColor color;
+        color.R = targetLocation.X.ToFloat();
+        color.G = targetLocation.Y.ToFloat();
+        color.B = targetLocation.Z.ToFloat();
+        color.A = canDrop ? 1.0f : 0.0f;
+        MaterialLibrary.SetVectorParameterValue(CropoutMaterialCollection, "TargetPosition", color);
+    }
+
+    bool CornersInNav()
+    {
+        bool MultiLineTrace(FVector start, FVector end, out IList<FHitResult> hitResults)
+        {
+            return SystemLibrary.MultiLineTraceByChannel(start, end, ETraceChannel.Visibility.ToQuery(), false, 
+                new List<AActor>(), EDrawDebugTrace.None, out hitResults, true);
+        }
+        
+        SystemLibrary.GetComponentBounds(spawn.Box, out FVector origin, out FVector extent, out float radius);
+        
+        double multipliedX = extent.X * 1.05f;
+        double multipliedY = extent.Y * 1.05f;
+
+        FVector start = origin;
+        start.Z = 100;
+        start.X += multipliedX;
+        start.Y += multipliedY;
+        
+        FVector end = start;
+        end.Z = -1;
+        
+        if (!MultiLineTrace(start, end, out IList<FHitResult> hitResults))
+        {
+            return false;
+        }
+
+        start = origin;
+        start.X += multipliedX * -1;
+        start.Y += multipliedY;
+        start.Z = 100;
+        
+        end = start;
+        end.Z = -1;
+        
+        if (!MultiLineTrace(start, end, out hitResults))
+        {
+            return false;
+        }
+        
+        start = origin;
+        start.X += multipliedY;
+        start.Y += multipliedX * -1;
+        start.Z = 100;
+        
+        end = start;
+        end.Z = -1;
+        
+        if (!MultiLineTrace(start, end, out hitResults))
+        {
+            return false;
+        }
+        
+        start = origin;
+        start.X += multipliedY * -1;
+        start.Y += multipliedX * -1;
+        start.Z = 100;
+        
+        end = start;
+        end.Z = -1;
+        
+        if (!MultiLineTrace(start, end, out hitResults))
+        {
+            return false;
+        }
+        
+        return true;
+    }
+
+    FVector ConvertToSteppedPos(FVector A)
+    {
+        FVector b = A / 200.0f;
+        b.X = Math.Round(b.X) * 200.0f;
+        b.Y = Math.Round(b.Y) * 200.0f;
+        return b;
+    }
+
+    public void BeginBuild(TSubclassOf<AInteractable> targetClass, IDictionary<EResourceType, int> resourceCost)
+    {
+        _targetSpawnClass = targetClass;
+        _resourceCost = resourceCost;
+
+        if (spawn != null)
+        {
+            spawn.DestroyActor();
+        }
+        
+        FTransform spawnTransform = new FTransform
+        {
+            Location = ActorLocation
+        };
+        
+        spawn = SpawnActor(targetClass, spawnTransform);
+        spawn.PlacementMode();
+        CreateBuildOverlay();
+    }
+
+    public void SpawnBuildTarget()
+    {
+        if (!canDrop)
+        {
+            return;
+        }
+
+        AInteractable interactable = SpawnActor(_targetSpawnClass, spawn.ActorTransform);
+        interactable.SetProgressionState(0.0f);
+    }
+
+    private void RemoveResources()
+    {
+        
+    }
+
+    public void SwitchBuildMode(bool switchBuildMode)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void AddUI(TSubclassOf<UCommonActivatableWidget> widget)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void RemoveCurrentUILayer()
+    {
+        throw new NotImplementedException();
     }
 }

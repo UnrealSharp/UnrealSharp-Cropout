@@ -2,6 +2,7 @@
 using UnrealSharp.Attributes;
 using UnrealSharp.Engine;
 using UnrealSharp.InputCore;
+using UnrealSharp.UMG;
 
 namespace ManagedCropoutSampleProject.Core;
 
@@ -28,6 +29,7 @@ public class ACropoutPlayerController : APlayerController
 
     public EInputType InputType
     {
+        get => _inputType;
         set
         {
             _inputType = value;
@@ -41,11 +43,34 @@ public class ACropoutPlayerController : APlayerController
         base.BeginPlay();
     }
 
-    void SetupInput()
+    public void SetupInput()
     {
         InputComponent.BindAction("KeyDetect", EInputEvent.IE_Pressed, KeyDetect);
         InputComponent.BindAxis("MouseMove", MouseMove);
         InputComponent.BindAction("TouchDetect", EInputEvent.IE_Pressed, TouchDetect);
+    }
+
+    [UFunction]
+    public void OnNewInput(EInputType newInput)
+    {
+        APlayerController controller = UGameplayStatics.GetPlayerController(0);
+        controller.ShowMouseCursor = false;
+        
+        switch (newInput)
+        {
+            case EInputType.Gamepad:
+                WidgetLibrary.SetInputMode_GameOnly(controller);
+                break;
+            case EInputType.KeyMouse:
+                controller.ShowMouseCursor = true;
+                break;
+            default:
+            case EInputType.Touch:
+                WidgetLibrary.SetInputModeGameAndUI(controller, null);
+                break;
+        }
+        
+        WidgetLibrary.SetFocusToGameViewport();
     }
     
     [UFunction]
