@@ -320,7 +320,7 @@ public class ACropoutPlayer : APawn, IPlayer
 
     public override void ActorEndOverlap(AActor otherActor)
     {
-        GetOverlappingActors(out var overlappingActors);
+         GetOverlappingActors<AActor>(out var overlappingActors);
 
         if (overlappingActors.Count == 0)
         {
