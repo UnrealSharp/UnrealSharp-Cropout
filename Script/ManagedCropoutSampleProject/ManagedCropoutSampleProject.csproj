@@ -8,12 +8,17 @@
     <EnableDynamicLoading>true</EnableDynamicLoading>
   </PropertyGroup>
   <ItemGroup>
+    
     <Reference Include="UnrealSharp">
       <HintPath>..\..\Plugins\UnrealSharp\Binaries\Managed\net9.0\UnrealSharp.dll</HintPath>
     </Reference>
 
     <Reference Include="UnrealSharp.Core">
       <HintPath>..\..\Plugins\UnrealSharp\Binaries\Managed\net9.0\UnrealSharp.Core.dll</HintPath>
+    </Reference>
+
+    <Reference Include="UnrealSharp.Log">
+      <HintPath>..\..\Plugins\UnrealSharp\Binaries\Managed\net9.0\UnrealSharp.Log.dll</HintPath>
     </Reference>
     
     <Analyzer Include="..\..\Plugins\UnrealSharp\Binaries\Managed\UnrealSharp.SourceGenerators.dll" />

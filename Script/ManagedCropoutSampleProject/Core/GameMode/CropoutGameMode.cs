@@ -7,6 +7,13 @@ namespace ManagedCropoutSampleProject.Core.GameMode;
 [UClass]
 public class ACropoutGameMode : AGameModeBase, IResourceInterface
 {
+    public a
+    protected override void BeginPlay()
+    {
+        
+        base.BeginPlay();
+    }
+
     public void RemoveResource(KeyValuePair<EResourceType, int> resource)
     {
         throw new NotImplementedException();

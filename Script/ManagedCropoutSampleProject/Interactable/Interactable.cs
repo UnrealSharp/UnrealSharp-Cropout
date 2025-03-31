@@ -22,6 +22,25 @@ public class AInteractable : AActor
     public UBoxComponent Box { get; set; }
     
     private float _progressionState;
+
+    public float ProgressionState
+    {
+        get => _progressionState;
+        set
+        {
+            _progressionState = value;
+
+            if (RequireBuild)
+            {
+                return;
+            }
+        
+            Tags.Add("Build");
+            UStaticMesh newMesh = MeshList[MathLibrary.Floor(_progressionState)];
+            Mesh.SetStaticMesh(newMesh);
+        }
+    }
+    
     public bool RequireBuild;
 
     public void PlacementMode()
@@ -29,19 +48,5 @@ public class AInteractable : AActor
         enableGroundBlend = false;
         Mesh.SetStaticMesh(MeshList[0]);
         Tags.Add("PlacementMode");
-    }
-
-    public void SetProgressionState(float progression)
-    {
-        _progressionState = progression;
-
-        if (RequireBuild)
-        {
-            return;
-        }
-        
-        Tags.Add("Build");
-        UStaticMesh newMesh = MeshList[MathLibrary.Floor(_progressionState)];
-        Mesh.SetStaticMesh(newMesh);
     }
 }

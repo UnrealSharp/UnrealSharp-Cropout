@@ -15,9 +15,13 @@ public delegate void OnKeySwitchDelegate(EInputType newInput);
 [UClass]
 public class ACropoutPlayerController : APlayerController
 {
+    public ACropoutPlayerController()
+    {
+        ActorTickEnabled = true;
+    }
+    
     [UProperty(PropertyFlags.BlueprintAssignable)]
     public TMulticastDelegate<OnKeySwitchDelegate> OnKeySwitch { get; set; }
-
 
     [UFunction(FunctionFlags.BlueprintPure | FunctionFlags.BlueprintCallable)]
     public EInputType GetInputType()

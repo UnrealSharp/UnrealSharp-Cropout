@@ -774,7 +774,8 @@ public class ACropoutPlayer : APawn, IPlayer
         }
 
         AInteractable interactable = SpawnActor(_targetSpawnClass, spawn.ActorTransform);
-        interactable.SetProgressionState(0.0f);
+        interactable.ProgressionState = 0;
+        RemoveResources();
     }
 
     private void RemoveResources()

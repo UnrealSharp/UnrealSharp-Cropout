@@ -41,4 +41,9 @@ public class UCropoutButton : UCommonButtonBase
         ButtonSize.MinDesiredHeight = minHeight;
         GamepadIcon.InputAction = TriggeringInputAction;
     }
+    
+    public void BindButtonClickedEvent(CommonButtonBaseClicked onButtonBaseClicked)
+    {
+        OnButtonBaseClicked += onButtonBaseClicked;
+    }
 }
