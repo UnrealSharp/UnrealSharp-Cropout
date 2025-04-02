@@ -9,4 +9,5 @@ public enum EResourceType : byte
     Food,
     Wood,
     Stone,
+    Max,
 }

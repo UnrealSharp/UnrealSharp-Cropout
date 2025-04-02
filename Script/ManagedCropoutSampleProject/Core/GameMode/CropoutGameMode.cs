@@ -1,17 +1,36 @@
 ﻿using ManagedCropoutSampleProject.Interactable;
+using UnrealSharp;
 using UnrealSharp.Attributes;
 using UnrealSharp.Engine;
 
 namespace ManagedCropoutSampleProject.Core.GameMode;
 
+[UMultiDelegate]
+public delegate void FOnResourceChanged(EResourceType resourceType, int amount);
+
+[UMultiDelegate]
+public delegate void FOnUpdateVillagers(int villagerCount);
+
 [UClass]
 public class ACropoutGameMode : AGameModeBase, IResourceInterface
 {
-    public a
+    [UProperty(PropertyFlags.BlueprintAssignable)]
+    public TMulticastDelegate<FOnResourceChanged> OnResourceChanged { get; set; }
+    
+    [UProperty(PropertyFlags.BlueprintAssignable)]
+    public TMulticastDelegate<FOnUpdateVillagers> OnUpdateVillagers { get; set; }
+    
+    [UProperty(PropertyFlags.EditDefaultsOnly)]
+    protected TMap<EResourceType, int> Resources { get; set; }
+    
     protected override void BeginPlay()
     {
-        
         base.BeginPlay();
+    }
+
+    private void CreateGameHUD()
+    {
+        
     }
 
     public void RemoveResource(KeyValuePair<EResourceType, int> resource)
@@ -34,8 +53,14 @@ public class ACropoutGameMode : AGameModeBase, IResourceInterface
         throw new NotImplementedException();
     }
 
-    public EResourceType CheckResource(bool isTarget, int amount)
+    public bool CheckResource(EResourceType resourceType, out int amount)
     {
-        throw new NotImplementedException();
+        if (Resources.TryGetValue(resourceType, out amount))
+        {
+            return true;
+        }
+        
+        amount = 0;
+        return false;
     }
 }

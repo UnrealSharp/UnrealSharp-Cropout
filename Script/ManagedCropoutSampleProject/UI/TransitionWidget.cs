@@ -1,6 +1,6 @@
 ﻿using UnrealSharp;
 using UnrealSharp.Attributes;
-using UnrealSharp.Engine;
+using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.UMG;
 
 namespace ManagedCropoutSampleProject.UI;
@@ -8,7 +8,7 @@ namespace ManagedCropoutSampleProject.UI;
 [UClass]
 public class UTransitionWidget : UUserWidget
 {
-    [UProperty(PropertyFlags.Transient), UMetaData("BindWidgetAnim")]
+    [UProperty(PropertyFlags.Transient), BindWidgetAnim]
     public UWidgetAnimation FadeAnimation { get; set; }
 
     public void TransitionIn()

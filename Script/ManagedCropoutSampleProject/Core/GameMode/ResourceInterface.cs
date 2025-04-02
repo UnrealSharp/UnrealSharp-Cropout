@@ -8,5 +8,5 @@ public interface IResourceInterface
     public void AddResource(KeyValuePair<EResourceType, int> resource);
     public IDictionary<EResourceType, int> GetCurrentResources();
     public void RemoveTargetResource(KeyValuePair<EResourceType, int> resource);
-    public EResourceType CheckResource(bool isTarget, int amount);
+    public bool CheckResource(EResourceType resourceType, out int amount);
 }
