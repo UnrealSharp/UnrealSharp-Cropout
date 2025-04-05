@@ -1,6 +1,7 @@
 ﻿using UnrealSharp;
 using UnrealSharp.Attributes;
 using UnrealSharp.Attributes.MetaTags;
+using UnrealSharp.Engine;
 using UnrealSharp.UMG;
 
 namespace ManagedCropoutSampleProject.UI;
@@ -16,20 +17,19 @@ public class UTransitionWidget : UUserWidget
         PlayAnimation(FadeAnimation);
     }
     
-    public async void TransitionOut()
+    public void TransitionOut()
     {
-        try
-        {
-            PlayAnimation(FadeAnimation, 0.0f, 0, EUMGSequencePlayMode.Reverse);
-        
-            int delayMs = (int) (FadeAnimation.EndTime * 1000);
-            await Task.Delay(delayMs).ConfigureWithUnrealContext();
-        
-            RemoveFromParent();
-        }
-        catch (Exception e)
-        {
-            LogCropout.LogError(e.Message);
-        }
+        PlayAnimation(FadeAnimation, 0.0f, 0, EUMGSequencePlayMode.Reverse);
+
+        FLatentActionInfo latentInfo = new FLatentActionInfo();
+        latentInfo.CallbackTarget = this;
+        latentInfo.ExecutionFunction = nameof(OnTransitionInFinished);
+        SystemLibrary.Delay(FadeAnimation.EndTime, latentInfo);
+    }
+    
+    [UFunction]
+    public void OnTransitionInFinished()
+    {
+        RemoveFromParent();
     }
 }

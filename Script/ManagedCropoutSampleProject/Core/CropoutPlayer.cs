@@ -1,4 +1,6 @@
-﻿using ManagedCropoutSampleProject.Interactable;
+﻿using ManagedCropoutSampleProject.Core.GameMode;
+using ManagedCropoutSampleProject.Core.Save;
+using ManagedCropoutSampleProject.Interactable;
 using ManagedCropoutSampleProject.Villagers;
 using UnrealSharp;
 using UnrealSharp.Attributes;
@@ -59,6 +61,9 @@ public class ACropoutPlayer : APawn, IPlayer
     
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Mapping Context")]
     public UInputMappingContext VillagerModeMappingContext { get; set; }
+    
+    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Mapping Context")]
+    public UInputMappingContext BuildModeMappingContext { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere, Category = "Interaction")]
     public UInputAction VillagerModeAction { get; set; }
@@ -141,6 +146,9 @@ public class ACropoutPlayer : APawn, IPlayer
     void Build_Move_Triggered(FInputActionValue value, float f, float arg3, UInputAction arg4)
     {
         UpdateBuildAsset();
+        
+        FVector steppedPos = ConvertToSteppedPos(spawn.ActorLocation);
+        spawn.SetActorLocation(steppedPos);
     }
     
     [UFunction]
@@ -776,16 +784,61 @@ public class ACropoutPlayer : APawn, IPlayer
         AInteractable interactable = SpawnActor(_targetSpawnClass, spawn.ActorTransform);
         interactable.ProgressionState = 0;
         RemoveResources();
+        
+        IGameInstance gameInstance = World.GameInstanceAs<UCropoutGameInstance>();
+        gameInstance.UpdateAllInteractables();
+        UpdateBuildAsset();
     }
 
     private void RemoveResources()
     {
+        ACropoutGameMode gameMode = World.GameModeAs<ACropoutGameMode>();
+        foreach (KeyValuePair<EResourceType, int> resourceCost in _resourceCost)
+        {
+            gameMode.RemoveResource(resourceCost);
+        }
+
+        IDictionary<EResourceType, int> currentResources = gameMode.GetCurrentResources();
         
+        foreach (KeyValuePair<EResourceType, int> resource in currentResources)
+        {
+            int value = _resourceCost[resource.Key];
+            
+            if (value >= resource.Value)
+            {
+                continue;
+            }
+            
+            gameMode.RemoveCurrentActiveWidget();
+            DestroySpawn();
+            break;
+        }
+    }
+
+    public void DestroySpawn()
+    {
+        if (spawn == null || spawnOverlay == null)
+        {
+            throw new NullReferenceException("Spawn or SpawnOverlay is null");
+        }
+        
+        spawn.DestroyActor();
+        spawnOverlay.DestroyComponent(this);
     }
 
     public void SwitchBuildMode(bool switchBuildMode)
     {
-        throw new NotImplementedException();
+        UEnhancedInputLocalPlayerSubsystem subsystem = GetLocalPlayerSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController!);
+        if (switchBuildMode)
+        {
+            subsystem.AddMappingContext(BuildModeMappingContext, 0);
+            subsystem.RemoveMappingContext(VillagerModeMappingContext);
+        }
+        else
+        {
+            subsystem.RemoveMappingContext(BuildModeMappingContext);
+            subsystem.AddMappingContext(VillagerModeMappingContext, 0);
+        }
     }
 
     public void AddUI(TSubclassOf<UCommonActivatableWidget> widget)

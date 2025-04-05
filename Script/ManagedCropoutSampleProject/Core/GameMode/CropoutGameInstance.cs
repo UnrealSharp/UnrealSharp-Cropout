@@ -74,7 +74,7 @@ public class UCropoutGameInstance : UGameInstance, IGameInstance, IPlayer
         try
         {
             Transition(ETransitionType.In);
-            await Task.Delay(1100).ConfigureWithUnrealContext();
+            //await Task.Delay(1100).ConfigureWithUnrealContext();
             UGameplayStatics.OpenLevelBySoftObjectPtr(level);
         }
         catch (Exception e)

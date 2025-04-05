@@ -33,6 +33,9 @@ public class ULayerGameWidget : UCommonActivatableWidget
     public TSubclassOf<UPauseWidget> PauseWidgetClass { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
+    public TSubclassOf<UEndGameWidget> EndGameWidgetClass { get; set; }
+    
+    [UProperty(PropertyFlags.EditDefaultsOnly)]
     public TSubclassOf<UResourceWidget> ResourceWidgetClass { get; set; }
     
     private EResourceType _currentResourceType;
@@ -52,6 +55,13 @@ public class ULayerGameWidget : UCommonActivatableWidget
         base.OnInitialized();
     }
 
+    public void EndGame(bool win)
+    {
+        UEndGameWidget widget = MainStack.PushWidget(EndGameWidgetClass);
+        widget.EndGame(win);
+        widget.ActivateWidget();
+    }
+
     void InitializeWidget()
     {
         ResourceContainer.ClearChildren();
@@ -66,7 +76,8 @@ public class ULayerGameWidget : UCommonActivatableWidget
     
     public void AddStackItem(TSubclassOf<UCommonActivatableWidget> widgetClass)
     {
-        MainStack.PushWidget(widgetClass);
+        UCommonActivatableWidget activatableWidget = MainStack.PushWidget(widgetClass);
+        activatableWidget.ActivateWidget();
     }
     
     public void PullCurrentStackItem()

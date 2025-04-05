@@ -1,5 +1,8 @@
 ﻿using ManagedCropoutSampleProject.Core;
+using ManagedCropoutSampleProject.Core.GameMode;
+using ManagedCropoutSampleProject.UI.Common;
 using ManagedCropoutSampleProject.UI.Elements;
+using UnrealSharp;
 using UnrealSharp.Attributes;
 using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.CommonUI;
@@ -12,7 +15,10 @@ namespace ManagedCropoutSampleProject.UI;
 public class UGameMainWidget : UCommonActivatableWidget
 {
     [UProperty, BindWidget]
-    public UCropoutButton BuildButton { get; set; }
+    protected UCropoutButton BuildButton { get; set; }
+    
+    [UProperty(PropertyFlags.EditDefaultsOnly)]
+    protected TSubclassOf<UCommonActivatableWidget> BuildWidgetClass { get; set; }
 
     public override void Construct()
     {
@@ -26,6 +32,8 @@ public class UGameMainWidget : UCommonActivatableWidget
         playerController.ControlledPawn.EnableInput(playerController);
         playerController.ControlledPawn.ActorTickEnabled = true;
         WidgetLibrary.SetFocusToGameViewport();
+        
+        BuildButton.BindButtonClickedEvent(OnBuildButtonClicked);
     }
 
     [UFunction]
@@ -52,5 +60,12 @@ public class UGameMainWidget : UCommonActivatableWidget
                 WidgetLibrary.SetFocusToGameViewport();
                 break;
         }
+    }
+    
+    [UFunction]
+    public void OnBuildButtonClicked(UCommonButtonBase buttonBase)
+    {
+        ACropoutGameMode gameMode = World.GameModeAs<ACropoutGameMode>();
+        gameMode.AddUI(BuildWidgetClass);
     }
 }

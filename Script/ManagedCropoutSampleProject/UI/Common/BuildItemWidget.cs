@@ -1,8 +1,10 @@
 ﻿using ManagedCropoutSampleProject.Core;
+using ManagedCropoutSampleProject.Core.GameMode;
 using ManagedCropoutSampleProject.Interactable;
 using ManagedCropoutSampleProject.UI.Elements;
 using UnrealSharp;
 using UnrealSharp.Attributes;
+using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.CommonUI;
 using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
@@ -33,15 +35,32 @@ public class UBuildItemWidget : UCommonButtonBase
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
     public TSubclassOf<UCommonActivatableWidget> ConfirmWidgetClass { get; set; }
+    
+    [UProperty(PropertyFlags.Transient), BindWidgetAnim]
+    public UWidgetAnimation Loop_Hover { get; set; }
+    
+    [UProperty(PropertyFlags.Transient), BindWidgetAnim]
+    public UWidgetAnimation Highlight_In { get; set; }
 
     private FResourceInfo _tableData;
     private TSubclassOf<AInteractable> _hardClassRef;
-
-    public override void PreConstruct(bool isDesignTime)
+    private bool _enableBuilding = true;
+    
+    
+    public void InitializeFrom(FResourceInfo inTableData)
     {
-        base.PreConstruct(isDesignTime);
+        _tableData = inTableData;
+        _enableBuilding = true;
+        
         UpdateVisuals();
         PopulateCost();
+    }
+
+    public override void Construct()
+    {
+        ACropoutGameMode gameMode = World.GameModeAs<ACropoutGameMode>();
+        gameMode.OnResourceChanged += OnResourceChanged;
+        base.Construct();
     }
 
     protected override void BP_OnClicked()
@@ -57,12 +76,29 @@ public class UBuildItemWidget : UCommonButtonBase
         player.AddUI(ConfirmWidgetClass);
     }
 
+    protected override void BP_OnHovered()
+    {
+        BaseSize.MinDesiredHeight = 300.0f;
+        PlayAnimation(Loop_Hover);
+        PlayAnimation(Highlight_In);
+        
+        base.BP_OnHovered();
+    }
+
+    protected override void BP_OnUnhovered()
+    {
+        BaseSize.MinDesiredHeight = 250.0f;
+        StopAnimation(Loop_Hover);
+        StopAnimation(Highlight_In);
+        base.BP_OnUnhovered();
+    }
+
     void UpdateVisuals()
     {
         Txt_Title.Text = _tableData.Title;
         Img_Icon.SetBrushFromSoftTexture(_tableData.UIIcon);
         
-        _tableData.TargetClass.LoadAsync(asset =>
+        _tableData.TargetClass.LoadAsync([UFunction](asset) =>
         {
             _hardClassRef = new TSubclassOf<AInteractable>((UClass) asset);
         });
@@ -76,7 +112,7 @@ public class UBuildItemWidget : UCommonButtonBase
         
         foreach (KeyValuePair<EResourceType, int> cost in _tableData.Cost)
         {
-            UBuildItemCostWidget costWidget = CreateWidget<UBuildItemCostWidget>(CostWidgetClass);
+            UBuildItemCostWidget costWidget = CreateWidget(CostWidgetClass);
             costWidget.InitializeFromResourceCost(cost);
             UHorizontalBoxSlot slot = CostContainer.AddChildToHorizontalBox(costWidget);
             slot.Size = new FSlateChildSize
@@ -85,5 +121,24 @@ public class UBuildItemWidget : UCommonButtonBase
                 SizeRule = ESlateSizeRule.Fill
             };
         }
+    }
+
+    [UFunction]
+    public void OnResourceChanged(EResourceType resourceType, int amount)
+    {
+        ACropoutGameMode gameMode = World.GameModeAs<ACropoutGameMode>();
+        _enableBuilding = true;
+        foreach (KeyValuePair<EResourceType, int> costResource in _tableData.Cost)
+        {
+            gameMode.CheckResource(costResource.Key, out int newResourceValue);
+            
+            if (newResourceValue <= costResource.Value)
+            {
+                _enableBuilding = false;
+                break;
+            }
+        }
+        
+        SetIsInteractionEnabled(_enableBuilding);
     }
 }

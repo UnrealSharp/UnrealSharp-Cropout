@@ -14,7 +14,7 @@ public struct FResourceInfo
 	public FText Title;
 
 	[UProperty(PropertyFlags.EditDefaultsOnly)]
-	public TSoftObjectPtr<AInteractable> TargetClass;
+	public TSoftClassPtr<AInteractable> TargetClass;
 
 	[UProperty(PropertyFlags.EditDefaultsOnly)]
 	public TSoftObjectPtr<UTexture2D> UIIcon;

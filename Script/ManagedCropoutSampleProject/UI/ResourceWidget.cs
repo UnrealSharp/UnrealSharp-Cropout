@@ -4,6 +4,8 @@ using UnrealSharp;
 using UnrealSharp.Attributes;
 using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.CommonUI;
+using UnrealSharp.CoreUObject;
+using UnrealSharp.CropoutSampleProject;
 using UnrealSharp.Engine;
 using UnrealSharp.UMG;
 
