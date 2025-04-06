@@ -72,7 +72,7 @@ public class UBuildItemWidget : UCommonButtonBase
             pawnInterface.BeginBuild(_hardClassRef, _tableData.Cost);
         }
 
-        IPlayer player = World.GameMode as IPlayer;
+        ACropoutGameMode player = World.GameModeAs<ACropoutGameMode>();
         player.AddUI(ConfirmWidgetClass);
     }
 

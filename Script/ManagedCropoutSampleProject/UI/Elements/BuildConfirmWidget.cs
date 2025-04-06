@@ -4,6 +4,7 @@ using UnrealSharp.Attributes;
 using UnrealSharp.CommonUI;
 using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
+using UnrealSharp.SlateCore;
 using UnrealSharp.UMG;
 
 namespace ManagedCropoutSampleProject.UI.Elements;
@@ -22,6 +23,17 @@ public class UBuildConfirmWidget : UCommonActivatableWidget
     
     [UProperty(PropertyFlags.BlueprintReadOnly), UMetaData("BindWidget")]
     public UCommonBorder CommonBorder_1 { get; set; }
+    
+    ACropoutPlayer Player => OwningPlayerPawnAs<ACropoutPlayer>();
+    FVectorSpringState SpringState = new FVectorSpringState();
+
+    public override void Construct()
+    {
+        BTN_Place.BindButtonClickedEvent(OnClickPlace);
+        BTN_Cancel.BindButtonClickedEvent(OnClickCancel);
+        BTN_Rotate.BindButtonClickedEvent(OnClickRotate);
+        base.Construct();
+    }
 
     protected override void OnActivated()
     {
@@ -51,6 +63,30 @@ public class UBuildConfirmWidget : UCommonActivatableWidget
         player.SpawnBuildTarget();
     }
 
+    public override void Tick(FGeometry myGeometry, float deltaTime)
+    {
+        base.Tick(myGeometry, deltaTime);
+        
+        ACropoutPlayer cropoutPlayer = OwningPlayerPawnAs<ACropoutPlayer>();
+        
+        if (cropoutPlayer == null)
+        {
+            return;
+        }
+
+        FVector2D current2D = CommonBorder_1.Transform.Translation;
+        FVector current = new FVector(current2D.X, current2D.Y, 0.0f);
+        
+        FVector2D adjustPosition = AdjustPosition();
+        FVector target = new FVector(adjustPosition.X, adjustPosition.Y, 0.0f);
+        
+        FVector newPosition = MathLibrary.VectorSpringInterp(current, target, ref SpringState, 50.0f, 0.5f, deltaTime);
+        
+        FWidgetTransform widgetTransform = CommonBorder_1.Transform;
+        widgetTransform.Translation = new FVector2D(newPosition.X, newPosition.Y);
+        CommonBorder_1.Transform = widgetTransform;
+    }
+
     FVector2D AdjustPosition()
     {
         APlayerController playerController = UGameplayStatics.GetPlayerController(0);
@@ -62,12 +98,31 @@ public class UBuildConfirmWidget : UCommonActivatableWidget
         
         FVector2D scaledScreenPos = screenPosition / viewportScale;
         
-        double scaledX = viewportSize.X * viewportScale;
-        double scaledY = viewportSize.Y * viewportScale;
+        double scaledX = viewportSize.X / viewportScale;
+        double scaledY = viewportSize.Y / viewportScale;
         
         double maxX = double.Clamp(scaledScreenPos.X, 150.0f, scaledX - 150.0f);
         double maxY = double.Clamp(scaledScreenPos.Y, 150.0f, scaledY - 350.0f);
         
         return new FVector2D(maxX, maxY);
+    }
+    
+    [UFunction]
+    private void OnClickRotate(UCommonButtonBase button)
+    {
+        Player.RotateSpawn();
+    }
+    
+    [UFunction]
+    private void OnClickCancel(UCommonButtonBase button)
+    {
+        Player.DestroySpawn();
+        DeactivateWidget();
+    }
+    
+    [UFunction]
+    private void OnClickPlace(UCommonButtonBase button)
+    {
+        Player.SpawnBuildTarget();
     }
 }

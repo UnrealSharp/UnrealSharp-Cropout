@@ -241,6 +241,7 @@ public class ACropoutPlayer : APawn, IPlayer
     public void AddMappingContext(UInputMappingContext mappingContext, FModifyContextOptions options = default)
     {
         APlayerController playerController = UGameplayStatics.GetPlayerController(0);
+        options.ForceImmediately = true;
         UEnhancedInputLocalPlayerSubsystem enhancedInputLocalPlayerSubsystem = GetLocalPlayerSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController);
         enhancedInputLocalPlayerSubsystem.AddMappingContext(mappingContext, 0, options);
     }
@@ -398,12 +399,7 @@ public class ACropoutPlayer : APawn, IPlayer
     private void TrackMove()
     {
         ProjectMouseToGroundPlane(out _, out FVector intersection);
-
-        FVector xOffset = CameraBoom.ForwardVector * (CameraBoom.TargetArmLength - CameraBoom.SocketOffset.X) * -1.0f;
-        FVector zOffset = CameraBoom.UpVector * CameraBoom.SocketOffset.Z;
-        FVector newLocation = (xOffset + zOffset + CameraBoom.WorldLocation) - PlayerCamera.WorldLocation;
-        
-        _storedMove = _targetHandle - intersection - newLocation;
+        _storedMove = _targetHandle - intersection;
         AddActorWorldOffset(new FVector(_storedMove.X, _storedMove.Y, 0), false, out _, false);
     }
 
@@ -658,7 +654,7 @@ public class ACropoutPlayer : APawn, IPlayer
 
     void UpdateBuildAsset()
     {
-        if (spawn != null)
+        if (spawn == null)
         {
             return;
         }
@@ -790,6 +786,27 @@ public class ACropoutPlayer : APawn, IPlayer
         UpdateBuildAsset();
     }
 
+    public void RotateSpawn()
+    {
+        if (spawn == null)
+        {
+            return;
+        }
+        
+        spawn.SetActorRotation(spawn.ActorRotation + new FRotator(0.0f, 90.0f, 0.0f), false);
+    }
+    
+    public void DestroySpawn()
+    {
+        if (spawn == null || spawnOverlay == null)
+        {
+            throw new NullReferenceException("Spawn or SpawnOverlay is null");
+        }
+        
+        spawn.DestroyActor();
+        spawnOverlay.DestroyComponent(this);
+    }
+
     private void RemoveResources()
     {
         ACropoutGameMode gameMode = World.GameModeAs<ACropoutGameMode>();
@@ -815,29 +832,17 @@ public class ACropoutPlayer : APawn, IPlayer
         }
     }
 
-    public void DestroySpawn()
-    {
-        if (spawn == null || spawnOverlay == null)
-        {
-            throw new NullReferenceException("Spawn or SpawnOverlay is null");
-        }
-        
-        spawn.DestroyActor();
-        spawnOverlay.DestroyComponent(this);
-    }
-
     public void SwitchBuildMode(bool switchBuildMode)
     {
-        UEnhancedInputLocalPlayerSubsystem subsystem = GetLocalPlayerSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController!);
         if (switchBuildMode)
         {
-            subsystem.AddMappingContext(BuildModeMappingContext, 0);
-            subsystem.RemoveMappingContext(VillagerModeMappingContext);
+            AddMappingContext(BuildModeMappingContext);
+            RemoveMappingContext(VillagerModeMappingContext);
         }
         else
         {
-            subsystem.RemoveMappingContext(BuildModeMappingContext);
-            subsystem.AddMappingContext(VillagerModeMappingContext, 0);
+            RemoveMappingContext(BuildModeMappingContext);
+            AddMappingContext(VillagerModeMappingContext);
         }
     }
 

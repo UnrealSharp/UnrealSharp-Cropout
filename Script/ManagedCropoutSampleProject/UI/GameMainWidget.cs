@@ -44,19 +44,19 @@ public class UGameMainWidget : UCommonActivatableWidget
         switch (inputType)
         {
             case EInputType.Unknown:
-                WidgetLibrary.SetInputModeGameAndUI(playerController);
+                WidgetLibrary.SetInputModeGameAndUI(playerController, null, EMouseLockMode.DoNotLock, false);
                 WidgetLibrary.SetFocusToGameViewport();
                 break;
             case EInputType.KeyMouse:
                 playerController.ShowMouseCursor = true;
-                WidgetLibrary.SetInputModeGameAndUI(playerController);
+                WidgetLibrary.SetInputModeGameAndUI(playerController, null, EMouseLockMode.DoNotLock, false);
                 break;
             case EInputType.Gamepad:
                 WidgetLibrary.SetInputMode_GameOnly(playerController);
                 WidgetLibrary.SetFocusToGameViewport();
                 break;
             case EInputType.Touch:
-                WidgetLibrary.SetInputModeGameAndUI(playerController);
+                WidgetLibrary.SetInputModeGameAndUI(playerController, null, EMouseLockMode.DoNotLock, false);
                 WidgetLibrary.SetFocusToGameViewport();
                 break;
         }
