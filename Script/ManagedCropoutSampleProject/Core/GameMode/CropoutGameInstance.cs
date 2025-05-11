@@ -104,6 +104,13 @@ public class UCropoutGameInstance : UGameInstance, IGameInstance, IPlayer
         }
     }
 
+    public void UpdateAllResources(TMap<EResourceType, int> resources)
+    {
+        SaveObject = UGameplayStatics.CreateSaveGameObject<UCropoutSaveObject>();
+        SaveObject.Resources.Add(EResourceType.None, 700);
+        Console.WriteLine(SaveObject.Resources[EResourceType.None]);
+    }
+
     public void SaveGame()
     {
         UAsyncActionHandleSaveGame saveGameAction =

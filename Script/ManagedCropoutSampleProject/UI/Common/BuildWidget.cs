@@ -1,4 +1,5 @@
 ﻿using ManagedCropoutSampleProject.Core;
+using ManagedCropoutSampleProject.Interactable;
 using ManagedCropoutSampleProject.UI.Elements;
 using UnrealSharp;
 using UnrealSharp.Attributes;
@@ -39,9 +40,6 @@ public class UBuildWidget : UCommonActivatableWidget
 
     protected override void OnActivated()
     {
-        WidgetLibrary.SetInputModeUIOnly(OwningPlayerController);
-        SetFocus();
-        
         ACropoutPlayer playerPawn = OwningPlayerPawnAs<ACropoutPlayer>();
         playerPawn.ActorTickEnabled = false;
         playerPawn.DisableInput(OwningPlayerController);

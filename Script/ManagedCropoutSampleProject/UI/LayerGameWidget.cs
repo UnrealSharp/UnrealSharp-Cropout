@@ -37,8 +37,8 @@ public class ULayerGameWidget : UCommonActivatableWidget
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
     public TSubclassOf<UResourceWidget> ResourceWidgetClass { get; set; }
-    
-    private EResourceType _currentResourceType;
+
+    private EResourceType _currentResourceType = EResourceType.Food;
     private FTimerHandle _addResourceTimer;
 
     public override void Construct()

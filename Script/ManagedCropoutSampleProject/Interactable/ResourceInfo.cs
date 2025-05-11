@@ -1,11 +1,9 @@
-﻿// ManagedCropoutSampleProject, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-// ManagedCropoutSampleProject.Interactable.FResourceInfo
-
-using ManagedCropoutSampleProject.Interactable;
-using UnrealSharp;
+﻿using UnrealSharp;
 using UnrealSharp.Attributes;
 using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
+
+namespace ManagedCropoutSampleProject.Interactable;
 
 [UStruct]
 public struct FResourceInfo

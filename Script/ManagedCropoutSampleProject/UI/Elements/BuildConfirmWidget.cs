@@ -23,9 +23,9 @@ public class UBuildConfirmWidget : UCommonActivatableWidget
     
     [UProperty(PropertyFlags.BlueprintReadOnly), UMetaData("BindWidget")]
     public UCommonBorder CommonBorder_1 { get; set; }
-    
+
+    private FVectorSpringState SpringState;
     ACropoutPlayer Player => OwningPlayerPawnAs<ACropoutPlayer>();
-    FVectorSpringState SpringState = new FVectorSpringState();
 
     public override void Construct()
     {
@@ -46,7 +46,7 @@ public class UBuildConfirmWidget : UCommonActivatableWidget
         APawn pawn = playerController.ControlledPawn;
         pawn.EnableInput(playerController);
         pawn.ActorTickEnabled = true;
-        WidgetLibrary.SetFocusToGameViewport();
+        WidgetLibrary.SetInputMode_GameOnly(playerController);
 
         FWidgetTransform transform;
         transform.Translation = AdjustPosition();
@@ -66,13 +66,6 @@ public class UBuildConfirmWidget : UCommonActivatableWidget
     public override void Tick(FGeometry myGeometry, float deltaTime)
     {
         base.Tick(myGeometry, deltaTime);
-        
-        ACropoutPlayer cropoutPlayer = OwningPlayerPawnAs<ACropoutPlayer>();
-        
-        if (cropoutPlayer == null)
-        {
-            return;
-        }
 
         FVector2D current2D = CommonBorder_1.Transform.Translation;
         FVector current = new FVector(current2D.X, current2D.Y, 0.0f);
@@ -80,7 +73,7 @@ public class UBuildConfirmWidget : UCommonActivatableWidget
         FVector2D adjustPosition = AdjustPosition();
         FVector target = new FVector(adjustPosition.X, adjustPosition.Y, 0.0f);
         
-        FVector newPosition = MathLibrary.VectorSpringInterp(current, target, ref SpringState, 50.0f, 0.5f, deltaTime);
+        FVector newPosition = MathLibrary.VectorSpringInterp(current, target, ref SpringState, 400.0f, 0.5f, UGameplayStatics.WorldDeltaSeconds.ToFloat(), 1.0f, 0.75f);
         
         FWidgetTransform widgetTransform = CommonBorder_1.Transform;
         widgetTransform.Translation = new FVector2D(newPosition.X, newPosition.Y);
@@ -89,9 +82,14 @@ public class UBuildConfirmWidget : UCommonActivatableWidget
 
     FVector2D AdjustPosition()
     {
-        APlayerController playerController = UGameplayStatics.GetPlayerController(0);
-        ACropoutPlayer pawn = (ACropoutPlayer) playerController.ControlledPawn;
-        UGameplayStatics.ProjectWorldToScreen(playerController, pawn.spawn!.ActorLocation, out FVector2D screenPosition);
+        ACropoutPlayer pawn = (ACropoutPlayer) OwningPlayerController.ControlledPawn;
+        
+        if (pawn.spawn == null)
+        {
+            return FVector2D.Zero;
+        }
+        
+        UGameplayStatics.ProjectWorldToScreen(OwningPlayerController, pawn.spawn.ActorLocation, out FVector2D screenPosition, true);
 
         double viewportScale = UWidgetLayoutLibrary.ViewportScale.ToDouble();
         FVector2D viewportSize = UWidgetLayoutLibrary.ViewportSize;
@@ -102,7 +100,7 @@ public class UBuildConfirmWidget : UCommonActivatableWidget
         double scaledY = viewportSize.Y / viewportScale;
         
         double maxX = double.Clamp(scaledScreenPos.X, 150.0f, scaledX - 150.0f);
-        double maxY = double.Clamp(scaledScreenPos.Y, 150.0f, scaledY - 350.0f);
+        double maxY = double.Clamp(scaledScreenPos.Y, 0, scaledY - 350.0f);
         
         return new FVector2D(maxX, maxY);
     }

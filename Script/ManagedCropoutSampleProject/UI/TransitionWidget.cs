@@ -21,18 +21,12 @@ public class UTransitionWidget : UUserWidget
     {
         PlayAnimation(FadeAnimation, 0.0f, 0, EUMGSequencePlayMode.Reverse);
 
-        FLatentActionInfo latentInfo = new FLatentActionInfo
+        [UFunction]
+        void OnTransitionInFinished()
         {
-            CallbackTarget = this,
-            ExecutionFunction = nameof(OnTransitionInFinished)
-        };
+            RemoveFromParent();
+        }
         
-        SystemLibrary.Delay(FadeAnimation.EndTime, latentInfo);
-    }
-    
-    [UFunction]
-    public void OnTransitionInFinished()
-    {
-        RemoveFromParent();
+        SystemLibrary.Delay(FadeAnimation.EndTime, new FLatentActionInfo(OnTransitionInFinished));
     }
 }

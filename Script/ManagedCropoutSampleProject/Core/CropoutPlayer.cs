@@ -15,7 +15,7 @@ using UnrealSharp.Niagara;
 namespace ManagedCropoutSampleProject.Core;
 
 [UClass]
-public class ACropoutPlayer : APawn, IPlayer
+public partial class ACropoutPlayer : APawn, IPlayer
 {
     [UProperty(DefaultComponent = true, RootComponent = true)]
     public USceneComponent Root { get; set; }
@@ -114,7 +114,6 @@ public class ACropoutPlayer : APawn, IPlayer
     {
         ACropoutPlayerController newPlayerController = (ACropoutPlayerController) newController;
         newPlayerController.OnKeySwitch += OnKeySwitch;
-
         base.Possessed(newController);
     }
 
@@ -146,9 +145,6 @@ public class ACropoutPlayer : APawn, IPlayer
     void Build_Move_Triggered(FInputActionValue value, float f, float arg3, UInputAction arg4)
     {
         UpdateBuildAsset();
-        
-        FVector steppedPos = ConvertToSteppedPos(spawn.ActorLocation);
-        spawn.SetActorLocation(steppedPos);
     }
     
     [UFunction]
@@ -178,7 +174,7 @@ public class ACropoutPlayer : APawn, IPlayer
         
         PositionCheck();
         
-        if (VillagerOverlapCheck(out AActor? overlappedActor))
+        if (VillagerOverlapCheck(out APawn? overlappedActor))
         {
             VillagerSelect(overlappedActor!);
         }
@@ -260,13 +256,13 @@ public class ACropoutPlayer : APawn, IPlayer
             return false;
         }
 
-        PlayerController.GetInputTouchState(ETouchIndex.Touch1, out _, out _, out bool bIsCurrentlyPressed);
+        PlayerController.GetInputTouchState(ETouchIndex.Touch2, out _, out _, out bool bIsCurrentlyPressed);
         return !bIsCurrentlyPressed;
     }
 
-    bool VillagerOverlapCheck(out AActor? overlappedActor)
+    bool VillagerOverlapCheck(out APawn? overlappedActor)
     {
-        GetOverlappingActors(out IList<AActor> overlappingActors);
+        GetOverlappingActors<APawn>(out IList<APawn> overlappingActors);
         
         if (overlappingActors.Count == 0)
         {
@@ -659,12 +655,13 @@ public class ACropoutPlayer : APawn, IPlayer
             return;
         }
 
-        FVector targetLocation = ConvertToSteppedPos(FVector.Zero);
+        ProjectMouseToGroundPlane(out _, out FVector intersection);
+        FVector targetLocation = ConvertToSteppedPos(intersection);
         FVector newLocation = MathLibrary.VInterpTo(spawn.ActorLocation, targetLocation, UGameplayStatics.WorldDeltaSeconds.ToFloat(), 10.0f);
         spawn.SetActorLocation(newLocation, false, out _, false);
         
         spawn.GetOverlappingActors(out IList<AActor> overlappingActors, typeof(AInteractable));
-        canDrop = overlappingActors.Count > 0 && CornersInNav();
+        canDrop = overlappingActors.Count == 0 && CornersInNav();
 
         FLinearColor color;
         color.R = targetLocation.X.ToFloat();

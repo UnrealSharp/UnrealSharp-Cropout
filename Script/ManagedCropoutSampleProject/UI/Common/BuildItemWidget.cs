@@ -1,4 +1,5 @@
-﻿using ManagedCropoutSampleProject.Core;
+﻿using System.Diagnostics;
+using ManagedCropoutSampleProject.Core;
 using ManagedCropoutSampleProject.Core.GameMode;
 using ManagedCropoutSampleProject.Interactable;
 using ManagedCropoutSampleProject.UI.Elements;
@@ -6,6 +7,7 @@ using UnrealSharp;
 using UnrealSharp.Attributes;
 using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.CommonUI;
+using UnrealSharp.Core;
 using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
 using UnrealSharp.UMG;
@@ -41,19 +43,24 @@ public class UBuildItemWidget : UCommonButtonBase
     
     [UProperty(PropertyFlags.Transient), BindWidgetAnim]
     public UWidgetAnimation Highlight_In { get; set; }
+    
+    [UProperty]
+    private TSubclassOf<AInteractable> InteractableClass { get; set; }
 
-    private FResourceInfo _tableData;
-    private TSubclassOf<AInteractable> _hardClassRef;
+    [UProperty(PropertyFlags.EditAnywhere)]
+    private FResourceInfo TableData { get; set; }
+
     private bool _enableBuilding = true;
     
     
     public void InitializeFrom(FResourceInfo inTableData)
     {
-        _tableData = inTableData;
+        TableData = inTableData;
         _enableBuilding = true;
-        
+
         UpdateVisuals();
         PopulateCost();
+        CheckIfItemEnabled();
     }
 
     public override void Construct()
@@ -69,7 +76,7 @@ public class UBuildItemWidget : UCommonButtonBase
         
         if (pawnInterface != null)
         {
-            pawnInterface.BeginBuild(_hardClassRef, _tableData.Cost);
+            pawnInterface.BeginBuild(InteractableClass, TableData.Cost);
         }
 
         ACropoutGameMode player = World.GameModeAs<ACropoutGameMode>();
@@ -93,24 +100,27 @@ public class UBuildItemWidget : UCommonButtonBase
         base.BP_OnUnhovered();
     }
 
-    void UpdateVisuals()
+    async void UpdateVisuals()
     {
-        Txt_Title.Text = _tableData.Title;
-        Img_Icon.SetBrushFromSoftTexture(_tableData.UIIcon);
-        
-        _tableData.TargetClass.LoadAsync([UFunction](asset) =>
+        try
         {
-            _hardClassRef = new TSubclassOf<AInteractable>((UClass) asset);
-        });
+            Txt_Title.Text = TableData.Title;
+            Img_Icon.SetBrushFromSoftTexture(TableData.UIIcon);
         
-        BG.BrushColor = MathLibrary.Conv_ColorToLinearColor(_tableData.TabColor);
+            InteractableClass = await TableData.TargetClass.LoadAsync();
+            BG.BrushColor = MathLibrary.Conv_ColorToLinearColor(TableData.TabColor);
+        }
+        catch (Exception e)
+        {
+            LogCropout.Log(e.Message);
+        }
     }
 
     void PopulateCost()
     {
         CostContainer.ClearChildren();
         
-        foreach (KeyValuePair<EResourceType, int> cost in _tableData.Cost)
+        foreach (KeyValuePair<EResourceType, int> cost in TableData.Cost)
         {
             UBuildItemCostWidget costWidget = CreateWidget(CostWidgetClass);
             costWidget.InitializeFromResourceCost(cost);
@@ -126,9 +136,20 @@ public class UBuildItemWidget : UCommonButtonBase
     [UFunction]
     public void OnResourceChanged(EResourceType resourceType, int amount)
     {
+        CheckIfItemEnabled();
+    }
+
+    void CheckIfItemEnabled()
+    {
         ACropoutGameMode gameMode = World.GameModeAs<ACropoutGameMode>();
+        
+        if (!gameMode)
+        {
+            return;
+        }
+        
         _enableBuilding = true;
-        foreach (KeyValuePair<EResourceType, int> costResource in _tableData.Cost)
+        foreach (KeyValuePair<EResourceType, int> costResource in TableData.Cost)
         {
             gameMode.CheckResource(costResource.Key, out int newResourceValue);
             
