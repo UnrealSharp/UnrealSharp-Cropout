@@ -73,7 +73,7 @@ public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
         UAudioModulationStatics.SetGlobalControlBusMixValue(CropoutPianoBus, 1.0f);
     }
 
-    public void RemoveResource(KeyValuePair<EResourceType, int> resource)
+    public void RemoveTargetResource(KeyValuePair<EResourceType, int> resource)
     {
         if (Resources.TryGetValue(resource.Key, out int currentAmount))
         {
@@ -85,6 +85,11 @@ public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
         {
             EndGame(false);
         }
+    }
+    
+    public void RemoveResource(out KeyValuePair<EResourceType, int> resource)
+    {
+        throw new NotImplementedException();
     }
 
     public void AddResource(KeyValuePair<EResourceType, int> resource)

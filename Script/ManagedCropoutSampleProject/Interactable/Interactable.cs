@@ -95,6 +95,11 @@ public class AInteractable : AActor
     {
         return 0.0f;
     }
+
+    public void PlayWobble()
+    {
+        
+    }
     
     public void PlacementMode()
     {

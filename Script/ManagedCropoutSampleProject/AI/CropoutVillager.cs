@@ -1,9 +1,11 @@
 ﻿using ManagedCropoutSampleProject.AI;
 using ManagedCropoutSampleProject.Core.GameMode;
 using ManagedCropoutSampleProject.Core.Save;
+using ManagedCropoutSampleProject.Interactable;
 using ManagedCropoutSampleProject.Villagers;
 using UnrealSharp;
 using UnrealSharp.AIModule;
+using UnrealSharp.AnimGraphRuntime;
 using UnrealSharp.Attributes;
 using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
@@ -11,7 +13,7 @@ using UnrealSharp.Engine;
 namespace ManagedCropoutSampleProject;
 
 [UClass]
-public partial class ACropoutVillager : APawn, IVillager
+public partial class ACropoutVillager : APawn, IVillager, IResourceInterface
 {
     [UProperty(DefaultComponent = true, RootComponent = true)]
     public UCapsuleComponent Capsule { get; set; }
@@ -19,7 +21,7 @@ public partial class ACropoutVillager : APawn, IVillager
     [UProperty(DefaultComponent = true, AttachmentComponent = nameof(Capsule))]
     public USkeletalMeshComponent SkeletalMesh { get; set; }
     
-    [UProperty(DefaultComponent = true, AttachmentComponent = nameof(SkeletalMesh))]
+    [UProperty(DefaultComponent = true, AttachmentComponent = nameof(SkeletalMesh), AttachmentSocket = "hand_rSocket")]
     public UStaticMeshComponent Tool { get; set; }
     
     [UProperty(DefaultComponent = true, AttachmentComponent = nameof(SkeletalMesh))]
@@ -43,6 +45,12 @@ public partial class ACropoutVillager : APawn, IVillager
     [UProperty(PropertyFlags.EditDefaultsOnly)]
     protected UDataTable JobsDataTable { get; set; }
     
+    [UProperty(PropertyFlags.EditDefaultsOnly)]
+    protected UStaticMesh CrateMesh { get; set; }
+    
+    [UProperty(PropertyFlags.EditDefaultsOnly)]
+    protected UAnimMontage PutDownAnim { get; set; }
+    
     [UProperty(PropertyFlags.BlueprintReadOnly)]
     public int Quantity { get; set; }
     
@@ -57,6 +65,9 @@ public partial class ACropoutVillager : APawn, IVillager
 
     [UProperty(PropertyFlags.EditDefaultsOnly)]
     protected IList<TSoftObjectPtr<USkeletalMesh>> AllHairMeshes { get; set; }
+
+    [UProperty(PropertyFlags.BlueprintReadOnly)]
+    protected EResourceType ResourcesHeld { get; set; }
 
     protected override void BeginPlay()
     {
@@ -114,12 +125,37 @@ public partial class ACropoutVillager : APawn, IVillager
 
     public float PlayDeliverAnim()
     {
-        throw new NotImplementedException();
+        PlayVillagerAnim(PutDownAnim, 1.0f);
+        return 1.0f;
     }
 
     public void PlayWorkAnim(float delay)
     {
-        throw new NotImplementedException();
+        PlayVillagerAnim(ActiveWorkAnim, delay);
+        
+        if (TargetTool != null)
+        {
+            Tool.SetStaticMesh(TargetTool);
+            Tool.SetVisibility(true);
+        }
+    }
+
+    private async void PlayVillagerAnim(UAnimMontage montage, float length)
+    {
+        UPlayMontageCallbackProxy playMontage = UPlayMontageCallbackProxy.CreateProxyObjectForPlayMontage(SkeletalMesh, montage, 1.0f);
+        playMontage.OnInterrupted += OnMontageFinished;
+        playMontage.OnCompleted += OnMontageFinished;
+        
+        await Task.Delay(TimeSpan.FromSeconds(length)).ConfigureWithUnrealContext();
+        
+        UAnimInstance animInstance = SkeletalMesh.AnimInstance;
+        animInstance.Montage_StopGroupByName(0, "DefaultGroup");
+    }
+
+    [UFunction]
+    private void OnMontageFinished(FName notifyName)
+    {
+        Tool.SetVisibility(false);
     }
 
     public float ProgressBuilding(float timeRemaining)
@@ -209,5 +245,43 @@ public partial class ACropoutVillager : APawn, IVillager
         }
         
         Quantity = 0;
+    }
+
+    public void RemoveTargetResource(KeyValuePair<EResourceType, int> resource)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void AddResource(KeyValuePair<EResourceType, int> resource)
+    {
+        ResourcesHeld = resource.Key;
+        Quantity = resource.Value;
+        
+        Tool.SetVisibility(true);
+        Tool.SetStaticMesh(CrateMesh);
+    }
+    
+    public void RemoveResource(out KeyValuePair<EResourceType, int> resource)
+    {
+        EResourceType cachedResource = ResourcesHeld;
+        int cachedAmount = Quantity;
+
+        ResourcesHeld = EResourceType.None;
+        Quantity = 0;
+        
+        Tool.SetVisibility(false);
+        Tool.SetStaticMesh(null);
+        
+        resource = new KeyValuePair<EResourceType, int>(cachedResource, cachedAmount);
+    }
+
+    public IDictionary<EResourceType, int> GetCurrentResources()
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool CheckResource(EResourceType resourceType, out int amount)
+    {
+        throw new NotImplementedException();
     }
 }

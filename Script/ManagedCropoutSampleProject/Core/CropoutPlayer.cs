@@ -809,7 +809,7 @@ public partial class ACropoutPlayer : APawn, IPlayer
         ACropoutGameMode gameMode = World.GameModeAs<ACropoutGameMode>();
         foreach (KeyValuePair<EResourceType, int> resourceCost in _resourceCost)
         {
-            gameMode.RemoveResource(resourceCost);
+            gameMode.RemoveTargetResource(resourceCost);
         }
 
         IDictionary<EResourceType, int> currentResources = gameMode.GetCurrentResources();
