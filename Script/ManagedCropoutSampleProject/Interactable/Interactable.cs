@@ -11,6 +11,7 @@ public class AInteractable : AActor
     public AInteractable()
     {
         OutlineDraw = 1.5f;
+        RequireBuild = false;
     }
     
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Meshes")]
@@ -41,7 +42,9 @@ public class AInteractable : AActor
     protected float OutlineDraw { get; set; }
     
     private float _progressionState;
-    public bool RequireBuild;
+    
+    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Progression")]
+    public bool RequireBuild { get; set; }
 
     public float ProgressionState
     {
@@ -101,7 +104,7 @@ public class AInteractable : AActor
         
     }
     
-    public void PlacementMode()
+    public virtual void PlacementMode()
     {
         EnableGroundBlend = false;
         Mesh.SetStaticMesh(MeshList[0]);

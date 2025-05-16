@@ -1,11 +1,14 @@
 ﻿using ManagedCropoutSampleProject.Core.Save;
 using ManagedCropoutSampleProject.Interactable;
+using ManagedCropoutSampleProject.Interactable.Buildings;
 using ManagedCropoutSampleProject.UI;
 using UnrealSharp;
 using UnrealSharp.Attributes;
 using UnrealSharp.AudioModulation;
 using UnrealSharp.CommonUI;
+using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
+using UnrealSharp.NavigationSystem;
 
 namespace ManagedCropoutSampleProject.Core.GameMode;
 
@@ -36,8 +39,18 @@ public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
     [UProperty(PropertyFlags.EditDefaultsOnly)]
     public USoundControlBus CropoutPianoBus { get; set; }
     
+    [UProperty(PropertyFlags.EditDefaultsOnly)]
+    public TSubclassOf<ACropoutVillager> VillagerClass { get; set; }
+    
+    [UProperty(PropertyFlags.EditDefaultsOnly)]
+    public int VillagerCount { get; set; }
+    
+    [UProperty(PropertyFlags.EditDefaultsOnly)]
+    public TSubclassOf<ATownHall> TownHallClass { get; set; }
+    
     private bool musicIsPlaying;
     private bool hasEndGame;
+    private ATownHall townHall;
     
     protected override void BeginPlay()
     {
@@ -46,6 +59,10 @@ public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
         
         UCropoutGameInstance gameInstance = World.GameInstanceAs<UCropoutGameInstance>();
         gameInstance.UpdateAllResources(Resources);
+    }
+
+    private void SpawnTownHall()
+    {
         
     }
 
@@ -65,6 +82,32 @@ public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
         
         hasEndGame = true;
         GameWidget.EndGame(win);
+    }
+
+    public void SpawnVillagers(int amount)
+    {
+        for (int i = 0; i < amount; i++)
+        {
+            SpawnVillager();
+        }
+        
+        OnUpdateVillagers.Invoke(VillagerCount);
+        
+        UCropoutGameInstance gameInstance = World.GameInstanceAs<UCropoutGameInstance>();
+        gameInstance.UpdateAllVillagers();
+    }
+
+    public void SpawnVillager()
+    {
+        townHall.GetActorBounds(false, out FVector origin, out FVector extent);
+        FVector offset = MathLibrary.RandomUnitVector() * double.Min(extent.X, extent.Y) * 2.0f;
+        
+        FVector spawnLocation = origin + offset;
+        spawnLocation.Z = 0.0f;
+
+        UNavigationSystemV1.GetRandomReachablePointInRadius(spawnLocation, out FVector vector, 500.0f);
+        SpawnActor(VillagerClass, vector);
+        VillagerCount++;
     }
     
     public void StopMusic()
