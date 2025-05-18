@@ -24,7 +24,7 @@ public partial class ACropoutVillager : APawn, IVillager, IResourceInterface
     [UProperty(DefaultComponent = true, AttachmentComponent = nameof(SkeletalMesh), AttachmentSocket = "hand_rSocket")]
     public UStaticMeshComponent Tool { get; set; }
     
-    [UProperty(DefaultComponent = true, AttachmentComponent = nameof(SkeletalMesh))]
+    [UProperty(DefaultComponent = true, AttachmentComponent = nameof(SkeletalMesh), AttachmentSocket = "headSocket")]
     public USkeletalMeshComponent Hat { get; set; }
     
     [UProperty(DefaultComponent = true, AttachmentComponent = nameof(SkeletalMesh))]
@@ -107,8 +107,12 @@ public partial class ACropoutVillager : APawn, IVillager, IResourceInterface
 
     public void ChangeJob(FName newJob)
     {
+        if (!JobsDataTable.HasRow(newJob))
+        {
+            return;
+        }
+        
         CurrentJob = newJob;
-
         FJobs job = JobsDataTable.FindRow<FJobs>(CurrentJob);
         
         if (Tags.IndexOf(newJob) == -1)
@@ -132,12 +136,7 @@ public partial class ACropoutVillager : APawn, IVillager, IResourceInterface
     public void PlayWorkAnim(float delay)
     {
         PlayVillagerAnim(ActiveWorkAnim, delay);
-        
-        if (TargetTool != null)
-        {
-            Tool.SetStaticMesh(TargetTool);
-            Tool.SetVisibility(true);
-        }
+        SetToolMesh(TargetTool);
     }
 
     private async void PlayVillagerAnim(UAnimMontage montage, float length)
@@ -155,7 +154,7 @@ public partial class ACropoutVillager : APawn, IVillager, IResourceInterface
     [UFunction]
     private void OnMontageFinished(FName notifyName)
     {
-        Tool.SetVisibility(false);
+        SetToolMesh(null);
     }
 
     public float ProgressBuilding(float timeRemaining)
@@ -173,8 +172,7 @@ public partial class ACropoutVillager : APawn, IVillager, IResourceInterface
         Hat.SkeletalMesh = null;
         Hat.SetVisibility(false);
         
-        Tool.SetStaticMesh(null);
-        TargetTool = null;
+        SetToolMesh(null);
         
         StopJob();
     }
@@ -202,6 +200,13 @@ public partial class ACropoutVillager : APawn, IVillager, IResourceInterface
        if (jobInfo.BehaviorTree.SoftObjectPath.Object is UBehaviorTree behaviorTree)
        {
            AAIController controller = AIHelperLibrary.GetAIController(this);
+           
+           if (controller == null)
+           {
+               LogCropout.LogError("Villager has no AIController");
+               return;
+           }
+           
            controller.RunBehaviorTree(behaviorTree);
            
            ActiveBehaviorTree = behaviorTree;
@@ -235,7 +240,7 @@ public partial class ACropoutVillager : APawn, IVillager, IResourceInterface
     
     void StopJob()
     {
-        Tool.SetVisibility(false);
+        SetToolMesh(null);
         SkeletalMesh.AnimInstance.Montage_StopGroupByName(0, "DefaultGroup");
 
         AAIController controller = AIHelperLibrary.GetAIController(this);
@@ -257,8 +262,7 @@ public partial class ACropoutVillager : APawn, IVillager, IResourceInterface
         ResourcesHeld = resource.Key;
         Quantity = resource.Value;
         
-        Tool.SetVisibility(true);
-        Tool.SetStaticMesh(CrateMesh);
+        SetToolMesh(CrateMesh);
     }
     
     public void RemoveResource(out KeyValuePair<EResourceType, int> resource)
@@ -269,9 +273,7 @@ public partial class ACropoutVillager : APawn, IVillager, IResourceInterface
         ResourcesHeld = EResourceType.None;
         Quantity = 0;
         
-        Tool.SetVisibility(false);
-        Tool.SetStaticMesh(null);
-        
+        SetToolMesh(null);
         resource = new KeyValuePair<EResourceType, int>(cachedResource, cachedAmount);
     }
 
@@ -283,5 +285,18 @@ public partial class ACropoutVillager : APawn, IVillager, IResourceInterface
     public bool CheckResource(EResourceType resourceType, out int amount)
     {
         throw new NotImplementedException();
+    }
+
+    private void SetToolMesh(UStaticMesh? mesh)
+    {
+        if (mesh != null)
+        {
+            Tool.SetStaticMesh(mesh);
+            Tool.SetVisibility(true);
+        }
+        else
+        {
+            Tool.SetVisibility(false);
+        }
     }
 }

@@ -24,6 +24,7 @@
     <Analyzer Include="..\..\Plugins\UnrealSharp\Binaries\Managed\UnrealSharp.SourceGenerators.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\IslandGen\IslandGen.csproj" />
     <ProjectReference Include="..\ProjectGlue\ProjectGlue.csproj" />
   </ItemGroup>
 </Project>

@@ -19,21 +19,21 @@ public enum ETransitionType : byte
 [UClass]
 public class UCropoutGameInstance : UGameInstance, IGameInstance, IPlayer
 {
-    private UCropoutSaveObject SaveObject;
-    private bool hasSave;
-    private bool MusicPlaying;
-    private UTransitionWidget TransitionWidgetInstance;
-    private float[] _soundMixes = [1.0f, 1.0f];
-    
-    public float[] SoundMixes => _soundMixes;
-
     [UProperty(PropertyFlags.EditDefaultsOnly)]
     TSubclassOf<UTransitionWidget> TransitionWidget { get; set; }
+    
+    [UProperty(PropertyFlags.BlueprintReadOnly)]
+    public UCropoutSaveObject SaveObject { get; set; }
+    
+    public bool HasSave { get; private set; }
+    
+    private bool MusicPlaying;
+    private UTransitionWidget TransitionWidgetInstance;
+    public float[] SoundMixes { get; } = [1.0f, 1.0f];
 
     public override void Init()
     {
-        //LoadGame();
-
+        LoadGame();
         TransitionWidgetInstance = CreateWidget(TransitionWidget);
     }
 
@@ -74,7 +74,7 @@ public class UCropoutGameInstance : UGameInstance, IGameInstance, IPlayer
         try
         {
             Transition(ETransitionType.In);
-            //await Task.Delay(1100).ConfigureWithUnrealContext();
+            await Task.Delay(1100).ConfigureWithUnrealContext();
             UGameplayStatics.OpenLevelBySoftObjectPtr(level);
         }
         catch (Exception e)
@@ -96,11 +96,14 @@ public class UCropoutGameInstance : UGameInstance, IGameInstance, IPlayer
         for (int i = 0; i < interactables.Count; i++)
         {
             AInteractable interactable = interactables[i];
-            FInteractableSaveData entry = SaveObject.Interactables[interactables.Count];
+            
+            FInteractableSaveData entry;
             entry.Transform = interactable.ActorTransform;
             entry.Type = interactable.Class;
             entry.Health = interactable.ProgressionState;
             entry.Tag = interactable.Tags.Count > 0 ? interactable.Tags[0] : FName.None;
+            
+            SaveObject.Interactables.Add(entry);
         }
     }
 
@@ -116,7 +119,7 @@ public class UCropoutGameInstance : UGameInstance, IGameInstance, IPlayer
         UAsyncActionHandleSaveGame saveGameAction =
             UAsyncActionHandleSaveGame.AsyncSaveGameToSlot(SaveObject, "SAVE", 0);
 
-        saveGameAction.Completed += [UFunction](USaveGame saveGame, bool success) => { hasSave = true; };
+        saveGameAction.Completed += [UFunction](USaveGame saveGame, bool success) => { HasSave = true; };
 
         saveGameAction.Activate();
     }
@@ -131,12 +134,12 @@ public class UCropoutGameInstance : UGameInstance, IGameInstance, IPlayer
             SaveObject.RandomStream = new FRandomStream(randomInt);
         }
 
-        hasSave = false;
+        HasSave = false;
     }
 
     public void LoadLevel()
     {
-        hasSave = true;
+        HasSave = true;
     }
 
     public void BeginBuild(TSubclassOf<AInteractable> targetClass, IDictionary<EResourceType, int> resourceCost)

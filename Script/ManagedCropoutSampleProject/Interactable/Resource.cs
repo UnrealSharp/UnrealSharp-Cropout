@@ -53,12 +53,12 @@ public class AResource : AInteractable, IResourceInterface
 
     public void RemoveTargetResource(KeyValuePair<EResourceType, int> resource)
     {
-        throw new NotImplementedException();
+        
     }
 
     public void AddResource(KeyValuePair<EResourceType, int> resource)
     {
-        throw new NotImplementedException();
+        
     }
 
     public IDictionary<EResourceType, int> GetCurrentResources()
@@ -73,6 +73,8 @@ public class AResource : AInteractable, IResourceInterface
 
     public void RemoveResource(out KeyValuePair<EResourceType, int> resource)
     {
+        StopWobble();
+        
         if (ResourceAmount != -1)
         {
             ResourceAmount = Math.Max(ResourceAmount - CollectionValue, 0);
@@ -80,9 +82,9 @@ public class AResource : AInteractable, IResourceInterface
             if (ResourceAmount == 0)
             {
                 Death();
-            }
+            }   
         }
         
-        resource = new KeyValuePair<EResourceType, int>(ResourceType, ResourceAmount);
+        resource = new KeyValuePair<EResourceType, int>(ResourceType, CollectionValue);
     }
 }

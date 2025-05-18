@@ -79,6 +79,8 @@ public class UBuildWidget : UCommonActivatableWidget
         playerPawn.EnableInput(OwningPlayerController);
         playerPawn.SwitchBuildMode(false);
         
+        WidgetLibrary.SetInputMode_GameOnly(OwningPlayerController);
+        
         DeactivateWidget();
     }
 }

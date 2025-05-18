@@ -1,8 +1,10 @@
-﻿using ManagedCropoutSampleProject.Core.Save;
+﻿using IslandGen;
+using ManagedCropoutSampleProject.Core.Save;
 using ManagedCropoutSampleProject.Interactable;
 using ManagedCropoutSampleProject.Interactable.Buildings;
 using ManagedCropoutSampleProject.UI;
 using UnrealSharp;
+using UnrealSharp.AIModule;
 using UnrealSharp.Attributes;
 using UnrealSharp.AudioModulation;
 using UnrealSharp.CommonUI;
@@ -48,9 +50,13 @@ public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
     [UProperty(PropertyFlags.EditDefaultsOnly)]
     public TSubclassOf<ATownHall> TownHallClass { get; set; }
     
+    [UProperty(PropertyFlags.EditDefaultsOnly)]
+    protected USoundControlBus CropoutMusicBus { get; set; }
+    
     private bool musicIsPlaying;
     private bool hasEndGame;
     private ATownHall townHall;
+    private ASpawner spawner;
     
     protected override void BeginPlay()
     {
@@ -59,11 +65,96 @@ public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
         
         UCropoutGameInstance gameInstance = World.GameInstanceAs<UCropoutGameInstance>();
         gameInstance.UpdateAllResources(Resources);
+        
+        InitializeSpawnerReference();
+
+        AIslandGenActor genActor = UGameplayStatics.GetActorOfClass<AIslandGenActor>();
+
+        FRandomStream newSeed = gameInstance.HasSave
+            ? gameInstance.SaveObject.RandomStream
+            : new FRandomStream(MathLibrary.RandomIntegerInRange(0, 1000));
+        
+        genActor.InitializeFromSeed(newSeed);
+        genActor.BindOrExecute(OnGenIslandCompleted);
     }
 
-    private void SpawnTownHall()
+    private void OnGenIslandCompleted()
     {
+        UCropoutGameInstance gameInstance = World.GameInstanceAs<UCropoutGameInstance>();
+
+        if (gameInstance.HasSave)
+        {
+            SpawnLoadedInteractables(gameInstance);
+            
+            foreach (KeyValuePair<EResourceType, int> resource in Resources)
+            {
+                Resources.Add(resource.Key, resource.Value);
+            }
+            
+            spawner.SpawnMeshOnly();
+            SpawnLoadedVillagers(gameInstance);
+            
+            UAudioModulationStatics.SetGlobalControlBusMixValue(CropoutMusicBus, 0.0f, 0.0f);
+        }
+        else
+        {
+            BeginSpawning();
+            UAudioModulationStatics.SetGlobalControlBusMixValue(CropoutMusicBus, 1.0f, 0.0f);
+        }
+    }
+
+    private void SpawnLoadedInteractables(UCropoutGameInstance gameInstance)
+    {
+        foreach (FInteractableSaveData savedInteractable in gameInstance.SaveObject.Interactables)
+        {
+            AInteractable interactable = SpawnActor(savedInteractable.Type, savedInteractable.Transform);
+            interactable.RequireBuild = savedInteractable.Tag == "Build";
+            interactable.ProgressionState = savedInteractable.Health;
+
+            if (savedInteractable.Type.IsChildOf(typeof(ATownHall)))
+            {
+                townHall = (interactable as ATownHall)!;
+            }
+        }
+    }
+
+    private void SpawnLoadedVillagers(UCropoutGameInstance gameInstance)
+    {
+        foreach (FVillagerSaveData savedVillager in gameInstance.SaveObject.Villagers)
+        {
+            ACropoutVillager villager = SpawnActor(VillagerClass, savedVillager.Transform);
+            villager.ChangeJob(savedVillager.Task);
+        }
         
+        OnUpdateVillagers.Invoke(gameInstance.SaveObject.Villagers.Count);
+        gameInstance.UpdateAllResources(Resources);
+    }
+
+    private void InitializeSpawnerReference()
+    {
+        spawner = UGameplayStatics.GetActorOfClass<ASpawner>();
+    }
+
+    private void BeginSpawning()
+    {
+        UGameplayStatics.GetAllActorsOfClass<ASpawnMarker>(out var spawnMarkers);
+
+        int randomSpawnMarkerIndex = MathLibrary.RandomIntegerInRange(0, spawnMarkers.Count - 1);
+        ASpawnMarker randomSpawnMarker = spawnMarkers[randomSpawnMarkerIndex];
+        
+        townHall = SpawnActor(TownHallClass, randomSpawnMarker.ActorTransform, ESpawnActorCollisionHandlingMethod.AlwaysSpawn);
+        
+        for (int i = 0; i < 2; i++)
+        {
+            SpawnVillager();
+        }
+
+        OnUpdateVillagers.Invoke(VillagerCount);
+        
+        UCropoutGameInstance gameInstance = World.GameInstanceAs<UCropoutGameInstance>();
+        gameInstance.UpdateAllVillagers();
+        
+        spawner.SpawnRandom();
     }
 
     private void CreateGameHUD()
@@ -106,7 +197,7 @@ public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
         spawnLocation.Z = 0.0f;
 
         UNavigationSystemV1.GetRandomReachablePointInRadius(spawnLocation, out FVector vector, 500.0f);
-        SpawnActor(VillagerClass, vector);
+        AIHelperLibrary.SpawnAIFromClass(VillagerClass.As<APawn>(), null, vector, FRotator.ZeroRotator);
         VillagerCount++;
     }
     

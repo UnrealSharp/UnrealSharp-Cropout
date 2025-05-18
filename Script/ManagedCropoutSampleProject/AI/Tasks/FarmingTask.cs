@@ -12,9 +12,8 @@ public class UFarmingTask : UCropoutBaseTask
 {
     [UProperty(PropertyFlags.EditInstanceOnly)]
     public FBlackboardKeySelector Crop { get; set; }
-    
-    [UProperty]
-    private FName TagState { get; set; }
+
+    private FName _tagState;
 
     protected override async void ReceiveExecuteAI(AAIController ownerController, APawn controlledPawn)
     {
@@ -29,18 +28,17 @@ public class UFarmingTask : UCropoutBaseTask
         if (!cropActor.ActorHasTag("Ready") && !cropActor.ActorHasTag("Harvest"))
         {
             UBTFunctionLibrary.SetBlackboardValueAsObject(this, Crop, null);
-            FinishExecute(false);
+            FinishExecute(true);
             return;
         }
         
-        TagState = cropActor.Tags[0];
-        
-        if (cropActor is not AInteractable interactable)
+        if (cropActor is not AInteractable interactable) 
         {
             FinishExecute(false);
             return;
         }
 
+        _tagState = cropActor.Tags[1];
         float duration = interactable.Interact();
 
         if (controlledPawn is not IVillager villager)
@@ -50,10 +48,9 @@ public class UFarmingTask : UCropoutBaseTask
         }
         
         villager.PlayWorkAnim(duration);
-        
         await Task.Delay(TimeSpan.FromSeconds(duration)).ConfigureWithUnrealContext();
 
-        if (TagState == "Harvest")
+        if (_tagState == "Harvest")
         {
             FinishExecute(false);
         }

@@ -52,7 +52,6 @@ public class UBuildItemWidget : UCommonButtonBase
 
     private bool _enableBuilding = true;
     
-    
     public void InitializeFrom(FResourceInfo inTableData)
     {
         TableData = inTableData;

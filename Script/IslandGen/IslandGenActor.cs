@@ -12,28 +12,25 @@ public delegate void OnIslandGenComplete();
 [UClass]
 public class AIslandGenActor : ADynamicMeshActor
 {
-    [UProperty(PropertyFlags.BlueprintReadOnly)]
+    [UProperty(PropertyFlags.EditAnywhere, Category = "Island Generation")]
     public FRandomStream Seed { get; set; }
     
-    [UProperty(PropertyFlags.BlueprintReadOnly)]
-    public float MaxSpawnDistance { get; set; } = 1000.0f;
+    [UProperty(PropertyFlags.EditAnywhere, Category = "Island Generation")]
+    public float MaxSpawnDistance { get; set; }
     
-    [UProperty(PropertyFlags.BlueprintReadOnly)]
+    [UProperty(PropertyFlags.EditAnywhere, Category = "Island Generation")]
     public int Islands { get; set; } = 15;
     
-    [UProperty(PropertyFlags.BlueprintReadOnly)]
+    [UProperty(PropertyFlags.EditAnywhere, Category = "Island Generation")]
     private UDynamicMesh DynamicMesh { get; set; }
     
-    [UProperty(PropertyFlags.BlueprintReadOnly)]
-    public bool PreConstruct { get; set; } = false;
-    
-    [UProperty(PropertyFlags.BlueprintReadOnly)]
+    [UProperty(PropertyFlags.EditAnywhere, Category = "Island Generation")]
     private IList<FVector> SpawnPoints { get; set; }
     
-    [UProperty(PropertyFlags.BlueprintReadOnly)]
+    [UProperty(PropertyFlags.EditAnywhere, Category = "Island Generation")]
     private float Radius { get; set; }
     
-    [UProperty(PropertyFlags.BlueprintReadOnly)]
+    [UProperty(PropertyFlags.EditAnywhere, Category = "Island Generation")]
     public FVector2D IslandSize { get; set; } = new(800.0f, 5000.0f);
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
@@ -46,6 +43,12 @@ public class AIslandGenActor : ADynamicMeshActor
     {
         Seed = seed;
         CreateIsland(true);
+    }
+
+    [UFunction(CallInEditor = true, Category = "Island Generation")]
+    public void GenerateIsland()
+    {
+        CreateIsland(false);
     }
 
     public void BindOrExecute(OnIslandGenComplete onIslandGenComplete)
@@ -74,36 +77,56 @@ public class AIslandGenActor : ADynamicMeshActor
 
     private void SpawnIslands(bool spawnMarkers)
     {
+        FRandomStream seed = Seed;
         for (int i = 0; i < Islands; i++)
         {
-            Radius = MathLibrary.RandomFloatInRangeFromStream(Seed, IslandSize.X.ToFloat(), IslandSize.Y.ToFloat());
+            Radius = MathLibrary.RandomFloatInRangeFromStream(seed, IslandSize.X.ToFloat(), IslandSize.Y.ToFloat());
+            seed.GetFraction();
 
-            FVector spawnPoint = MathLibrary.RandomUnitVectorFromStream(Seed) * MaxSpawnDistance / 2;
+            FVector spawnPoint = MathLibrary.RandomUnitVectorFromStream(seed) * MaxSpawnDistance / 2;
+            seed.GetFraction();
+            
+            spawnPoint += ActorLocation;
+            spawnPoint.Z = 0.0f;
+            
             SpawnPoints.Add(spawnPoint);
         
             FTransform transform = new FTransform();
-        
             transform.Location = new FVector(spawnPoint.X, spawnPoint.Y, -800.0f);
+            transform.Scale = FVector.One;
 
-            UGeometryScriptLibrary_MeshPrimitiveFunctions.AppendCone(DynamicMesh, new FGeometryScriptPrimitiveOptions(),
+            FGeometryScriptPrimitiveOptions options = new FGeometryScriptPrimitiveOptions
+            {
+                PolyGroupMode = EGeometryScriptPrimitivePolygroupMode.PerFace,
+                FlipOrientation = false,
+                UVMode = EGeometryScriptPrimitiveUVMode.Uniform,
+                MaterialID = 0,
+            };
+
+            UGeometryScriptLibrary_MeshPrimitiveFunctions.AppendCone(DynamicMesh, options,
                 transform, Radius, Radius / 4, 1300, 32, 1, true, EGeometryScriptPrimitiveOriginMode.Base);
+            
+            SystemLibrary.DrawDebugSphere(transform.Location, 500.0f, 16, FLinearColor.Aqua, 5);
 
             if (!spawnMarkers)
             {
-                return;
+                continue;
             }
         
             FTransform markerTransform = new FTransform();
             markerTransform.Location = spawnPoint;
+            markerTransform.Scale = FVector.One;
+            
             SpawnActor<ASpawnMarker>(typeof(ASpawnMarker), markerTransform);
         }
         
         FTransform boxTransform = new FTransform();
         boxTransform.Location = new FVector(0.0f, 0.0f, -800.0f);
-        float spawnDistance = MaxSpawnDistance * 10000;
+        boxTransform.Scale = FVector.One;
+        
+        float spawnDistance = MaxSpawnDistance + 10000;
         UDynamicMesh mesh = UGeometryScriptLibrary_MeshPrimitiveFunctions.AppendBox(DynamicMesh, new FGeometryScriptPrimitiveOptions(),
             boxTransform, spawnDistance, spawnDistance, 400, 0, 0, 0, EGeometryScriptPrimitiveOriginMode.Base);
-        
         
         FGeometryScriptSolidifyOptions solidifyOptions = new FGeometryScriptSolidifyOptions();
         
@@ -121,7 +144,7 @@ public class AIslandGenActor : ADynamicMeshActor
         solidifyOptions.ShellThickness = 1.0f;
         
         mesh = UGeometryScriptLibrary_MeshVoxelFunctions.ApplyMeshSolidify(mesh, solidifyOptions);
-        mesh = UGeometryScriptLibrary_MeshNormalsFunctions.SetMeshToFacetNormals(mesh);
+        mesh = UGeometryScriptLibrary_MeshNormalsFunctions.SetPerVertexNormals(mesh);
         
         FGeometryScriptIterativeMeshSmoothingOptions smoothingOptions = new FGeometryScriptIterativeMeshSmoothingOptions();
         smoothingOptions.NumIterations = 6;
@@ -135,7 +158,8 @@ public class AIslandGenActor : ADynamicMeshActor
         
         FTransform cutFrame = new FTransform();
         cutFrame.Location = new FVector(0.0f, 0.0f, -390.0f);
-        cutFrame.Rotation = new FRotator(180.0f, 0.0f, 0.0f);
+        cutFrame.Rotation = new FRotator(0.0f, 0.0f, 180.0f);
+        cutFrame.Scale = FVector.One;
         
         FGeometryScriptMeshPlaneCutOptions cutOptions = new FGeometryScriptMeshPlaneCutOptions();
         cutOptions.FillHoles = false;
@@ -145,8 +169,14 @@ public class AIslandGenActor : ADynamicMeshActor
         cutOptions.UVWorldDimension = 1;
         
         mesh = UGeometryScriptLibrary_MeshBooleanFunctions.ApplyMeshPlaneCut(mesh, cutFrame, cutOptions);
+
+        cutOptions.FillHoles = true;
+        cutOptions.HoleFillMaterialID = -1;
+        cutOptions.FillSpans = true;
+        cutOptions.FlipCutSide = false;
+        cutOptions.UVWorldDimension = 1;
         
-        mesh = UGeometryScriptLibrary_MeshBooleanFunctions.ApplyMeshPlaneCut(mesh, FTransform.Identity, new FGeometryScriptMeshPlaneCutOptions());
+        mesh = UGeometryScriptLibrary_MeshBooleanFunctions.ApplyMeshPlaneCut(mesh, FTransform.Identity, cutOptions);
         
         FTransform planeTransform = new FTransform();
         planeTransform.Scale = new FVector(100.0f);
@@ -155,7 +185,7 @@ public class AIslandGenActor : ADynamicMeshActor
             new FGeometryScriptMeshSelection());
         
         ReleaseAllComputeMeshes();
-        AddActorWorldOffset(new FVector(0.0f, 0.0f, -0.05f), false, out _, false);
+        AddActorWorldOffset(new FVector(0.0f, 0.0f, 0.05f), false, out _, false);
     }
 
     private void SetGrassColour()

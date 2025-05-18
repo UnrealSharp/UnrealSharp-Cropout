@@ -28,7 +28,7 @@ public class UInitialFarmingTargetTask : UCropoutBaseTask
 
         if (resource == null)
         {
-            UGameplayStatics.GetAllActorsOfClassWithTag<ACrop>("Ready", out IList<ACrop> resources);
+            UGameplayStatics.GetAllActorsOfClassWithTag(typeof(ACrop), "Ready", out IList<AActor> resources);
             
             if (resources.Count == 0)
             {
@@ -37,7 +37,7 @@ public class UInitialFarmingTargetTask : UCropoutBaseTask
             }
 
             FVector pawnLocation = controlledPawn.ActorLocation;
-            AActor nearestActor = UGameplayStatics.FindNearestActor(pawnLocation, (IList<AActor>) resources, out float distance);
+            AActor nearestActor = UGameplayStatics.FindNearestActor(pawnLocation, resources, out float distance);
             
             UBTFunctionLibrary.SetBlackboardValueAsObject(this, Key_Resource, nearestActor);
         }

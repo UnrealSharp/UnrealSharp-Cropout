@@ -10,10 +10,10 @@ namespace ManagedCropoutSampleProject.AI.Tasks;
 public class UTransferResourceTask : UCropoutBaseTask
 {
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public FBlackboardKeySelector TakeFrom { get; set; }
+    public FBlackboardKeySelector GiveTo { get; set; }
     
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public FBlackboardKeySelector GiveTo { get; set; }
+    public FBlackboardKeySelector TakeFrom { get; set; }
 
     protected override void ReceiveExecute(AActor ownerActor)
     {

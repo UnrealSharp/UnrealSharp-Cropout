@@ -25,7 +25,7 @@ public class UWorkTask : UCropoutBaseTask
     public float DelayMultiplier { get; set; } = 1.0f;
     
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    private AInteractable Interactable { get; set; }
+    private AInteractable? Interactable { get; set; }
     
     protected override void ReceiveExecuteAI(AAIController ownerController, APawn controlledPawn)
     {
@@ -50,7 +50,7 @@ public class UWorkTask : UCropoutBaseTask
     async void StartTakingResources(APawn controlledPawn, AActor takeFromActor, AActor giveToActor, AInteractable interactable)
     {
         Interactable = interactable;
-        Interactable.PlayWobble();
+        Interactable.PlayWobble(controlledPawn.ActorLocation);
         float delay = Interactable.Interact();
         
         if (controlledPawn is not IVillager villager)
@@ -79,5 +79,15 @@ public class UWorkTask : UCropoutBaseTask
         giveToInterface.AddResource(resource);
         
         FinishExecute(true);
+    }
+
+    protected override void ReceiveAbortAI(AAIController ownerController, APawn controlledPawn)
+    {
+        if (Interactable != null && Interactable.IsValid)
+        {
+            Interactable.StopWobble();
+        }
+
+        base.ReceiveAbortAI(ownerController, controlledPawn);
     }
 }

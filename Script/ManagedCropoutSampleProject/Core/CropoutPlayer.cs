@@ -80,6 +80,9 @@ public partial class ACropoutPlayer : APawn, IPlayer
     [UProperty(PropertyFlags.EditAnywhere)]
     public UMaterialParameterCollection CropoutMaterialCollection { get; set; }
     
+    [UProperty(PropertyFlags.BlueprintReadOnly)]
+    private UStaticMeshComponent? SpawnOverlay { get; set; }
+    
     APlayerController? PlayerController => (APlayerController) Controller;
 
     private float _zoomValue = 0.5f;
@@ -91,7 +94,7 @@ public partial class ACropoutPlayer : APawn, IPlayer
     private TSubclassOf<AInteractable> _targetSpawnClass;
     private IDictionary<EResourceType, int>? _resourceCost;
     public AInteractable? spawn;
-    private UStaticMeshComponent? spawnOverlay;
+    
     private bool canDrop;
 
     private AActor? _villagerAction;
@@ -101,6 +104,7 @@ public partial class ACropoutPlayer : APawn, IPlayer
     private FTimerHandle updatePathHandle;
     
     private FTimerHandle _closestHoverCheckHandle;
+    private bool isInBuildMode = false;
 
     protected override void BeginPlay()
     {
@@ -631,7 +635,7 @@ public partial class ACropoutPlayer : APawn, IPlayer
 
     void CreateBuildOverlay()
     {
-        if (spawnOverlay != null)
+        if (SpawnOverlay != null)
         {
             return;
         }
@@ -641,8 +645,8 @@ public partial class ACropoutPlayer : APawn, IPlayer
         {
             Scale = extent / 50.0f,
         };
-        spawnOverlay = AddComponentByClass<UStaticMeshComponent>(true, buildTransform);
-        spawnOverlay.AttachToComponent(spawn.Mesh, FName.None, EAttachmentRule.SnapToTarget,
+        SpawnOverlay = AddComponentByClass<UStaticMeshComponent>(true, buildTransform);
+        SpawnOverlay.AttachToComponent(spawn.Mesh, FName.None, EAttachmentRule.SnapToTarget,
             EAttachmentRule.KeepWorld, EAttachmentRule.KeepWorld, true);
         
         UpdateBuildAsset();
@@ -752,7 +756,7 @@ public partial class ACropoutPlayer : APawn, IPlayer
         _targetSpawnClass = targetClass;
         _resourceCost = resourceCost;
 
-        if (spawn != null)
+        if (spawn != null && spawn.IsValid)
         {
             spawn.DestroyActor();
         }
@@ -775,7 +779,7 @@ public partial class ACropoutPlayer : APawn, IPlayer
         }
 
         AInteractable interactable = SpawnActor(_targetSpawnClass, spawn.ActorTransform);
-        interactable.ProgressionState = 0;
+        interactable.SetProgressionState(0);
         RemoveResources();
         
         IGameInstance gameInstance = World.GameInstanceAs<UCropoutGameInstance>();
@@ -795,13 +799,13 @@ public partial class ACropoutPlayer : APawn, IPlayer
     
     public void DestroySpawn()
     {
-        if (spawn == null || spawnOverlay == null)
+        if (spawn == null || SpawnOverlay == null)
         {
             throw new NullReferenceException("Spawn or SpawnOverlay is null");
         }
         
         spawn.DestroyActor();
-        spawnOverlay.DestroyComponent(this);
+        SpawnOverlay.DestroyComponent(this);
     }
 
     private void RemoveResources()
@@ -831,6 +835,11 @@ public partial class ACropoutPlayer : APawn, IPlayer
 
     public void SwitchBuildMode(bool switchBuildMode)
     {
+        if (switchBuildMode == isInBuildMode)
+        {
+            return;
+        }
+        
         if (switchBuildMode)
         {
             AddMappingContext(BuildModeMappingContext);
@@ -841,6 +850,8 @@ public partial class ACropoutPlayer : APawn, IPlayer
             RemoveMappingContext(BuildModeMappingContext);
             AddMappingContext(VillagerModeMappingContext);
         }
+        
+        isInBuildMode = switchBuildMode;
     }
 
     public void AddUI(TSubclassOf<UCommonActivatableWidget> widget)

@@ -12,6 +12,7 @@ public class AInteractable : AActor
     {
         OutlineDraw = 1.5f;
         RequireBuild = false;
+        EnableGroundBlend = true;
     }
     
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Meshes")]
@@ -26,6 +27,9 @@ public class AInteractable : AActor
     [UProperty(DefaultComponent = true, AttachmentComponent = "Scene")]
     public UBoxComponent Box { get; set; }
     
+    [UProperty(DefaultComponent = true)]
+    public UTimelineComponent Timeline { get; set; }
+    
     [UProperty(PropertyFlags.EditDefaultsOnly)]
     public float BoundGap { get; set; }
     
@@ -33,35 +37,35 @@ public class AInteractable : AActor
     protected bool EnableGroundBlend { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Visuals")]
-    protected UTextureRenderTarget2D RenderTarget { get; set; }
-    
-    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Visuals")]
-    protected UMaterialInterface DrawMaterial { get; set; }
-    
-    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Visuals")]
     protected float OutlineDraw { get; set; }
-    
-    private float _progressionState;
     
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Progression")]
     public bool RequireBuild { get; set; }
 
-    public float ProgressionState
+    public float ProgressionState;
+    
+    public virtual void SetProgressionState(float state)
     {
-        get => _progressionState;
-        set
-        {
-            _progressionState = value;
+        ProgressionState = state;
 
-            if (RequireBuild)
-            {
-                return;
-            }
-        
-            Tags.Add("Build");
-            UStaticMesh newMesh = MeshList[MathLibrary.Floor(_progressionState)];
-            Mesh.SetStaticMesh(newMesh);
+        if (!RequireBuild)
+        {
+            return;
         }
+
+        if (!Tags.Contains("Build"))
+        {
+            Tags.Add("Build"); 
+        }
+            
+        int meshIndex = MathLibrary.Floor(ProgressionState);
+        if (meshIndex >= MeshList.Count - 1)
+        {
+            return;
+        }
+            
+        UStaticMesh newMesh = MeshList[meshIndex];
+        Mesh.SetStaticMesh(newMesh);
     }
 
     protected override void BeginPlay()
@@ -99,9 +103,31 @@ public class AInteractable : AActor
         return 0.0f;
     }
 
-    public void PlayWobble()
+    public async void PlayWobble(FVector wobbleLocation)
     {
+        UInteractableSettings settings = GetDefault<UInteractableSettings>();
+        UCurveFloat curveFloat = await settings.WobbleCurve.LoadAsync();
+
+        FVector wobbleVector = wobbleLocation - ActorLocation;
+        Mesh.SetVectorParameterValueOnMaterials("Wobble Vector", wobbleVector);
         
+        TDelegate<OnTimelineFloat> onReceiveTimelineValue = new TDelegate<OnTimelineFloat>();
+        onReceiveTimelineValue.BindUFunction(this, nameof(OnTimelineFloat));
+        
+        Timeline.AddInterpFloat(curveFloat, onReceiveTimelineValue);
+        Timeline.Looping = false;
+        Timeline.Play();
+    }
+    
+    public void StopWobble()
+    {
+        Timeline.Reverse();
+    }
+    
+    [UFunction]
+    public void OnTimelineFloat(float value)
+    {
+        Mesh.SetScalarParameterValueOnMaterials("Wobble", value);
     }
     
     public virtual void PlacementMode()
@@ -118,30 +144,45 @@ public class AInteractable : AActor
         RemoveOverlappingInteractables();
     }
 
-    private void SetupRenderTarget()
+    private async void SetupRenderTarget()
     {
-        return;
-        if (!EnableGroundBlend)
+        /*if (!EnableGroundBlend)
+        {
+            return;
+        }
+
+        UInteractableSettings settings = GetDefault<UInteractableSettings>();
+        await settings.LoadInteractableSettingsAsync();
+        
+        if (!settings.IsValid)
         {
             return;
         }
         
-        RenderingLibrary.BeginDrawCanvasToRenderTarget(RenderTarget, out UCanvas canvas, out FVector2D size, out FDrawToRenderTargetContext context);
-
+        RenderingLibrary.BeginDrawCanvasToRenderTarget(settings.RenderTarget.Object, 
+            out UCanvas canvas, 
+            out FVector2D size, 
+            out FDrawToRenderTargetContext context);
+        
+        GetActorBounds(false, out FVector origin, out FVector boxExtent);
+        double minXY = double.Min(boxExtent.X, boxExtent.Y) / 10000;
+        minXY *= size.X * OutlineDraw;
+        
         FVector cachedActorLocation = ActorLocation;
         cachedActorLocation += 10000;
         cachedActorLocation /= 20000;
+        cachedActorLocation *= size.X;
         
-        GetActorBounds(false, out FVector origin, out FVector boxExtent);
-        double minXY = double.Min(origin.Y, origin.Z) / 10000;
-        minXY *= size.X * OutlineDraw;
-
-        cachedActorLocation *= minXY;
         cachedActorLocation -= new FVector(minXY / 2);
         FVector2D newOrigin = new FVector2D(cachedActorLocation);
         
-        canvas.DrawMaterial(DrawMaterial, newOrigin, new FVector2D(minXY, minXY), new FVector2D());
-        RenderingLibrary.EndDrawCanvasToRenderTarget(context);
+        canvas.DrawMaterial(settings.DrawMaterial.Object, newOrigin, new FVector2D(minXY, minXY), 
+            new FVector2D(), 
+            FVector2D.One, 
+            0.0f, 
+            new FVector2D(0.5f, 0.5f));
+        
+        RenderingLibrary.EndDrawCanvasToRenderTarget(context);*/
     }
 
     private void RemoveOverlappingInteractables()

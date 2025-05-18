@@ -7,6 +7,12 @@ namespace ManagedCropoutSampleProject.Interactable;
 [UClass]
 public class ABuilding : AInteractable
 {
+    public ABuilding()
+    {
+        RequireBuild = true;
+        BuildDifficulty = 1.0f;
+    }
+    
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Build")]
     public int CurrentStage { get; set; }
     
@@ -15,11 +21,6 @@ public class ABuilding : AInteractable
     
     [UProperty(DefaultComponent = true, AttachmentComponent = "Scene")]
     public UBoxComponent NavBlocker { get; set; }
-
-    public ABuilding()
-    {
-        BuildDifficulty = 1.0f;
-    }
 
     public override float Interact()
     {

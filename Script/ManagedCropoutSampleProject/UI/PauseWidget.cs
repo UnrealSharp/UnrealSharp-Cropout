@@ -50,7 +50,7 @@ public class UPauseWidget : UCommonActivatableWidget
     private void OnResume(UCommonButtonBase buttonBase)
     {
         UGameplayStatics.SetGamePaused(false);
-        WidgetLibrary.SetFocusToGameViewport();
+        WidgetLibrary.SetInputMode_GameOnly(OwningPlayerController);
         DeactivateWidget();
     }
     
