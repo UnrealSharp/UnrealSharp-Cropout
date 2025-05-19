@@ -4,6 +4,8 @@ Welcome to the UnrealSharp-Cropout repository!
 
 This project is an ongoing effort to convert [Cropout](https://www.unrealengine.com/en-US/blog/cropout-casual-rts-game-sample-project), originally created in Blueprints, into C# using [UnrealSharp](https://github.com/UnrealSharp/UnrealSharp). This project will serve as a learning material to help developers getting started with UnrealSharp!
 
+The C# code is a 1:1 copy of the BPs created by Epic Games.
+
 ## Requirements
 
 - **Engine Version**: Unreal Engine 5.4
