@@ -81,7 +81,15 @@ public partial class ACropoutVillager : APawn, IVillager, IResourceInterface
         
         base.BeginPlay();
     }
-    
+
+    public override void ConstructionScript()
+    {
+        SkeletalMesh.SetCustomPrimitiveDataFloat(0, MathLibrary.RandomFloat().ToFloat());
+        SkeletalMesh.SetCustomPrimitiveDataFloat(1, MathLibrary.RandomFloat().ToFloat());
+        
+        base.ConstructionScript();
+    }
+
     // This is where villagers are assigned new jobs.
     // The Event Action is sent from the player and passes along the target for the villager.
     // Read the Tag from the target and try to change jobs based on that tag name.

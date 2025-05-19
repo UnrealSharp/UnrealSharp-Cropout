@@ -80,6 +80,12 @@ public partial class ACropoutPlayer : APawn, IPlayer
     [UProperty(PropertyFlags.EditAnywhere)]
     public UMaterialParameterCollection CropoutMaterialCollection { get; set; }
     
+    [UProperty(PropertyFlags.EditDefaultsOnly)]
+    public UMaterialInterface PlaceableMaterial { get; set; }
+    
+    [UProperty(PropertyFlags.EditDefaultsOnly)]
+    public UStaticMesh PlaceableOverlayMesh { get; set; }
+    
     [UProperty(PropertyFlags.BlueprintReadOnly)]
     private UStaticMeshComponent? SpawnOverlay { get; set; }
     
@@ -645,9 +651,17 @@ public partial class ACropoutPlayer : APawn, IPlayer
         {
             Scale = extent / 50.0f,
         };
+        
         SpawnOverlay = AddComponentByClass<UStaticMeshComponent>(true, buildTransform);
+        
+        SpawnOverlay.SetStaticMesh(PlaceableOverlayMesh);
+        SpawnOverlay.SetMaterial(0, PlaceableMaterial);
+        SpawnOverlay.RelativeScale3D = new FVector(5.0f);
+        SpawnOverlay.SetCollisionProfileName("NoCollision");
+        
         SpawnOverlay.AttachToComponent(spawn.Mesh, FName.None, EAttachmentRule.SnapToTarget,
             EAttachmentRule.KeepWorld, EAttachmentRule.KeepWorld, true);
+        
         
         UpdateBuildAsset();
     }
@@ -659,20 +673,24 @@ public partial class ACropoutPlayer : APawn, IPlayer
             return;
         }
 
-        ProjectMouseToGroundPlane(out _, out FVector intersection);
+        if (!ProjectMouseToGroundPlane(out _, out FVector intersection))
+        {
+            return;
+        }
+        
         FVector targetLocation = ConvertToSteppedPos(intersection);
         FVector newLocation = MathLibrary.VInterpTo(spawn.ActorLocation, targetLocation, UGameplayStatics.WorldDeltaSeconds.ToFloat(), 10.0f);
         spawn.SetActorLocation(newLocation, false, out _, false);
         
-        spawn.GetOverlappingActors(out IList<AActor> overlappingActors, typeof(AInteractable));
-        canDrop = overlappingActors.Count == 0 && CornersInNav();
+        spawn.GetOverlappingActors(out IList<AInteractable> overlappingInteractables);
+        canDrop = overlappingInteractables.Count == 0 && CornersInNav();
 
         FLinearColor color;
         color.R = targetLocation.X.ToFloat();
         color.G = targetLocation.Y.ToFloat();
         color.B = targetLocation.Z.ToFloat();
         color.A = canDrop ? 1.0f : 0.0f;
-        MaterialLibrary.SetVectorParameterValue(CropoutMaterialCollection, "TargetPosition", color);
+        MaterialLibrary.SetVectorParameterValue(CropoutMaterialCollection, "Target Position", color);
     }
 
     bool CornersInNav()
@@ -818,9 +836,9 @@ public partial class ACropoutPlayer : APawn, IPlayer
 
         IDictionary<EResourceType, int> currentResources = gameMode.GetCurrentResources();
         
-        foreach (KeyValuePair<EResourceType, int> resource in currentResources)
+        foreach (KeyValuePair<EResourceType, int> resource in _resourceCost)
         {
-            int value = _resourceCost[resource.Key];
+            int value = currentResources[resource.Key];
             
             if (value >= resource.Value)
             {

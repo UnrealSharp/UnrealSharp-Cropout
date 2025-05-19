@@ -86,7 +86,6 @@ public class AIslandGenActor : ADynamicMeshActor
             FVector spawnPoint = MathLibrary.RandomUnitVectorFromStream(seed) * MaxSpawnDistance / 2;
             seed.GetFraction();
             
-            spawnPoint += ActorLocation;
             spawnPoint.Z = 0.0f;
             
             SpawnPoints.Add(spawnPoint);

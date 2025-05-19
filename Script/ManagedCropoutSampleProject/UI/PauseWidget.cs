@@ -1,5 +1,7 @@
-﻿using ManagedCropoutSampleProject.Core.Save;
+﻿using ManagedCropoutSampleProject.Core.GameMode;
+using ManagedCropoutSampleProject.Core.Save;
 using ManagedCropoutSampleProject.UI.Elements;
+using UnrealSharp;
 using UnrealSharp.Attributes;
 using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.CommonUI;
@@ -25,6 +27,9 @@ public class UPauseWidget : UCommonActivatableWidget
     
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
     public USliderWidget Slider_SFX { get; set; }
+    
+    [UProperty(PropertyFlags.EditDefaultsOnly)]
+    public TSoftObjectPtr<UWorld> MainMenuLevel { get; set; }
 
     public override void Construct()
     {
@@ -69,7 +74,8 @@ public class UPauseWidget : UCommonActivatableWidget
     {
         UGameplayStatics.SetGamePaused(false);
 
-        IGameInstance gameInstance = (IGameInstance) GameInstance;
-        gameInstance.LoadLevel();
+        UCropoutGameInstance gameInstance = World.GameInstanceAs<UCropoutGameInstance>();
+        gameInstance.ClearSave(true);
+        gameInstance.OpenLevel(MainMenuLevel);
     }
 }

@@ -188,18 +188,14 @@ public class AInteractable : AActor
     private void RemoveOverlappingInteractables()
     {
         GetOverlappingActors<AInteractable>(out IList<AInteractable> actors);
-        FVector MyLocation = ActorLocation;
+        FVector myLocation = ActorLocation;
         
         foreach (AInteractable actor in actors)
         {
-            FVector overlappingActorLocation = actor.ActorLocation;
-            
-            if (FVector.Distance(MyLocation, overlappingActorLocation) < 5 && !actor.ActorHasTag("PlacementMode"))
+            if (FVector.Distance(myLocation, actor.ActorLocation) < 5 && !actor.ActorHasTag("PlacementMode"))
             {
-                continue;
+                actor.DestroyActor();
             }
-            
-            actor.DestroyActor();
         }
     }
 }

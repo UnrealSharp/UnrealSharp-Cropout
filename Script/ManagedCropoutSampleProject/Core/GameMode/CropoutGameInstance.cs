@@ -3,6 +3,7 @@ using ManagedCropoutSampleProject.Interactable;
 using ManagedCropoutSampleProject.UI;
 using UnrealSharp;
 using UnrealSharp.Attributes;
+using UnrealSharp.AudioModulation;
 using UnrealSharp.CommonUI;
 using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
@@ -25,10 +26,23 @@ public class UCropoutGameInstance : UGameInstance, IGameInstance, IPlayer
     [UProperty(PropertyFlags.BlueprintReadOnly)]
     public UCropoutSaveObject SaveObject { get; set; }
     
-    public bool HasSave { get; private set; }
+    [UProperty(PropertyFlags.EditDefaultsOnly)]
+    protected USoundControlBus WinLoseBus { get; set; }
     
-    private bool MusicPlaying;
-    private UTransitionWidget TransitionWidgetInstance;
+    [UProperty(PropertyFlags.EditDefaultsOnly)]
+    protected USoundControlBus MusicStopBus { get; set; }
+    
+    [UProperty(PropertyFlags.EditDefaultsOnly)]
+    protected USoundControlBus PianoBus { get; set; }
+    
+    [UProperty]
+    private UAudioComponent Audio { get; set; }
+    
+    [UProperty]
+    private UTransitionWidget TransitionWidgetInstance { get; set; }
+    
+    public bool HasSave { get; private set; }
+    private bool _musicPlaying;
     public float[] SoundMixes { get; } = [1.0f, 1.0f];
 
     public override void Init()
@@ -46,7 +60,7 @@ public class UCropoutGameInstance : UGameInstance, IGameInstance, IPlayer
         else
         {
             SaveObject = UGameplayStatics.CreateSaveGameObject<UCropoutSaveObject>();
-            MusicPlaying = false;
+            _musicPlaying = false;
         }
     }
 
@@ -67,14 +81,13 @@ public class UCropoutGameInstance : UGameInstance, IGameInstance, IPlayer
             TransitionWidgetInstance.TransitionOut();
         }
     }
-
-    [UFunction(FunctionFlags.BlueprintCallable)]
+    
     public async void OpenLevel(TSoftObjectPtr<UWorld> level)
     {
         try
         {
             Transition(ETransitionType.In);
-            await Task.Delay(1100).ConfigureWithUnrealContext();
+            await Task.Delay(TimeSpan.FromSeconds(1.1)).ConfigureWithUnrealContext();
             UGameplayStatics.OpenLevelBySoftObjectPtr(level);
         }
         catch (Exception e)
@@ -122,6 +135,28 @@ public class UCropoutGameInstance : UGameInstance, IGameInstance, IPlayer
         saveGameAction.Completed += [UFunction](USaveGame saveGame, bool success) => { HasSave = true; };
 
         saveGameAction.Activate();
+    }
+
+    [UFunction(FunctionFlags.BlueprintCallable)]
+    public void PlayMusic(USoundBase sound, float volume, bool persist)
+    {
+        if (_musicPlaying)
+        {
+            return;
+        }
+        
+        UAudioModulationStatics.SetGlobalControlBusMixValue(WinLoseBus, 0.5f, 0.0f);
+        UAudioModulationStatics.SetGlobalControlBusMixValue(MusicStopBus, 0.0f, 0.0f);
+
+        Audio = UGameplayStatics.CreateSound2D(sound, volume, 1.0f, 0.0f, null, persist);
+        Audio.Play(0.0f);
+        _musicPlaying = true;
+    }
+
+    public void StopMusic()
+    {
+        _musicPlaying = false;
+        UAudioModulationStatics.SetGlobalControlBusMixValue(PianoBus, 1.0f, 0.0f);
     }
 
     public void ClearSave(bool clearSeed)

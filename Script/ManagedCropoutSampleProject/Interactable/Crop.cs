@@ -91,6 +91,7 @@ public class ACrop : AResource
         
         int meshIndex = MathLibrary.Truncate(ProgressionState);
         Mesh.SetStaticMesh(MeshList[meshIndex]);
+        Mesh.RelativeScale3D = FVector.One;
 
         UCropoutGameInstance gameInstance = World.GameInstanceAs<UCropoutGameInstance>();
         gameInstance.UpdateAllInteractables();
