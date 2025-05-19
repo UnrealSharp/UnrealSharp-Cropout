@@ -69,7 +69,6 @@ public class AIslandGenActor : ADynamicMeshActor
         SpawnPoints.Clear();
         
         SpawnIslands(spawnMarkers); 
-        SetGrassColour();
         
         _islandGenComplete = true;
         _onIslandGenCompleteDelegate?.Invoke();
@@ -183,18 +182,6 @@ public class AIslandGenActor : ADynamicMeshActor
         
         ReleaseAllComputeMeshes();
         AddActorWorldOffset(new FVector(0.0f, 0.0f, 0.05f), false, out _, false);
-    }
-
-    private void SetGrassColour()
-    {
-        FLinearColor color = MaterialLibrary.GetVectorParameterValue(LandscapeParameterCollection, "GrassColour");
-        
-        MathLibrary.RGBIntoHSV(color, out FLinearColor hsv);
-
-        float randomHue = MathLibrary.RandomFloatInRangeFromStream(Seed, 0.0f, 90.0f) + 103.0f;
-        FLinearColor grassColour = MathLibrary.MakeColor(randomHue, hsv.G, hsv.B, hsv.A);
-        
-        MaterialLibrary.SetVectorParameterValue(LandscapeParameterCollection, "GrassColour", grassColour);
     }
 
     private int PlatformSwitch(int lowEnd, int highEnd)
