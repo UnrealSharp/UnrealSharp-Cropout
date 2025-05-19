@@ -104,8 +104,6 @@ public class AIslandGenActor : ADynamicMeshActor
 
             UGeometryScriptLibrary_MeshPrimitiveFunctions.AppendCone(DynamicMesh, options,
                 transform, Radius, Radius / 4, 1300, 32, 1, true, EGeometryScriptPrimitiveOriginMode.Base);
-            
-            SystemLibrary.DrawDebugSphere(transform.Location, 500.0f, 16, FLinearColor.Aqua, 5);
 
             if (!spawnMarkers)
             {
