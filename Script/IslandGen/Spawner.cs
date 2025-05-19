@@ -116,17 +116,17 @@ public class ASpawner : AActor
         StartWaitSpawn();
     }
 
-    private void StartWaitSpawn()
+    private async void StartWaitSpawn()
     {
+        await Task.Delay(5).ConfigureWithUnrealContext();
         _indexCounter = 0;
-
-       _timerHandle = SystemLibrary.SetTimer(IsReadyToSpawn, 0.5f, true);
+       _timerHandle = SystemLibrary.SetTimer(IsReadyToSpawn, 0.5f, true, -0.5f);
     }
     
     [UFunction]
     private void IsReadyToSpawn()
     {
-        if (!UNavigationSystemV1.IsNavigationBeingBuilt() || !_hasLoaded)
+        if (UNavigationSystemV1.IsNavigationBeingBuilt() || !_hasLoaded)
         {
             return;
         }
