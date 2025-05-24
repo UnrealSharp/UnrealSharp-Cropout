@@ -244,6 +244,8 @@ public partial class ACropoutVillager : APawn, IVillager, IResourceInterface
     void Eat()
     {
         ACropoutGameMode gameMode = World.GameModeAs<ACropoutGameMode>();
+        KeyValuePair<EResourceType, int> resource = new KeyValuePair<EResourceType, int>(EResourceType.Food, 3);
+        gameMode.RemoveTargetResource(resource);
     }
     
     void StopJob()
