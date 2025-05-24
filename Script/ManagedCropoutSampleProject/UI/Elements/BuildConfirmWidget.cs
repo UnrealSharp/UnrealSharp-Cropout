@@ -46,7 +46,7 @@ public class UBuildConfirmWidget : UCommonActivatableWidget
         APawn pawn = playerController.ControlledPawn;
         pawn.EnableInput(playerController);
         pawn.ActorTickEnabled = true;
-        WidgetLibrary.SetInputMode_GameOnly(playerController);
+        WidgetLibrary.SetFocusToGameViewport();
 
         FWidgetTransform transform;
         transform.Translation = AdjustPosition();

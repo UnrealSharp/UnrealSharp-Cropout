@@ -304,6 +304,7 @@ public partial class ACropoutVillager : APawn, IVillager, IResourceInterface
         }
         else
         {
+            Tool.SetStaticMesh(null);
             Tool.SetVisibility(false);
         }
     }

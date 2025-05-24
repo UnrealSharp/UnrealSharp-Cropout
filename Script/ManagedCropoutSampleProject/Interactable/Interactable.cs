@@ -53,10 +53,7 @@ public class AInteractable : AActor
             return;
         }
 
-        if (!Tags.Contains("Build"))
-        {
-            Tags.Add("Build"); 
-        }
+        Tags.Add("Build"); 
             
         int meshIndex = MathLibrary.Floor(ProgressionState);
         if (meshIndex >= MeshList.Count - 1)

@@ -67,6 +67,7 @@ public class ACropoutPlayerController : APlayerController
                 break;
             case EInputType.KeyMouse:
                 controller.ShowMouseCursor = true;
+                WidgetLibrary.SetInputModeGameAndUI(controller, null, EMouseLockMode.DoNotLock, false, false);
                 break;
             default:
             case EInputType.Touch:

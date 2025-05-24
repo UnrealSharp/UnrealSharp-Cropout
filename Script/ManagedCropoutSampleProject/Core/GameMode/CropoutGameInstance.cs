@@ -47,19 +47,21 @@ public class UCropoutGameInstance : UGameInstance, IGameInstance, IPlayer
 
     public override void Init()
     {
-        LoadGame();
         TransitionWidgetInstance = CreateWidget(TransitionWidget);
+        LoadGame();
     }
 
     void LoadGame()
     {
         if (UGameplayStatics.DoesSaveGameExist("SAVE", 0))
         {
-            SaveObject = (UCropoutSaveObject)UGameplayStatics.LoadGameFromSlot("SAVE", 0);
+            SaveObject = (UCropoutSaveObject) UGameplayStatics.LoadGameFromSlot("SAVE", 0);
+            HasSave = true;
         }
         else
         {
             SaveObject = UGameplayStatics.CreateSaveGameObject<UCropoutSaveObject>();
+            SaveObject.RandomStream = new FRandomStream(MathLibrary.RandomInteger(2147483647));
             _musicPlaying = false;
         }
     }
@@ -98,6 +100,21 @@ public class UCropoutGameInstance : UGameInstance, IGameInstance, IPlayer
 
     public void UpdateAllVillagers()
     {
+        SaveObject.Villagers.Clear();
+        
+        UGameplayStatics.GetAllActorsOfClass<ACropoutVillager>(out IList<ACropoutVillager> pawns);
+        foreach (ACropoutVillager pawn in pawns)
+        {
+            FVillagerSaveData entry = new FVillagerSaveData
+            {
+                Transform = pawn.ActorLocation,
+                Task = pawn.Tags[0],
+            };
+            
+            SaveObject.Villagers.Add(entry);
+        }
+        
+        SaveGame();
     }
 
     public void UpdateAllInteractables()
@@ -106,10 +123,8 @@ public class UCropoutGameInstance : UGameInstance, IGameInstance, IPlayer
 
         UGameplayStatics.GetAllActorsOfClass<AInteractable>(out IList<AInteractable> interactables);
 
-        for (int i = 0; i < interactables.Count; i++)
+        foreach (AInteractable interactable in interactables)
         {
-            AInteractable interactable = interactables[i];
-            
             FInteractableSaveData entry;
             entry.Transform = interactable.ActorTransform;
             entry.Type = interactable.Class;
@@ -118,23 +133,34 @@ public class UCropoutGameInstance : UGameInstance, IGameInstance, IPlayer
             
             SaveObject.Interactables.Add(entry);
         }
+        
+        SaveGame();
     }
 
     public void UpdateAllResources(TMap<EResourceType, int> resources)
     {
-        SaveObject = UGameplayStatics.CreateSaveGameObject<UCropoutSaveObject>();
-        SaveObject.Resources.Add(EResourceType.None, 700);
-        Console.WriteLine(SaveObject.Resources[EResourceType.None]);
+        SaveObject.Resources.Clear();
+        
+        foreach (KeyValuePair<EResourceType, int> resource in resources)
+        {
+            SaveObject.Resources.Add(resource.Key, resource.Value);
+        }
+        
+        SaveGame();
     }
 
     public void SaveGame()
     {
         UAsyncActionHandleSaveGame saveGameAction =
             UAsyncActionHandleSaveGame.AsyncSaveGameToSlot(SaveObject, "SAVE", 0);
-
-        saveGameAction.Completed += [UFunction](USaveGame saveGame, bool success) => { HasSave = true; };
-
+        saveGameAction.Completed += OnSaved;
         saveGameAction.Activate();
+    }
+
+    [UFunction]
+    public void OnSaved(USaveGame saveGame, bool success)
+    {
+        HasSave = true;
     }
 
     [UFunction(FunctionFlags.BlueprintCallable)]

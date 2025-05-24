@@ -40,12 +40,21 @@ public class UBuildWidget : UCommonActivatableWidget
 
     protected override void OnActivated()
     {
+        WidgetLibrary.SetInputModeUIOnly(OwningPlayerController, null, EMouseLockMode.DoNotLock, false);
+        BP_GetDesiredFocusTarget().SetFocus();
+
         ACropoutPlayer playerPawn = OwningPlayerPawnAs<ACropoutPlayer>();
         playerPawn.ActorTickEnabled = false;
         playerPawn.DisableInput(OwningPlayerController);
+        
         playerPawn.SwitchBuildMode(true);
         
         base.OnActivated();
+    }
+
+    protected override UWidget BP_GetDesiredFocusTarget()
+    {
+        return BTN_Back;
     }
 
     private void PopulateContainer()
@@ -75,12 +84,8 @@ public class UBuildWidget : UCommonActivatableWidget
     private void OnBack(UCommonButtonBase buttonBase)
     {
         ACropoutPlayer playerPawn = OwningPlayerPawnAs<ACropoutPlayer>();
-        playerPawn.ActorTickEnabled = true;
         playerPawn.EnableInput(OwningPlayerController);
         playerPawn.SwitchBuildMode(false);
-        
-        WidgetLibrary.SetInputMode_GameOnly(OwningPlayerController);
-        
         DeactivateWidget();
     }
 }

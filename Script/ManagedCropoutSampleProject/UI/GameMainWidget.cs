@@ -20,10 +20,10 @@ public class UGameMainWidget : UCommonActivatableWidget
     [UProperty(PropertyFlags.EditDefaultsOnly)]
     protected TSubclassOf<UCommonActivatableWidget> BuildWidgetClass { get; set; }
 
-    public override void Construct()
+    protected override void OnActivated()
     {
-        base.Construct();
-
+        base.OnActivated();
+        
         ACropoutPlayerController playerController = OwningPlayerControllerAs<ACropoutPlayerController>();
         SetInputMode(playerController.InputType);
         

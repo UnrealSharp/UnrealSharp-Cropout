@@ -69,12 +69,7 @@ public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
         InitializeSpawnerReference();
 
         AIslandGenActor genActor = UGameplayStatics.GetActorOfClass<AIslandGenActor>();
-
-        FRandomStream newSeed = gameInstance.HasSave
-            ? gameInstance.SaveObject.RandomStream
-            : new FRandomStream(MathLibrary.RandomIntegerInRange(0, 1000));
-        
-        genActor.InitializeFromSeed(newSeed);
+        genActor.InitializeFromSeed(gameInstance.SaveObject.RandomStream);
         genActor.BindOrExecute(OnGenIslandCompleted);
     }
 
@@ -86,6 +81,7 @@ public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
         {
             SpawnLoadedInteractables(gameInstance);
             
+            Resources.Clear();
             foreach (KeyValuePair<EResourceType, int> resource in Resources)
             {
                 Resources.Add(resource.Key, resource.Value);
@@ -105,11 +101,12 @@ public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
 
     private void SpawnLoadedInteractables(UCropoutGameInstance gameInstance)
     {
-        foreach (FInteractableSaveData savedInteractable in gameInstance.SaveObject.Interactables)
+        List<FInteractableSaveData> interactables = gameInstance.SaveObject.Interactables.ToList();
+        foreach (FInteractableSaveData savedInteractable in interactables)
         {
             AInteractable interactable = SpawnActor(savedInteractable.Type, savedInteractable.Transform);
             interactable.RequireBuild = savedInteractable.Tag == "Build";
-            interactable.ProgressionState = savedInteractable.Health;
+            interactable.SetProgressionState(savedInteractable.Health);
 
             if (savedInteractable.Type.IsChildOf(typeof(ATownHall)))
             {
@@ -120,9 +117,13 @@ public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
 
     private void SpawnLoadedVillagers(UCropoutGameInstance gameInstance)
     {
-        foreach (FVillagerSaveData savedVillager in gameInstance.SaveObject.Villagers)
+        List<FVillagerSaveData> interactables = gameInstance.SaveObject.Villagers.ToList();
+        foreach (FVillagerSaveData savedVillager in interactables)
         {
-            ACropoutVillager villager = SpawnActor(VillagerClass, savedVillager.Transform);
+            FVector spawnLocation = savedVillager.Transform;
+            spawnLocation.Z = 42.0f;
+            
+            ACropoutVillager villager = (ACropoutVillager) AIHelperLibrary.SpawnAIFromClass(VillagerClass.As<APawn>(), null, spawnLocation, FRotator.ZeroRotator);
             villager.ChangeJob(savedVillager.Task);
         }
         

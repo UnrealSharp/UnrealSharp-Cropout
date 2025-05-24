@@ -66,6 +66,8 @@ public class UBuildItemWidget : UCommonButtonBase
     {
         ACropoutGameMode gameMode = World.GameModeAs<ACropoutGameMode>();
         gameMode.OnResourceChanged += OnResourceChanged;
+        CheckIfItemEnabled();
+        
         base.Construct();
     }
 
