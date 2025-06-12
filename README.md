@@ -8,7 +8,7 @@ The C# code is a 1:1 copy of the BPs created by Epic Games.
 
 ## Requirements
 
-- **Engine Version**: Unreal Engine 5.4
+- **Engine Version**: Unreal Engine 5.6
 - **UnrealSharp**
 
 ## Installation
