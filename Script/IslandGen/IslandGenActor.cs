@@ -134,7 +134,7 @@ public class AIslandGenActor : ADynamicMeshActor
         solidifyOptions.GridParameters = gridParameters;
         solidifyOptions.WindingThreshold = 0.5f;
         solidifyOptions.SolidAtBoundaries = false;
-        solidifyOptions.ExtendBounds = 0.0f;
+        solidifyOptions.ExtendMeshBounds = 0.0f;
         solidifyOptions.SurfaceSearchSteps = 64;
         solidifyOptions.ThickenShells = false;
         solidifyOptions.ShellThickness = 1.0f;
