@@ -145,7 +145,7 @@ public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
         
         townHall = SpawnActor(TownHallClass, randomSpawnMarker.ActorTransform, ESpawnActorCollisionHandlingMethod.AlwaysSpawn);
         
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i <= 2; i++)
         {
             SpawnVillager();
         }
