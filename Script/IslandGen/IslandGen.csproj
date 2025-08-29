@@ -22,6 +22,6 @@
     </Reference>
 
     <Analyzer Include="..\..\Plugins\UnrealSharp\Binaries\Managed\UnrealSharp.SourceGenerators.dll" />
-    <ProjectReference Include="..\ProjectGlue\ProjectGlue.csproj" />
+    <ProjectReference Include="..\CropoutSampleProject.Glue\CropoutSampleProject.Glue.csproj" />
   </ItemGroup>
 </Project>
