@@ -1,13 +1,14 @@
 ﻿using UnrealSharp;
 using UnrealSharp.AIModule;
 using UnrealSharp.Attributes;
+using UnrealSharp.Core;
 using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
 
 namespace ManagedCropoutSampleProject.AI.EQS;
 
 [UClass]
-public class UCollectionTargetQuery : UEnvQueryContext_BlueprintBase
+public partial class UCollectionTargetQuery : UEnvQueryContext_BlueprintBase
 {
     public UCollectionTargetQuery()
     {
@@ -15,9 +16,9 @@ public class UCollectionTargetQuery : UEnvQueryContext_BlueprintBase
     }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    public FName KeyName { get; set; }
-    
-    public override void ProvideSingleLocation(UObject querierObject, AActor querierActor, out FVector resultingLocation)
+    public partial FName KeyName { get; set; }
+
+    protected override void ProvideSingleLocation_Implementation(UObject querierObject, AActor querierActor, out FVector resultingLocation)
     {
         AAIController controller = AIHelperLibrary.GetAIController(querierActor);
         UBlackboardComponent blackboard = AIHelperLibrary.GetBlackboard(controller);

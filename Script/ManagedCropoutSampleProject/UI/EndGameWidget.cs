@@ -5,60 +5,64 @@ using UnrealSharp.Attributes;
 using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.AudioModulation;
 using UnrealSharp.CommonUI;
+using UnrealSharp.Core;
 using UnrealSharp.Engine;
 using UnrealSharp.UMG;
 
 namespace ManagedCropoutSampleProject.UI;
 
-[UClass]
-public class UEndGameWidget : UCommonActivatableWidget
+[UClass, UMetaData("Test", "Test"), UMetaData("Tester")]
+public partial class UEndGameWidget : UCommonActivatableWidget
 {
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    protected UCommonTextBlock MainText { get; set; }
+    protected partial UCommonTextBlock MainText { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    protected UCropoutButton BTN_Retry { get; set; }
+    protected partial UCropoutButton BTN_Retry { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    protected UCropoutButton BTN_Continue { get; set; }
+    protected partial UCropoutButton BTN_Continue { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    protected UCropoutButton BTN_MainMenu { get; set; }
+    protected partial UCropoutButton BTN_MainMenu { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected FText WinText { get; set; }
+    protected partial FText WinText { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected FText LoseText { get; set; }
+    protected partial FText LoseText { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected TSoftObjectPtr<UWorld> MainMenuLevel { get; set; }
+    protected partial TSoftObjectPtr<UWorld> MainMenuLevel { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected TSoftObjectPtr<UWorld> VillageLevel { get; set; }
+    protected partial TSoftObjectPtr<UWorld> VillageLevel { get; set; }
 
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected USoundControlBus CropoutMusicBus { get; set; }
+    protected partial USoundControlBus CropoutMusicBus { get; set; }
+    
+    [UProperty(PropertyFlags.EditAnywhere)]
+    public partial bool CallSavjje { get; set; }
     
     private bool _isWin = false;
 
-    public override void Construct()
+    protected override void Construct_Implementation()
     {
-        base.Construct();
+        base.Construct_Implementation();
         BTN_Continue.BindButtonClickedEvent(OnContinue);
         BTN_Retry.BindButtonClickedEvent(OnRetry);
         BTN_MainMenu.BindButtonClickedEvent(OnMainMenu);
     }
 
-    protected override void OnActivated()
+    protected override void OnActivated_Implementation()
     {
         WidgetLibrary.SetInputModeUIOnly(OwningPlayerController, BP_GetDesiredFocusTarget(), EMouseLockMode.DoNotLock);
         OwningPlayerPawn.DisableInput(OwningPlayerController);
         UGameplayStatics.SetGamePaused(true);
-        base.OnActivated();
+        base.OnActivated_Implementation();
     }
 
-    protected override UWidget BP_GetDesiredFocusTarget()
+    protected override UWidget BP_GetDesiredFocusTarget_Implementation()
     {
         return BTN_Continue;
     }

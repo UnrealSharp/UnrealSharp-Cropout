@@ -2,32 +2,33 @@
 using UnrealSharp;
 using UnrealSharp.AIModule;
 using UnrealSharp.Attributes;
+using UnrealSharp.Core;
 using UnrealSharp.Engine;
 
 namespace ManagedCropoutSampleProject.AI.Tasks;
 
 [UClass]
-public class UInitialCollectResource : UCropoutBaseTask
+public partial class UInitialCollectResource : UCropoutBaseTask
 {
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public FBlackboardKeySelector Key_ResourceClass { get; set; }
+    public partial FBlackboardKeySelector Key_ResourceClass { get; set; }
     
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public FBlackboardKeySelector Key_CollectionClass { get; set; }
+    public partial FBlackboardKeySelector Key_CollectionClass { get; set; }
     
     [UProperty]
-    public FBlackboardKeySelector Key_Resource { get; set; }
+    public partial FBlackboardKeySelector Key_Resource { get; set; }
     
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public FBlackboardKeySelector Key_ResourceTag { get; set; }
+    public partial FBlackboardKeySelector Key_ResourceTag { get; set; }
     
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public FBlackboardKeySelector Key_TownHall { get; set; }
+    public partial FBlackboardKeySelector Key_TownHall { get; set; }
 
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public TSubclassOf<AInteractable> TownHallClass { get; set; }
+    public partial TSubclassOf<AInteractable> TownHallClass { get; set; }
 
-    protected override void ReceiveExecuteAI(AAIController ownerController, APawn controlledPawn)
+    protected override void ReceiveExecuteAI_Implementation(AAIController ownerController, APawn controlledPawn)
     {
         if (controlledPawn.Tags.Count == 0) 
         {

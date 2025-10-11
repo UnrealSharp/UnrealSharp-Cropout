@@ -10,34 +10,34 @@ using UnrealSharp.UMG;
 namespace ManagedCropoutSampleProject.UI.Elements;
 
 [UClass]
-public class UBuildConfirmWidget : UCommonActivatableWidget
+public partial class UBuildConfirmWidget : UCommonActivatableWidget
 {
     [UProperty(PropertyFlags.BlueprintReadOnly), UMetaData("BindWidget")]
-    public UCropoutButton BTN_Place { get; set; }
+    public partial UCropoutButton BTN_Place { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), UMetaData("BindWidget")]
-    public UCropoutButton BTN_Rotate { get; set; }
+    public partial UCropoutButton BTN_Rotate { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), UMetaData("BindWidget")]
-    public UCropoutButton BTN_Cancel { get; set; }
+    public partial UCropoutButton BTN_Cancel { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), UMetaData("BindWidget")]
-    public UCommonBorder CommonBorder_1 { get; set; }
+    public partial UCommonBorder CommonBorder_1 { get; set; }
 
     private FVectorSpringState SpringState;
     ACropoutPlayer Player => OwningPlayerPawnAs<ACropoutPlayer>();
 
-    public override void Construct()
+    protected override void Construct_Implementation()
     {
         BTN_Place.BindButtonClickedEvent(OnClickPlace);
         BTN_Cancel.BindButtonClickedEvent(OnClickCancel);
         BTN_Rotate.BindButtonClickedEvent(OnClickRotate);
-        base.Construct();
+        base.Construct_Implementation();
     }
 
-    protected override void OnActivated()
+    protected override void OnActivated_Implementation()
     {
-        base.OnActivated();
+        base.OnActivated_Implementation();
 
         ACropoutPlayerController playerController = OwningPlayerAs<ACropoutPlayerController>();
         playerController.OnNewInput(playerController.InputType);
@@ -63,9 +63,9 @@ public class UBuildConfirmWidget : UCommonActivatableWidget
         player.SpawnBuildTarget();
     }
 
-    public override void Tick(FGeometry myGeometry, float deltaTime)
+    protected override void Tick_Implementation(FGeometry myGeometry, float deltaTime)
     {
-        base.Tick(myGeometry, deltaTime);
+        base.Tick_Implementation(myGeometry, deltaTime);
 
         FVector2D current2D = CommonBorder_1.Transform.Translation;
         FVector current = new FVector(current2D.X, current2D.Y, 0.0f);
@@ -84,12 +84,12 @@ public class UBuildConfirmWidget : UCommonActivatableWidget
     {
         ACropoutPlayer pawn = (ACropoutPlayer) OwningPlayerController.ControlledPawn;
         
-        if (pawn.spawn == null)
+        if (pawn.Spawn == null)
         {
             return FVector2D.Zero;
         }
         
-        UGameplayStatics.ProjectWorldToScreen(OwningPlayerController, pawn.spawn.ActorLocation, out FVector2D screenPosition, true);
+        UGameplayStatics.ProjectWorldToScreen(OwningPlayerController, pawn.Spawn.ActorLocation, out FVector2D screenPosition, true);
 
         double viewportScale = UWidgetLayoutLibrary.ViewportScale.ToDouble();
         FVector2D viewportSize = UWidgetLayoutLibrary.ViewportSize;

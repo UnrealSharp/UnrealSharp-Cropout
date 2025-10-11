@@ -1,54 +1,50 @@
-﻿using System.Diagnostics;
-using ManagedCropoutSampleProject.Core;
+﻿using ManagedCropoutSampleProject.Core;
 using ManagedCropoutSampleProject.Core.GameMode;
 using ManagedCropoutSampleProject.Interactable;
-using ManagedCropoutSampleProject.UI.Elements;
 using UnrealSharp;
 using UnrealSharp.Attributes;
 using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.CommonUI;
-using UnrealSharp.Core;
-using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
 using UnrealSharp.UMG;
 
 namespace ManagedCropoutSampleProject.UI.Common;
 
 [UClass]
-public class UBuildItemWidget : UCommonButtonBase
+public partial class UBuildItemWidget : UCommonButtonBase
 {
     [UProperty(PropertyFlags.BlueprintReadOnly), UMetaData("BindWidget")]
-    public USizeBox BaseSize { get; set; }
+    public partial USizeBox BaseSize { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), UMetaData("BindWidget")]
-    public UImage Img_Icon { get; set; }
+    public partial UImage Img_Icon { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), UMetaData("BindWidget")]
-    public UBorder BG { get; set; }
+    public partial UBorder BG { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), UMetaData("BindWidget")]
-    public UCommonTextBlock Txt_Title { get; set; }
+    public partial UCommonTextBlock Txt_Title { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), UMetaData("BindWidget")]
-    public UHorizontalBox CostContainer { get; set; }
+    public partial UHorizontalBox CostContainer { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    public TSubclassOf<UBuildItemCostWidget> CostWidgetClass { get; set; }
+    public partial TSubclassOf<UBuildItemCostWidget> CostWidgetClass { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    public TSubclassOf<UCommonActivatableWidget> ConfirmWidgetClass { get; set; }
+    public partial TSubclassOf<UCommonActivatableWidget> ConfirmWidgetClass { get; set; }
     
     [UProperty(PropertyFlags.Transient), BindWidgetAnim]
-    public UWidgetAnimation Loop_Hover { get; set; }
+    public partial UWidgetAnimation Loop_Hover { get; set; }
     
     [UProperty(PropertyFlags.Transient), BindWidgetAnim]
-    public UWidgetAnimation Highlight_In { get; set; }
+    public partial UWidgetAnimation Highlight_In { get; set; }
     
     [UProperty]
-    private TSubclassOf<AInteractable> InteractableClass { get; set; }
+    private partial TSubclassOf<AInteractable> InteractableClass { get; set; }
 
     [UProperty(PropertyFlags.EditAnywhere)]
-    private FResourceInfo TableData { get; set; }
+    private partial FResourceInfo TableData { get; set; }
 
     private bool _enableBuilding = true;
     
@@ -62,16 +58,16 @@ public class UBuildItemWidget : UCommonButtonBase
         CheckIfItemEnabled();
     }
 
-    public override void Construct()
+    protected override void Construct_Implementation()
     {
         ACropoutGameMode gameMode = World.GameModeAs<ACropoutGameMode>();
         gameMode.OnResourceChanged += OnResourceChanged;
         CheckIfItemEnabled();
         
-        base.Construct();
+        base.Construct_Implementation();
     }
 
-    protected override void BP_OnClicked()
+    protected override void BP_OnClicked_Implementation()
     {
         IPlayer pawnInterface = (IPlayer) OwningPlayerPawn;
         
@@ -84,21 +80,21 @@ public class UBuildItemWidget : UCommonButtonBase
         player.AddUI(ConfirmWidgetClass);
     }
 
-    protected override void BP_OnHovered()
+    protected override void BP_OnHovered_Implementation()
     {
         BaseSize.MinDesiredHeight = 300.0f;
         PlayAnimation(Loop_Hover);
         PlayAnimation(Highlight_In);
         
-        base.BP_OnHovered();
+        base.BP_OnHovered_Implementation();
     }
 
-    protected override void BP_OnUnhovered()
+    protected override void BP_OnUnhovered_Implementation()
     {
         BaseSize.MinDesiredHeight = 250.0f;
         StopAnimation(Loop_Hover);
         StopAnimation(Highlight_In);
-        base.BP_OnUnhovered();
+        base.BP_OnUnhovered_Implementation();
     }
 
     async void UpdateVisuals()

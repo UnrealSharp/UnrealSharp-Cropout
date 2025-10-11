@@ -8,21 +8,21 @@ using UnrealSharp.Engine;
 namespace ManagedCropoutSampleProject.AI.Tasks;
 
 [UClass]
-public class UInitialFarmingTargetTask : UCropoutBaseTask
+public partial class UInitialFarmingTargetTask : UCropoutBaseTask
 {
     [UProperty(PropertyFlags.EditInstanceOnly, Category = "Target Classes")]
-    public FBlackboardKeySelector Key_ResourceClass { get; set; }
+    public partial FBlackboardKeySelector Key_ResourceClass { get; set; }
     
     [UProperty(PropertyFlags.EditInstanceOnly, Category = "Target Classes")]
-    public FBlackboardKeySelector Key_CollectionClass { get; set; }
+    public partial FBlackboardKeySelector Key_CollectionClass { get; set; }
     
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public FBlackboardKeySelector Key_Resource { get; set; }
+    public partial FBlackboardKeySelector Key_Resource { get; set; }
     
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public FBlackboardKeySelector Key_TownHall { get; set; }
+    public partial FBlackboardKeySelector Key_TownHall { get; set; }
 
-    protected override void ReceiveExecuteAI(AAIController ownerController, APawn controlledPawn)
+    protected override void ReceiveExecuteAI_Implementation(AAIController ownerController, APawn controlledPawn)
     {
         AActor resource = UBTFunctionLibrary.GetBlackboardValueAsActor(this, Key_Resource);
 

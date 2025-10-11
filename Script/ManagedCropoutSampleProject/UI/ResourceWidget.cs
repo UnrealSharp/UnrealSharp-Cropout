@@ -10,64 +10,64 @@ using UnrealSharp.UMG;
 namespace ManagedCropoutSampleProject.UI;
 
 [UClass]
-public class UResourceWidget : UUserWidget
+public partial class UResourceWidget : UUserWidget
 {
     [UProperty, BindWidget]
-    protected UCommonTextBlock ResourceValue { get; set; }
+    protected partial UCommonTextBlock ResourceValue { get; set; }
     
     [UProperty, BindWidget]
-    protected UCommonLazyImage ResourceIcon { get; set; }
+    protected partial UCommonLazyImage ResourceIcon { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected TMap<EResourceType, TSoftObjectPtr<UTexture2D>> ResourceIcons { get; set; }
+    protected partial TMap<EResourceType, TSoftObjectPtr<UTexture2D>> ResourceIcons { get; set; }
     
     [UProperty(PropertyFlags.Transient), BindWidgetAnim]
-    public UWidgetAnimation Reduce { get; set; }
+    public partial UWidgetAnimation Reduce { get; set; }
     
     [UProperty(PropertyFlags.Transient), BindWidgetAnim]
-    public UWidgetAnimation Increase { get; set; }
+    public partial UWidgetAnimation Increase { get; set; }
 
     private int _currentResourceValue = 0;
-    private EResourceType resourceType;
+    private EResourceType _resourceType;
     
     public void InitializeFrom(EResourceType inResourceType)
     {
-        resourceType = inResourceType;
+        _resourceType = inResourceType;
         ResourceValue.Text = "0";
     }
 
-    public override void PreConstruct(bool isDesignTime)
+    protected override void PreConstruct_Implementation(bool isDesignTime)
     {
-        TSoftObjectPtr<UTexture2D> icon = ResourceIcons[resourceType];
+        TSoftObjectPtr<UTexture2D> icon = ResourceIcons[_resourceType];
         ResourceIcon.SetBrushFromLazyTexture(icon);
-        base.PreConstruct(isDesignTime);
+        base.PreConstruct_Implementation(isDesignTime);
     }
 
-    public override void Construct()
+    protected override void Construct_Implementation()
     {
         IResourceInterface resourceInterface = (IResourceInterface) World.GameMode;
 
-        if (resourceInterface.CheckResource(resourceType, out int newResourceValue))
+        if (resourceInterface.CheckResource(_resourceType, out int newResourceValue))
         {
             _currentResourceValue = newResourceValue;
             ResourceValue.Text = _currentResourceValue.ToString();
         }
         
-        base.Construct();
+        base.Construct_Implementation();
     }
 
-    public override void OnInitialized()
+    protected override void OnInitialized_Implementation()
     {
         ACropoutGameMode gameMode = World.GameModeAs<ACropoutGameMode>();
         gameMode.OnResourceChanged += OnResourceChanged;
         
-        base.OnInitialized();
+        base.OnInitialized_Implementation();
     }
     
     [UFunction]
     public void OnResourceChanged(EResourceType type, int value)
     {
-        if (resourceType != type)
+        if (_resourceType != type)
         {
             return;
         }

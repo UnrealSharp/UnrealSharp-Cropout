@@ -4,65 +4,65 @@ using UnrealSharp;
 using UnrealSharp.Attributes;
 using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.CommonUI;
+using UnrealSharp.Core;
 using UnrealSharp.Engine;
 using UnrealSharp.UMG;
 
 namespace ManagedCropoutSampleProject.UI;
 
 [UClass]
-public class UMainMenuWidget : UCommonActivatableWidget
+public partial class UMainMenuWidget : UCommonActivatableWidget
 {
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    public UCropoutButton BTN_Continue { get; set; }
+    public partial UCropoutButton BTN_Continue { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    public UCropoutButton BTN_NewGame { get; set; }
+    public partial UCropoutButton BTN_NewGame { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    public UCropoutButton BTN_Quit { get; set; }
+    public partial UCropoutButton BTN_Quit { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    public UCropoutButton BTN_Donate { get; set; }
+    public partial UCropoutButton BTN_Donate { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected TSoftObjectPtr<UWorld> MainLevel { get; set; }
+    protected partial TSoftObjectPtr<UWorld> MainLevel { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected TSubclassOf<UPromptWidget> PromptWidgetClass { get; set; }
+    protected partial TSubclassOf<UPromptWidget> PromptWidgetClass { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    public FText OverwriteGamePromptText { get; set; }
+    public partial FText OverwriteGamePromptText { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    public FText QuitGamePromptText { get; set; }
+    public partial FText QuitGamePromptText { get; set; }
     
-    private bool hasSave;
-    private UCommonActivatableWidgetStack Stack;
+    private bool _hasSave;
+    private UCommonActivatableWidgetStack? _stack;
     
-    protected override void OnActivated()
+    protected override void OnActivated_Implementation()
     {
-        base.OnActivated();
+        base.OnActivated_Implementation();
         
         BP_GetDesiredFocusTarget().SetFocus();
 
         UCropoutGameInstance gameInstance = (UCropoutGameInstance)GameInstance;
-        hasSave = gameInstance.HasSave;
-        BTN_Continue.IsEnabled = hasSave;
+        _hasSave = gameInstance.HasSave;
+        BTN_Continue.IsEnabled = _hasSave;
 
         string platformName = UGameplayStatics.PlatformName;
         bool isIOSOrAndroid = platformName == "IOS" || platformName == "Android";
         BTN_Donate.Visibility = isIOSOrAndroid ? ESlateVisibility.Visible : ESlateVisibility.Collapsed;
     }
 
-    protected override UWidget BP_GetDesiredFocusTarget()
+    protected override UWidget BP_GetDesiredFocusTarget_Implementation()
     {
-        return hasSave ? BTN_Continue : BTN_NewGame;
+        return _hasSave ? BTN_Continue : BTN_NewGame;
     }
 
-    public override void Construct()
+    protected override void Construct_Implementation()
     {
-        base.Construct();
-        
+        base.Construct_Implementation();
         BTN_Continue.BindButtonClickedEvent(OnClickContinue);
         BTN_NewGame.BindButtonClickedEvent(OnClickNewGame);
         BTN_Quit.BindButtonClickedEvent(OnClickQuit);
@@ -70,7 +70,7 @@ public class UMainMenuWidget : UCommonActivatableWidget
     
     public void InitializeFrom(UCommonActivatableWidgetStack mainStack)
     {
-        Stack = mainStack;
+        _stack = mainStack;
     }
 
     [UFunction]
@@ -83,9 +83,9 @@ public class UMainMenuWidget : UCommonActivatableWidget
     [UFunction]
     private void OnClickNewGame(UCommonButtonBase button)
     {
-        if (hasSave)
+        if (_hasSave && _stack != null)
         {
-            UPromptWidget promptWidget = Stack.PushWidget(PromptWidgetClass);
+            UPromptWidget promptWidget = _stack.PushWidget(PromptWidgetClass);
             promptWidget.InitializeFrom(OverwriteGamePromptText, OnClickConfirm, null);
         }
         else
@@ -105,7 +105,13 @@ public class UMainMenuWidget : UCommonActivatableWidget
     [UFunction]
     private void OnClickQuit(UCommonButtonBase button)
     {
-        UPromptWidget promptWidget = Stack.PushWidget(PromptWidgetClass);
+        if (_stack == null)
+        {
+            LogCropout.LogWarning("Main menu stack is null, quitting immediately");
+            return;
+        }
+        
+        UPromptWidget promptWidget = _stack.PushWidget(PromptWidgetClass);
         promptWidget.InitializeFrom(OverwriteGamePromptText, OnConfirmQuit, null);
     }
 

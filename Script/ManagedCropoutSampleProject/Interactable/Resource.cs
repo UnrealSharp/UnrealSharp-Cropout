@@ -5,7 +5,7 @@ using UnrealSharp.Engine;
 namespace ManagedCropoutSampleProject.Interactable;
 
 [UClass]
-public class AResource : AInteractable, IResourceInterface
+public partial class AResource : AInteractable, IResourceInterface
 {
     public AResource()
     {
@@ -15,23 +15,23 @@ public class AResource : AInteractable, IResourceInterface
     }
     
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Resource Properties")]
-    public EResourceType ResourceType { get; set; }
+    public partial EResourceType ResourceType { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Resource Properties")]
-    protected int ResourceAmount { get; set; }
+    protected partial int ResourceAmount { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Resource Properties")]
-    protected float CollectionTime { get; set; }
+    protected partial float CollectionTime { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Resource Properties")]
-    protected int CollectionValue { get; set; }
+    protected partial int CollectionValue { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Resource Visuals")]
-    protected bool UseRandomMesh { get; set; }
+    protected partial bool UseRandomMesh { get; set; }
 
-    public override void ConstructionScript()
+    protected override void ConstructionScript_Implementation()
     {
-        base.ConstructionScript();
+        base.ConstructionScript_Implementation();
         
         Tags.Add(ResourceType.ToString());
         

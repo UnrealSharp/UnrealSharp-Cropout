@@ -13,7 +13,7 @@ namespace ManagedCropoutSampleProject.Core;
 public delegate void OnKeySwitchDelegate(EInputType newInput);
 
 [UClass]
-public class ACropoutPlayerController : APlayerController
+public partial class ACropoutPlayerController : APlayerController
 {
     public ACropoutPlayerController()
     {
@@ -21,7 +21,7 @@ public class ACropoutPlayerController : APlayerController
     }
     
     [UProperty(PropertyFlags.BlueprintAssignable)]
-    public TMulticastDelegate<OnKeySwitchDelegate> OnKeySwitch { get; set; }
+    public partial TMulticastDelegate<OnKeySwitchDelegate> OnKeySwitch { get; set; }
 
     [UFunction(FunctionFlags.BlueprintPure | FunctionFlags.BlueprintCallable)]
     public EInputType GetInputType()
@@ -40,13 +40,13 @@ public class ACropoutPlayerController : APlayerController
             OnKeySwitch.InnerDelegate.Invoke(_inputType);
         }
     }
-    
-    protected override void BeginPlay()
-    {
-        SetupInput();
-        base.BeginPlay();
-    }
 
+    protected override void BeginPlay_Implementation()
+    {
+        base.BeginPlay_Implementation();
+        SetupInput();
+    }
+    
     public void SetupInput()
     {
         InputComponent.BindAction("KeyDetect", EInputEvent.IE_Pressed, KeyDetect);

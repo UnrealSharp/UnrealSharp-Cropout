@@ -1,75 +1,77 @@
-﻿using ManagedCropoutSampleProject.AI;
-using ManagedCropoutSampleProject.Core.GameMode;
+﻿using ManagedCropoutSampleProject.Core.GameMode;
 using ManagedCropoutSampleProject.Core.Save;
 using ManagedCropoutSampleProject.Interactable;
-using ManagedCropoutSampleProject.Villagers;
 using UnrealSharp;
 using UnrealSharp.AIModule;
 using UnrealSharp.AnimGraphRuntime;
 using UnrealSharp.Attributes;
+using UnrealSharp.Core;
 using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
 
-namespace ManagedCropoutSampleProject;
+namespace ManagedCropoutSampleProject.AI;
 
 [UClass]
 public partial class ACropoutVillager : APawn, IVillager, IResourceInterface
 {
     [UProperty(DefaultComponent = true, RootComponent = true)]
-    public UCapsuleComponent Capsule { get; set; }
+    public partial UCapsuleComponent Capsule { get; set; }
     
     [UProperty(DefaultComponent = true, AttachmentComponent = nameof(Capsule))]
-    public USkeletalMeshComponent SkeletalMesh { get; set; }
+    public partial USkeletalMeshComponent SkeletalMesh { get; set; }
     
     [UProperty(DefaultComponent = true, AttachmentComponent = nameof(SkeletalMesh), AttachmentSocket = "hand_rSocket")]
-    public UStaticMeshComponent Tool { get; set; }
+    public partial UStaticMeshComponent Tool { get; set; }
     
     [UProperty(DefaultComponent = true, AttachmentComponent = nameof(SkeletalMesh), AttachmentSocket = "headSocket")]
-    public USkeletalMeshComponent Hat { get; set; }
+    public partial USkeletalMeshComponent Hat { get; set; }
     
     [UProperty(DefaultComponent = true, AttachmentComponent = nameof(SkeletalMesh))]
-    public USkeletalMeshComponent Hair { get; set; }
+    public partial USkeletalMeshComponent Hair { get; set; }
     
     [UProperty(DefaultComponent = true, AttachmentComponent = nameof(Capsule))]
-    public UDecalComponent Decal { get; set; }
+    public partial UDecalComponent Decal { get; set; }
     
     [UProperty(DefaultComponent = true)]
-    public UFloatingPawnMovement FloatingPawnMovement { get; set; }
+    public partial UFloatingPawnMovement FloatingPawnMovement { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly)]
-    public AActor? Target { get; set; }
+    public partial AActor? Target { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly)]
-    public FName CurrentJob { get; set; }
+    public partial FName CurrentJob { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected UDataTable JobsDataTable { get; set; }
+    protected partial UDataTable JobsDataTable { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected UStaticMesh CrateMesh { get; set; }
+    protected partial UStaticMesh CrateMesh { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected UAnimMontage PutDownAnim { get; set; }
+    protected partial UAnimMontage PutDownAnim { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly)]
-    public int Quantity { get; set; }
+    public partial int Quantity { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly)]
-    protected UStaticMesh? TargetTool { get; set; }
+    protected partial UStaticMesh? TargetTool { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly)]
-    protected UBehaviorTree ActiveBehaviorTree { get; set; }
+    protected partial UBehaviorTree ActiveBehaviorTree { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly)]
-    protected UAnimMontage ActiveWorkAnim { get; set; }
+    protected partial UAnimMontage ActiveWorkAnim { get; set; }
 
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected IList<TSoftObjectPtr<USkeletalMesh>> AllHairMeshes { get; set; }
+    protected partial IList<TSoftObjectPtr<USkeletalMesh>> AllHairMeshes { get; set; }
 
     [UProperty(PropertyFlags.BlueprintReadOnly)]
-    protected EResourceType ResourcesHeld { get; set; }
+    protected partial EResourceType ResourcesHeld { get; set; }
+    
+    [UProperty(PropertyFlags.BlueprintReadOnly)]
+    public partial EResourceType VillagerPath { get; set; }
 
-    protected override void BeginPlay()
+    protected override void BeginPlay_Implementation()
     {
         FVector offset = new FVector(0.0f, 0.0f, Capsule.ScaledCapsuleHalfHeight);
         AddActorWorldOffset(offset, false, out _, false);
@@ -79,15 +81,15 @@ public partial class ACropoutVillager : APawn, IVillager, IResourceInterface
         ChangeJob("Idle");
         AssignDefaultHat();
         
-        base.BeginPlay();
+        base.BeginPlay_Implementation();
     }
 
-    public override void ConstructionScript()
+    protected override void ConstructionScript_Implementation()
     {
         SkeletalMesh.SetCustomPrimitiveDataFloat(0, MathLibrary.RandomFloat().ToFloat());
         SkeletalMesh.SetCustomPrimitiveDataFloat(1, MathLibrary.RandomFloat().ToFloat());
         
-        base.ConstructionScript();
+        base.ConstructionScript_Implementation();
     }
 
     // This is where villagers are assigned new jobs.

@@ -1,21 +1,21 @@
 ﻿using ManagedCropoutSampleProject.Interactable;
-using ManagedCropoutSampleProject.Villagers;
 using UnrealSharp;
 using UnrealSharp.AIModule;
 using UnrealSharp.Attributes;
+using UnrealSharp.Core;
 using UnrealSharp.Engine;
 
 namespace ManagedCropoutSampleProject.AI.Tasks;
 
 [UClass]
-public class UFarmingTask : UCropoutBaseTask
+public partial class UFarmingTask : UCropoutBaseTask
 {
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public FBlackboardKeySelector Crop { get; set; }
+    public partial FBlackboardKeySelector Crop { get; set; }
 
     private FName _tagState;
 
-    protected override async void ReceiveExecuteAI(AAIController ownerController, APawn controlledPawn)
+    protected override async void ReceiveExecuteAI_Implementation(AAIController ownerController, APawn controlledPawn)
     {
         AActor cropActor = UBTFunctionLibrary.GetBlackboardValueAsActor(this, Crop);
         

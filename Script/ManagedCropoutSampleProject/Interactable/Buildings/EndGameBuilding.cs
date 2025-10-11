@@ -4,7 +4,7 @@ using UnrealSharp.Attributes;
 namespace ManagedCropoutSampleProject.Interactable.Buildings;
 
 [UClass]
-public class AEndGameBuilding : ABuilding
+public partial class AEndGameBuilding : ABuilding
 {
     public override void ConstructionComplete()
     {

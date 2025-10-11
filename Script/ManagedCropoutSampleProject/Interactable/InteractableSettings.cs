@@ -7,19 +7,19 @@ using UnrealSharp.Engine;
 namespace ManagedCropoutSampleProject.Interactable;
 
 [UClass(ClassFlags.Config | ClassFlags.DefaultConfig, ConfigCategory = "Game")]
-public class UInteractableSettings : UDeveloperSettings
+public partial class UInteractableSettings : UDeveloperSettings
 {
     [UProperty(PropertyFlags.EditDefaultsOnly | PropertyFlags.Config, Category = "Visuals")]
-    public TSoftObjectPtr<UTextureRenderTarget2D> RenderTarget { get; set; }
+    public partial TSoftObjectPtr<UTextureRenderTarget2D> RenderTarget { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly | PropertyFlags.Config, Category = "Visuals")]
-    public TSoftObjectPtr<UMaterialInterface> DrawMaterial { get; set; }
+    public partial TSoftObjectPtr<UMaterialInterface> DrawMaterial { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly | PropertyFlags.Config, Category = "Juice")]
-    public TSoftObjectPtr<UCurveFloat> WobbleCurve { get; set; }
+    public partial TSoftObjectPtr<UCurveFloat> WobbleCurve { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly | PropertyFlags.Config, Category = "Juice")]
-    public TSoftObjectPtr<UCurveFloat> CropPopCurve { get; set; }
+    public partial TSoftObjectPtr<UCurveFloat> CropPopCurve { get; set; }
 
     public Task LoadInteractableSettingsAsync()
     {

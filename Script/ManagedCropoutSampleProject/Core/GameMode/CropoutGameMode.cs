@@ -1,4 +1,5 @@
 ﻿using IslandGen;
+using ManagedCropoutSampleProject.AI;
 using ManagedCropoutSampleProject.Core.Save;
 using ManagedCropoutSampleProject.Interactable;
 using ManagedCropoutSampleProject.Interactable.Buildings;
@@ -24,44 +25,43 @@ public delegate void FOnUpdateVillagers(int villagerCount);
 public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
 {
     [UProperty(PropertyFlags.BlueprintAssignable)]
-    public TMulticastDelegate<FOnResourceChanged> OnResourceChanged { get; set; }
+    public partial TMulticastDelegate<FOnResourceChanged> OnResourceChanged { get; set; }
     
     [UProperty(PropertyFlags.BlueprintAssignable)]
-    public TMulticastDelegate<FOnUpdateVillagers> OnUpdateVillagers { get; set; }
+    public partial TMulticastDelegate<FOnUpdateVillagers> OnUpdateVillagers { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected TMap<EResourceType, int> Resources { get; set; }
+    protected partial TMap<EResourceType, int> Resources { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected TSubclassOf<ULayerGameWidget> LayerGameWidgetClass { get; set; }
+    protected partial TSubclassOf<ULayerGameWidget> LayerGameWidgetClass { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly)]
-    public ULayerGameWidget GameWidget { get; set; }
+    public partial ULayerGameWidget GameWidget { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    public USoundControlBus CropoutPianoBus { get; set; }
+    public partial USoundControlBus CropoutPianoBus { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    public TSubclassOf<ACropoutVillager> VillagerClass { get; set; }
+    public partial TSubclassOf<ACropoutVillager> VillagerClass { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    public int VillagerCount { get; set; }
+    public partial int VillagerCount { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    public TSubclassOf<ATownHall> TownHallClass { get; set; }
+    public partial TSubclassOf<ATownHall> TownHallClass { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected USoundControlBus CropoutMusicBus { get; set; }
+    protected partial USoundControlBus CropoutMusicBus { get; set; }
     
-    private bool musicIsPlaying;
-    private bool hasEndGame;
-    private ATownHall townHall;
-    private ASpawner spawner;
+    private bool _hasEndGame;
+    private ATownHall? _townHall;
+    private ASpawner? _spawner;
     
-    protected override void BeginPlay()
+    protected override void BeginPlay_Implementation()
     {
-        base.BeginPlay();
-        CreateGameHUD();
+        base.BeginPlay_Implementation();
+        CreateGameHud();
         
         UCropoutGameInstance gameInstance = World.GameInstanceAs<UCropoutGameInstance>();
         gameInstance.UpdateAllResources(Resources);
@@ -75,6 +75,12 @@ public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
 
     private void OnGenIslandCompleted()
     {
+        if (_spawner == null)
+        {
+            LogCropout.LogError("Spawner is null, cannot continue game start");
+            return;
+        }
+        
         UCropoutGameInstance gameInstance = World.GameInstanceAs<UCropoutGameInstance>();
 
         if (gameInstance.HasSave)
@@ -87,7 +93,7 @@ public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
                 Resources.Add(resource.Key, resource.Value);
             }
             
-            spawner.SpawnMeshOnly();
+            _spawner.SpawnMeshOnly();
             SpawnLoadedVillagers(gameInstance);
             
             UAudioModulationStatics.SetGlobalControlBusMixValue(CropoutMusicBus, 0.0f, 0.0f);
@@ -110,7 +116,7 @@ public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
 
             if (savedInteractable.Type.IsChildOf(typeof(ATownHall)))
             {
-                townHall = (interactable as ATownHall)!;
+                _townHall = (interactable as ATownHall)!;
             }
         }
     }
@@ -133,7 +139,7 @@ public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
 
     private void InitializeSpawnerReference()
     {
-        spawner = UGameplayStatics.GetActorOfClass<ASpawner>();
+        _spawner = UGameplayStatics.GetActorOfClass<ASpawner>();
     }
 
     private void BeginSpawning()
@@ -143,7 +149,7 @@ public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
         int randomSpawnMarkerIndex = MathLibrary.RandomIntegerInRange(0, spawnMarkers.Count - 1);
         ASpawnMarker randomSpawnMarker = spawnMarkers[randomSpawnMarkerIndex];
         
-        townHall = SpawnActor(TownHallClass, randomSpawnMarker.ActorTransform, ESpawnActorCollisionHandlingMethod.AlwaysSpawn);
+        _townHall = SpawnActor(TownHallClass, randomSpawnMarker.ActorTransform, ESpawnActorCollisionHandlingMethod.AlwaysSpawn);
         
         for (int i = 0; i <= 2; i++)
         {
@@ -155,10 +161,16 @@ public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
         UCropoutGameInstance gameInstance = World.GameInstanceAs<UCropoutGameInstance>();
         gameInstance.UpdateAllVillagers();
         
-        spawner.SpawnRandom();
+        if (_spawner == null)
+        {
+            LogCropout.LogError("Spawner is null, cannot spawn resources");
+            return;
+        }
+        
+        _spawner.SpawnRandom();
     }
 
-    private void CreateGameHUD()
+    private void CreateGameHud()
     {
         GameWidget = CreateWidget(LayerGameWidgetClass);
         GameWidget.AddToViewport();
@@ -167,12 +179,12 @@ public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
 
     public void EndGame(bool win)
     {
-        if (hasEndGame)
+        if (_hasEndGame)
         {
             return;
         }
         
-        hasEndGame = true;
+        _hasEndGame = true;
         GameWidget.EndGame(win);
     }
 
@@ -191,7 +203,13 @@ public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
 
     public void SpawnVillager()
     {
-        townHall.GetActorBounds(false, out FVector origin, out FVector extent);
+        if (_townHall == null)
+        {
+            LogCropout.LogError("Town Hall is null, cannot spawn villager");
+            return;
+        }
+        
+        _townHall.GetActorBounds(false, out FVector origin, out FVector extent);
         FVector offset = MathLibrary.RandomUnitVector() * double.Min(extent.X, extent.Y) * 2.0f;
         
         FVector spawnLocation = origin + offset;
@@ -204,7 +222,6 @@ public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
     
     public void StopMusic()
     {
-        musicIsPlaying = false;
         UAudioModulationStatics.SetGlobalControlBusMixValue(CropoutPianoBus, 1.0f);
     }
 

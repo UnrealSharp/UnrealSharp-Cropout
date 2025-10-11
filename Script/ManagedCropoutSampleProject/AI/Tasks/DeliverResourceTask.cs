@@ -1,6 +1,5 @@
 ﻿using ManagedCropoutSampleProject.Core.GameMode;
 using ManagedCropoutSampleProject.Interactable;
-using ManagedCropoutSampleProject.Villagers;
 using UnrealSharp;
 using UnrealSharp.AIModule;
 using UnrealSharp.Attributes;
@@ -9,15 +8,15 @@ using UnrealSharp.Engine;
 namespace ManagedCropoutSampleProject.AI.Tasks;
 
 [UClass]
-public class UDeliverResourceTask : UCropoutBaseTask
+public partial class UDeliverResourceTask : UCropoutBaseTask
 {
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public FBlackboardKeySelector GiveTo { get; set; }
+    public partial FBlackboardKeySelector GiveTo { get; set; }
     
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public FBlackboardKeySelector TakeFrom { get; set; }
+    public partial FBlackboardKeySelector TakeFrom { get; set; }
     
-    protected override async void ReceiveExecuteAI(AAIController ownerController, APawn controlledPawn)
+    protected override async void ReceiveExecuteAI_Implementation(AAIController ownerController, APawn controlledPawn)
     {
         AActor takeFromActor = UBTFunctionLibrary.GetBlackboardValueAsActor(this, TakeFrom);
         AActor giveToActor = UBTFunctionLibrary.GetBlackboardValueAsActor(this, GiveTo);

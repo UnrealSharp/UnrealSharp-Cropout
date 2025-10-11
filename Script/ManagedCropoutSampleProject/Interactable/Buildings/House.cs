@@ -4,10 +4,15 @@ using UnrealSharp.Attributes;
 namespace ManagedCropoutSampleProject.Interactable.Buildings;
 
 [UClass]
-public class AHouse : ABuilding
+public partial class AHouse : ABuilding
 {
+    public AHouse()
+    {
+        VillagerCapacity = 2;
+    }
+    
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "House Properties")]
-    public int VillagerCapacity { get; set; } = 2;
+    public partial int VillagerCapacity { get; set; }
     
     private bool _hasSpawnedVillagers = false;
     

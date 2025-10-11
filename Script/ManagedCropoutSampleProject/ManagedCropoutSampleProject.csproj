@@ -3,16 +3,15 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <CopyLocalLockFileAssembliesName>true</CopyLocalLockFileAssembliesName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <EnableDynamicLoading>true</EnableDynamicLoading>
   </PropertyGroup>
   <ItemGroup>
-    
+
     <Reference Include="UnrealSharp">
       <HintPath>..\..\Plugins\UnrealSharp\Binaries\Managed\net9.0\UnrealSharp.dll</HintPath>
     </Reference>
-
+      
     <Reference Include="UnrealSharp.Core">
       <HintPath>..\..\Plugins\UnrealSharp\Binaries\Managed\net9.0\UnrealSharp.Core.dll</HintPath>
     </Reference>
@@ -20,11 +19,12 @@
     <Reference Include="UnrealSharp.Log">
       <HintPath>..\..\Plugins\UnrealSharp\Binaries\Managed\net9.0\UnrealSharp.Log.dll</HintPath>
     </Reference>
-    
-    <Analyzer Include="..\..\Plugins\UnrealSharp\Binaries\Managed\UnrealSharp.SourceGenerators.dll" />
+      
+    <Analyzer Include="..\..\Plugins\UnrealSharp\Binaries\Managed\netstandard2.0\UnrealSharp.SourceGenerators.dll" />
+    <Analyzer Include="..\..\Plugins\UnrealSharp\Binaries\Managed\netstandard2.0\UnrealSharp.GlueGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CropoutSampleProject.Glue\CropoutSampleProject.Glue.csproj" />
     <ProjectReference Include="..\IslandGen\IslandGen.csproj" />
-    <ProjectReference Include="..\ProjectGlue\ProjectGlue.csproj" />
   </ItemGroup>
 </Project>

@@ -12,33 +12,33 @@ using UnrealSharp.UMG;
 namespace ManagedCropoutSampleProject.UI.Common;
 
 [UClass]
-public class UBuildWidget : UCommonActivatableWidget
+public partial class UBuildWidget : UCommonActivatableWidget
 {
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    protected UCropoutButton BTN_Back { get; set; }
+    protected partial UCropoutButton BTN_Back { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    protected UHorizontalBox BuildItemsContainer { get; set; }
+    protected partial UHorizontalBox BuildItemsContainer { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected UDataTable BuildItemsDataTable { get; set; }
+    protected partial UDataTable BuildItemsDataTable { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected TSubclassOf<UBuildItemWidget> BuildItemWidgetClass { get; set; }
+    protected partial TSubclassOf<UBuildItemWidget> BuildItemWidgetClass { get; set; }
 
-    public override void Construct()
+    protected override void Construct_Implementation()
     {
         BTN_Back.BindButtonClickedEvent(OnBack);
-        base.Construct();
+        base.Construct_Implementation();
     }
 
-    public override void PreConstruct(bool isDesignTime)
+    protected override void PreConstruct_Implementation(bool isDesignTime)
     {
         PopulateContainer();
-        base.PreConstruct(isDesignTime);
+        base.PreConstruct_Implementation(isDesignTime);
     }
 
-    protected override void OnActivated()
+    protected override void OnActivated_Implementation()
     {
         WidgetLibrary.SetInputModeUIOnly(OwningPlayerController, null, EMouseLockMode.DoNotLock, false);
         BP_GetDesiredFocusTarget().SetFocus();
@@ -49,10 +49,10 @@ public class UBuildWidget : UCommonActivatableWidget
         
         playerPawn.SwitchBuildMode(true);
         
-        base.OnActivated();
+        base.OnActivated_Implementation();
     }
 
-    protected override UWidget BP_GetDesiredFocusTarget()
+    protected override UWidget BP_GetDesiredFocusTarget_Implementation()
     {
         return BTN_Back;
     }

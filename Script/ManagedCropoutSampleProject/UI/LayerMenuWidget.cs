@@ -6,17 +6,20 @@ using UnrealSharp.CommonUI;
 namespace ManagedCropoutSampleProject.UI;
 
 [UClass]
-public class ULayerMenuWidget : UCommonActivatableWidget
+public partial class ULayerMenuWidget : UCommonActivatableWidget
 {
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    protected UCommonActivatableWidgetStack MainStack { get; set; }
+    protected partial UCommonActivatableWidgetStack MainStack { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected TSubclassOf<UMainMenuWidget> MainMenuWidgetClass { get; set; }
+    protected partial TSubclassOf<UMainMenuWidget> MainMenuWidgetClass { get; set; }
+    
+    [UProperty(PropertyFlags.EditDefaultsOnly)]
+    protected partial TSubclassOf<UMainMenuWidget> MainMenuWidgethhasfssssasfaClass { get; set; }
 
-    protected override void OnActivated()
+    protected override void OnActivated_Implementation()
     {
-        base.OnActivated();
+        base.OnActivated_Implementation();
         
         UMainMenuWidget widget = MainStack.PushWidget(MainMenuWidgetClass);
         widget.InitializeFrom(MainStack);

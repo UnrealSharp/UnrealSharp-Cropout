@@ -1,8 +1,9 @@
 ﻿using UnrealSharp;
 using UnrealSharp.Attributes;
+using UnrealSharp.Core;
 using UnrealSharp.Engine;
 
-namespace ManagedCropoutSampleProject.Villagers;
+namespace ManagedCropoutSampleProject.AI;
 
 [UInterface]
 public interface IVillager

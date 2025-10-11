@@ -4,12 +4,12 @@ using UnrealSharp.Engine;
 namespace ManagedCropoutSampleProject.Interactable.Buildings;
 
 [UClass]
-public class ATownHall : ABuilding
+public partial class ATownHall : ABuilding
 {
-    protected override void BeginPlay()
+    protected override void BeginPlay_Implementation()
     {
         APlayerController playerController = UGameplayStatics.GetPlayerController(0);
         playerController.ControlledPawn.SetActorLocation(ActorLocation, false, out _, false);
-        base.BeginPlay();
+        base.BeginPlay_Implementation();
     }
 }

@@ -6,18 +6,18 @@ using UnrealSharp.Engine;
 namespace ManagedCropoutSampleProject.AI.Tasks;
 
 [UClass]
-public class UFindBoundsTask : UCropoutBaseTask
+public partial class UFindBoundsTask : UCropoutBaseTask
 {
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public FBlackboardKeySelector Target { get; set; }
+    public partial FBlackboardKeySelector Target { get; set; }
     
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public float AdditionalBounds { get; set; }
+    public partial float AdditionalBounds { get; set; }
     
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public FBlackboardKeySelector BlackBoardBounds { get; set; }
+    public partial FBlackboardKeySelector BlackBoardBounds { get; set; }
     
-    protected override void ReceiveExecute(AActor ownerActor)
+    protected override void ReceiveExecute_Implementation(AActor ownerActor)
     {
         AActor target = UBTFunctionLibrary.GetBlackboardValueAsActor(this, Target);
 

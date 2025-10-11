@@ -7,9 +7,9 @@ using UnrealSharp.Engine;
 namespace ManagedCropoutSampleProject.AI.EQS;
 
 [UClass]
-public class UTargetTownHallQuery : UEnvQueryContext_BlueprintBase
+public partial class UTargetTownHallQuery : UEnvQueryContext_BlueprintBase
 {
-    public override void ProvideSingleLocation(UObject querierObject, AActor querierActor, out FVector resultingLocation)
+    protected override void ProvideSingleLocation_Implementation(UObject querierObject, AActor querierActor, out FVector resultingLocation)
     {
         ATownHall townHall = UGameplayStatics.GetActorOfClass<ATownHall>();
         

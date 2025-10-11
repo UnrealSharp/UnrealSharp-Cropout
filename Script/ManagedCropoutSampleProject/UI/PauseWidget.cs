@@ -11,29 +11,29 @@ using UnrealSharp.UMG;
 namespace ManagedCropoutSampleProject.UI;
 
 [UClass]
-public class UPauseWidget : UCommonActivatableWidget
+public partial class UPauseWidget : UCommonActivatableWidget
 {
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    public UCropoutButton BTN_Resume { get; set; }
+    public partial UCropoutButton BTN_Resume { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    public UCropoutButton BTN_Restart { get; set; }
+    public partial UCropoutButton BTN_Restart { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    public UCropoutButton BTN_MainMenu { get; set; }
+    public partial UCropoutButton BTN_MainMenu { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    public USliderWidget Slider_Music { get; set; }
+    public partial USliderWidget Slider_Music { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    public USliderWidget Slider_SFX { get; set; }
+    public partial USliderWidget Slider_SFX { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    public TSoftObjectPtr<UWorld> MainMenuLevel { get; set; }
+    public partial TSoftObjectPtr<UWorld> MainMenuLevel { get; set; }
 
-    public override void Construct()
+    protected override void Construct_Implementation()
     {
-        base.Construct();
+        base.Construct_Implementation();
         
         BTN_Resume.BindButtonClickedEvent(OnResume);
         BTN_Restart.BindButtonClickedEvent(OnRestart);
@@ -43,9 +43,9 @@ public class UPauseWidget : UCommonActivatableWidget
         Slider_SFX.UpdateSlider();
     }
 
-    protected override void OnActivated()
+    protected override void OnActivated_Implementation()
     {
-        base.OnActivated();
+        base.OnActivated_Implementation();
         
         WidgetLibrary.SetInputModeUIOnly(OwningPlayerController, BP_GetDesiredFocusTarget(), EMouseLockMode.DoNotLock);
         UGameplayStatics.SetGamePaused(true);

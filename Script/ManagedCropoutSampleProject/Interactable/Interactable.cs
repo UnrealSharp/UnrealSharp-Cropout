@@ -6,7 +6,7 @@ using UnrealSharp.Engine;
 namespace ManagedCropoutSampleProject.Interactable;
 
 [UClass]
-public class AInteractable : AActor
+public partial class AInteractable : AActor
 {
     public AInteractable()
     {
@@ -16,31 +16,31 @@ public class AInteractable : AActor
     }
     
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Meshes")]
-    public TArray<UStaticMesh> MeshList { get; set; }
+    public partial TArray<UStaticMesh> MeshList { get; set; }
     
     [UProperty(DefaultComponent = true, RootComponent = true)]
-    public USceneComponent Scene { get; set; }
+    public partial USceneComponent Scene { get; set; }
     
     [UProperty(DefaultComponent = true, AttachmentComponent = "Scene")]
-    public UStaticMeshComponent Mesh { get; set; }
+    public partial UStaticMeshComponent Mesh { get; set; }
     
     [UProperty(DefaultComponent = true, AttachmentComponent = "Scene")]
-    public UBoxComponent Box { get; set; }
+    public partial UBoxComponent Box { get; set; }
     
     [UProperty(DefaultComponent = true)]
-    public UTimelineComponent Timeline { get; set; }
+    public partial UTimelineComponent Timeline { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    public float BoundGap { get; set; }
+    public partial float BoundGap { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Visuals")]
-    protected bool EnableGroundBlend { get; set; }
+    protected partial bool EnableGroundBlend { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Visuals")]
-    protected float OutlineDraw { get; set; }
+    protected partial float OutlineDraw { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Progression")]
-    public bool RequireBuild { get; set; }
+    public partial bool RequireBuild { get; set; }
 
     public float ProgressionState;
     
@@ -65,19 +65,19 @@ public class AInteractable : AActor
         Mesh.SetStaticMesh(newMesh);
     }
 
-    protected override void BeginPlay()
+    protected override void BeginPlay_Implementation()
     {
         FLatentActionInfo actionInfo = new FLatentActionInfo();
         actionInfo.CallbackTarget = this;
         actionInfo.ExecutionFunction = nameof(SetupInteractable);
         SystemLibrary.DelayUntilNextTick(actionInfo);
         
-        base.BeginPlay();
+        base.BeginPlay_Implementation();
     }
 
-    public override void ConstructionScript()
+    protected override void ConstructionScript_Implementation()
     {
-        base.ConstructionScript();
+        base.ConstructionScript_Implementation();
         
         // Creates a collision box around the bounds of the actor rounded to grid spacing. This is what is checked when placing actors to make sure they don't overlap.
         Mesh.GetLocalBounds(out FVector origin, out FVector boxExtent);
@@ -141,7 +141,7 @@ public class AInteractable : AActor
         RemoveOverlappingInteractables();
     }
 
-    private async void SetupRenderTarget()
+    private void SetupRenderTarget()
     {
         /*if (!EnableGroundBlend)
         {

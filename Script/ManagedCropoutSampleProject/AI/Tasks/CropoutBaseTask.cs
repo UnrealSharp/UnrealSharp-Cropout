@@ -4,7 +4,7 @@ using UnrealSharp.Attributes;
 namespace ManagedCropoutSampleProject.AI.Tasks;
 
 [UClass]
-public class UCropoutBaseTask : UBTTask_BlueprintBase
+public partial class UCropoutBaseTask : UBTTask_BlueprintBase
 {
     
 }

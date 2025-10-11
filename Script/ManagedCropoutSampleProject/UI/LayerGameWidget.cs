@@ -12,47 +12,47 @@ using UnrealSharp.UMG;
 namespace ManagedCropoutSampleProject.UI;
 
 [UClass]
-public class ULayerGameWidget : UCommonActivatableWidget
+public partial class ULayerGameWidget : UCommonActivatableWidget
 {
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    protected UVerticalBox ResourceContainer { get; set; }
+    protected partial UVerticalBox ResourceContainer { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    protected UCommonTextBlock VillagerCounter { get; set; }
+    protected partial UCommonTextBlock VillagerCounter { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    protected UImage VillagerIcon { get; set; }
+    protected partial UImage VillagerIcon { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    protected UCropoutButton BTN_Pause { get; set; }
+    protected partial UCropoutButton BTN_Pause { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    protected UCommonActivatableWidgetStack MainStack { get; set; }
+    protected partial UCommonActivatableWidgetStack MainStack { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    public TSubclassOf<UPauseWidget> PauseWidgetClass { get; set; }
+    public partial TSubclassOf<UPauseWidget> PauseWidgetClass { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    public TSubclassOf<UEndGameWidget> EndGameWidgetClass { get; set; }
+    public partial TSubclassOf<UEndGameWidget> EndGameWidgetClass { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    public TSubclassOf<UResourceWidget> ResourceWidgetClass { get; set; }
+    public partial TSubclassOf<UResourceWidget> ResourceWidgetClass { get; set; }
 
     private EResourceType _currentResourceType = EResourceType.Food;
     private FTimerHandle _addResourceTimer;
 
-    public override void Construct()
+    protected override void Construct_Implementation()
     {
         InitializeWidget();
         BTN_Pause.BindButtonClickedEvent(OnPaused);
         
-        base.Construct();
+        base.Construct_Implementation();
     }
 
-    public override void OnInitialized()
+    protected override void OnInitialized_Implementation()
     {
         InitializeWidget();
-        base.OnInitialized();
+        base.OnInitialized_Implementation();
     }
 
     public void EndGame(bool win)

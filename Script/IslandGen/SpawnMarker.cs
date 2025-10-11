@@ -4,8 +4,8 @@ using UnrealSharp.Engine;
 namespace IslandGen;
 
 [UClass]
-public class ASpawnMarker : AActor
+public partial class ASpawnMarker : AActor
 {
     [UProperty(DefaultComponent = true, RootComponent = true)]
-    public USceneComponent Scene { get; set; }
+    public partial USceneComponent Scene { get; set; }
 }
