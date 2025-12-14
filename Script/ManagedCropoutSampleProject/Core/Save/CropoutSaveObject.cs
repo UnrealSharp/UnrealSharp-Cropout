@@ -1,13 +1,14 @@
 ﻿using ManagedCropoutSampleProject.Interactable;
 using UnrealSharp;
 using UnrealSharp.Attributes;
+using UnrealSharp.Core;
 using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
 
 namespace ManagedCropoutSampleProject.Core.Save;
 
 [UStruct]
-public struct FInteractableSaveData
+public partial struct FInteractableSaveData
 {
     [UProperty(PropertyFlags.SaveGame)]
     public FTransform Transform;
@@ -23,7 +24,7 @@ public struct FInteractableSaveData
 }
 
 [UStruct]
-public struct FVillagerSaveData
+public partial struct FVillagerSaveData
 {
     [UProperty(PropertyFlags.SaveGame)]
     public FVector Transform;
@@ -33,22 +34,22 @@ public struct FVillagerSaveData
 }
 
 [UClass]
-public class UCropoutSaveObject : USaveGame
+public partial class UCropoutSaveObject : USaveGame
 {
     [UProperty(PropertyFlags.SaveGame)]
-    public FRandomStream RandomStream { get; set; }
+    public partial FRandomStream RandomStream { get; set; }
     
     [UProperty(PropertyFlags.SaveGame)]
-    public TMap<EResourceType, int> Resources { get; set; }
+    public partial TMap<EResourceType, int> Resources { get; set; }
     
     [UProperty(PropertyFlags.SaveGame)]
-    public TArray<FInteractableSaveData> Interactables { get; set; }
+    public partial TArray<FInteractableSaveData> Interactables { get; set; }
     
     [UProperty(PropertyFlags.SaveGame)]
-    public TArray<FVillagerSaveData> Villagers { get; set; }
+    public partial TArray<FVillagerSaveData> Villagers { get; set; }
     
     [UProperty(PropertyFlags.SaveGame)]
-    public float PlayTime { get; set; }
+    public partial float PlayTime { get; set; }
     
     public void ClearSave()
     {

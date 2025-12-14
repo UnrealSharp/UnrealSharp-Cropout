@@ -1,20 +1,23 @@
 ﻿using UnrealSharp;
 using UnrealSharp.Attributes;
-using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.CommonUI;
+using UnrealSharp.Core.Attributes;
 
 namespace ManagedCropoutSampleProject.UI;
 
 [UClass]
-public class ULayerMenuWidget : UCommonActivatableWidget
+public partial class ULayerMenuWidget : UCommonActivatableWidget
 {
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    protected UCommonActivatableWidgetStack MainStack { get; set; }
+    protected partial UCommonActivatableWidgetStack MainStack { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected TSubclassOf<UMainMenuWidget> MainMenuWidgetClass { get; set; }
+    protected partial TSubclassOf<UMainMenuWidget> MainMenuWidgetClass { get; set; }
+    
+    [UProperty(PropertyFlags.EditDefaultsOnly)]
+    protected partial TSubclassOf<UMainMenuWidget> MainMenuWidgethhasfssssasfaClass { get; set; }
 
-    protected override void OnActivated()
+    public override void OnActivated()
     {
         base.OnActivated();
         

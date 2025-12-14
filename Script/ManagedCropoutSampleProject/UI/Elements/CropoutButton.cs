@@ -1,25 +1,26 @@
-﻿using UnrealSharp;
-using UnrealSharp.Attributes;
+﻿using UnrealSharp.Attributes;
 using UnrealSharp.CommonUI;
+using UnrealSharp.Core;
+using UnrealSharp.Core.Attributes;
 using UnrealSharp.Engine;
 using UnrealSharp.UMG;
 
 namespace ManagedCropoutSampleProject.UI.Elements;
 
 [UClass]
-public class UCropoutButton : UCommonButtonBase
+public partial class UCropoutButton : UCommonButtonBase
 {
     [UProperty(PropertyFlags.BlueprintReadOnly), UMetaData("BindWidget")]
-    public UCommonActionWidget GamepadIcon { get; set; }
+    public partial UCommonActionWidget GamepadIcon { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), UMetaData("BindWidget")]
-    public UCommonTextBlock ButtonTitle { get; set; }
+    public partial UCommonTextBlock ButtonTitle { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), UMetaData("BindWidget")]
-    public USizeBox ButtonSize { get; set; }
+    public partial USizeBox ButtonSize { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere)]
-    public FText ButtonText { get; set; }
+    public partial FText ButtonText { get; set; }
 
     public override void PreConstruct(bool isDesignTime)
     {
@@ -42,7 +43,7 @@ public class UCropoutButton : UCommonButtonBase
         GamepadIcon.InputAction = TriggeringInputAction;
     }
     
-    public void BindButtonClickedEvent(CommonButtonBaseClicked onButtonBaseClicked)
+    public void BindButtonClickedEvent(FCommonButtonBaseClicked onButtonBaseClicked)
     {
         OnButtonBaseClicked += onButtonBaseClicked;
     }

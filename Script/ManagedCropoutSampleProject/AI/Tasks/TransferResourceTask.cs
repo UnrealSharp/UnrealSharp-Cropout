@@ -7,15 +7,15 @@ using UnrealSharp.Engine;
 namespace ManagedCropoutSampleProject.AI.Tasks;
 
 [UClass]
-public class UTransferResourceTask : UCropoutBaseTask
+public partial class UTransferResourceTask : UCropoutBaseTask
 {
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public FBlackboardKeySelector GiveTo { get; set; }
+    public partial FBlackboardKeySelector GiveTo { get; set; }
     
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public FBlackboardKeySelector TakeFrom { get; set; }
+    public partial FBlackboardKeySelector TakeFrom { get; set; }
 
-    protected override void ReceiveExecute(AActor ownerActor)
+    public override void ReceiveExecute(AActor ownerActor)
     {
         AActor takeFromActor = UBTFunctionLibrary.GetBlackboardValueAsActor(this, TakeFrom);
         AActor giveToActor = UBTFunctionLibrary.GetBlackboardValueAsActor(this, GiveTo);

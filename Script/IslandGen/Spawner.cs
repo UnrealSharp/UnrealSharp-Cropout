@@ -9,7 +9,7 @@ namespace IslandGen;
 public delegate void FOnSpawningCompleted();
 
 [UStruct]
-public struct FSpawnerData
+public partial struct FSpawnerData
 {
     [UProperty(PropertyFlags.EditAnywhere)]
     public TSoftClassPtr<AActor> ActorToSpawn;
@@ -31,7 +31,7 @@ public struct FSpawnerData
 }
 
 [UStruct]
-public struct FSpawnInstancesData
+public partial struct FSpawnInstancesData
 {
     [UProperty(PropertyFlags.EditAnywhere)]
     public UStaticMesh StaticMesh;
@@ -47,28 +47,34 @@ public struct FSpawnInstancesData
 }
 
 [UClass]
-public class ASpawner : AActor
+public partial class ASpawner : AActor
 {
-    [UProperty(PropertyFlags.EditAnywhere)]
-    public TArray<FSpawnerData> SpawnerData { get; set; }
-
-    [UProperty(PropertyFlags.EditAnywhere)]
-    public TArray<FSpawnInstancesData> SpawnInstances { get; set; }
-
-    [UProperty(PropertyFlags.EditAnywhere)]
-    public bool AutoSpawn { get; set; } = true;
+    public ASpawner()
+    {
+        AutoSpawn = true;
+        ActorSwitch = true;
+    }
     
     [UProperty(PropertyFlags.EditAnywhere)]
-    public bool ActorSwitch { get; set; } = true;
+    public partial TArray<FSpawnerData> SpawnerData { get; set; }
+
+    [UProperty(PropertyFlags.EditAnywhere)]
+    public partial TArray<FSpawnInstancesData> SpawnInstances { get; set; }
+
+    [UProperty(PropertyFlags.EditAnywhere)]
+    public partial bool AutoSpawn { get; set; }
+    
+    [UProperty(PropertyFlags.EditAnywhere)]
+    public partial bool ActorSwitch { get; set; }
     
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public ANavigationData NavigationData { get; set; }
+    public partial ANavigationData NavigationData { get; set; }
 
     [UProperty(PropertyFlags.EditAnywhere)]
-    public FRandomStream Seed { get; set; }
+    public partial FRandomStream Seed { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere)]
-    public bool CallSave { get; set; }
+    public partial bool CallSave { get; set; }
     
     private bool _hasLoaded;
     private int _indexCounter;
@@ -76,7 +82,7 @@ public class ASpawner : AActor
 
     public FOnSpawningCompleted? spawningCompleted;
 
-    protected override void BeginPlay()
+    public override void BeginPlay()
     {
         base.BeginPlay();
         

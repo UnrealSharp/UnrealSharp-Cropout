@@ -1,11 +1,12 @@
 ﻿using ManagedCropoutSampleProject.Core.GameMode;
 using UnrealSharp.Attributes;
+using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
 
 namespace ManagedCropoutSampleProject.Interactable;
 
 [UClass]
-public class ABuilding : AInteractable
+public partial class ABuilding : AInteractable
 {
     public ABuilding()
     {
@@ -14,13 +15,14 @@ public class ABuilding : AInteractable
     }
     
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Build")]
-    public int CurrentStage { get; set; }
+    public partial int CurrentStage { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    public float BuildDifficulty { get; set; }
+    public partial float BuildDifficulty { get; set; }
+
     
     [UProperty(DefaultComponent = true, AttachmentComponent = "Scene")]
-    public UBoxComponent NavBlocker { get; set; }
+    public partial UBoxComponent NavBlocker { get; set; }
 
     public override float Interact()
     {
@@ -39,7 +41,7 @@ public class ABuilding : AInteractable
         
         UStaticMesh newMesh = MeshList[newStage];
         
-        if (newMesh is { IsValid: true })
+        if (newMesh.IsValid())
         {
             Mesh.SetStaticMesh(newMesh);
         }

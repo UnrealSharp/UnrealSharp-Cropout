@@ -1,33 +1,33 @@
 ﻿using ManagedCropoutSampleProject.Core.GameMode;
-using UnrealSharp;
 using UnrealSharp.Attributes;
-using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.CommonUI;
+using UnrealSharp.Core;
+using UnrealSharp.Core.Attributes;
 using UnrealSharp.Engine;
 using UnrealSharp.UMG;
 
 namespace ManagedCropoutSampleProject.UI;
 
 [UClass]
-public class USliderWidget : UUserWidget
+public partial class USliderWidget : UUserWidget
 {
     [UProperty(PropertyFlags.EditAnywhere)]
-    public USoundClass SoundClass { get; set; }
+    public partial USoundClass SoundClass { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere)]
-    public FText SoundClassTitle { get; set; }
+    public partial FText SoundClassTitle { get; set; }
 
     [UProperty(PropertyFlags.EditAnywhere)]
-    public int Index { get; set; }
+    public partial int Index { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected USoundMix SoundMix { get; set; }
+    protected partial USoundMix SoundMix { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    public UCommonTextBlock MixDescriptor { get; set; }
+    public partial UCommonTextBlock MixDescriptor { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    public USlider Slider { get; set; }
+    public partial USlider Slider { get; set; }
 
     public override void PreConstruct(bool isDesignTime)
     {

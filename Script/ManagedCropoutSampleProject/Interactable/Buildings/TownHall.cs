@@ -4,9 +4,9 @@ using UnrealSharp.Engine;
 namespace ManagedCropoutSampleProject.Interactable.Buildings;
 
 [UClass]
-public class ATownHall : ABuilding
+public partial class ATownHall : ABuilding
 {
-    protected override void BeginPlay()
+    public override void BeginPlay()
     {
         APlayerController playerController = UGameplayStatics.GetPlayerController(0);
         playerController.ControlledPawn.SetActorLocation(ActorLocation, false, out _, false);

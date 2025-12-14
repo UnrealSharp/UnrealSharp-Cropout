@@ -1,10 +1,12 @@
-﻿using ManagedCropoutSampleProject.Core.Save;
+﻿using ManagedCropoutSampleProject.AI;
+using ManagedCropoutSampleProject.Core.Save;
 using ManagedCropoutSampleProject.Interactable;
 using ManagedCropoutSampleProject.UI;
 using UnrealSharp;
 using UnrealSharp.Attributes;
 using UnrealSharp.AudioModulation;
 using UnrealSharp.CommonUI;
+using UnrealSharp.Core;
 using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
 
@@ -18,28 +20,28 @@ public enum ETransitionType : byte
 }
 
 [UClass]
-public class UCropoutGameInstance : UGameInstance, IGameInstance, IPlayer
+public partial class UCropoutGameInstance : UGameInstance, IGameInstance, IPlayer
 {
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    TSubclassOf<UTransitionWidget> TransitionWidget { get; set; }
+    partial TSubclassOf<UTransitionWidget> TransitionWidget { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly)]
-    public UCropoutSaveObject SaveObject { get; set; }
+    public partial UCropoutSaveObject SaveObject { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected USoundControlBus WinLoseBus { get; set; }
+    protected partial USoundControlBus WinLoseBus { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected USoundControlBus MusicStopBus { get; set; }
+    protected partial USoundControlBus MusicStopBus { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected USoundControlBus PianoBus { get; set; }
+    protected partial USoundControlBus PianoBus { get; set; }
     
     [UProperty]
-    private UAudioComponent Audio { get; set; }
+    private partial UAudioComponent Audio { get; set; }
     
     [UProperty]
-    private UTransitionWidget TransitionWidgetInstance { get; set; }
+    private partial UTransitionWidget TransitionWidgetInstance { get; set; }
     
     public bool HasSave { get; private set; }
     private bool _musicPlaying;

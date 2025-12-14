@@ -10,35 +10,41 @@ namespace IslandGen;
 public delegate void OnIslandGenComplete();
 
 [UClass]
-public class AIslandGenActor : ADynamicMeshActor
+public partial class AIslandGenActor : ADynamicMeshActor
 {
-    [UProperty(PropertyFlags.EditAnywhere, Category = "Island Generation")]
-    public FRandomStream Seed { get; set; }
+    public AIslandGenActor()
+    {
+        Islands = 17;
+        IslandSize = new(800.0f, 5000.0f);
+    }
     
     [UProperty(PropertyFlags.EditAnywhere, Category = "Island Generation")]
-    public float MaxSpawnDistance { get; set; }
+    public partial FRandomStream Seed { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere, Category = "Island Generation")]
-    public int Islands { get; set; } = 15;
+    public partial float MaxSpawnDistance { get; set; }
+    
+    [UProperty(PropertyFlags.EditAnywhere | PropertyFlags.BlueprintReadOnly, Category = "Island Generation")]
+    public partial int Islands { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere, Category = "Island Generation")]
-    private UDynamicMesh DynamicMesh { get; set; }
+    private partial UDynamicMesh DynamicMesh { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere, Category = "Island Generation")]
-    private IList<FVector> SpawnPoints { get; set; }
+    private partial IList<FVector> SpawnPoints { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere, Category = "Island Generation")]
-    private float Radius { get; set; }
+    private partial float Radius { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere, Category = "Island Generation")]
-    public FVector2D IslandSize { get; set; } = new(800.0f, 5000.0f);
+    public partial FVector2D IslandSize { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    UMaterialParameterCollection LandscapeParameterCollection { get; set; }
+    private partial UMaterialParameterCollection LandscapeParameterCollection { get; set; }
 
     private OnIslandGenComplete? _onIslandGenCompleteDelegate;
     private bool _islandGenComplete = false;
-    
+
     public void InitializeFromSeed(FRandomStream seed)
     {
         Seed = seed;
@@ -50,7 +56,7 @@ public class AIslandGenActor : ADynamicMeshActor
     {
         CreateIsland(false);
     }
-
+    
     public void BindOrExecute(OnIslandGenComplete onIslandGenComplete)
     {
         if (!_islandGenComplete)

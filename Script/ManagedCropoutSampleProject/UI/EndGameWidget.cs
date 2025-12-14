@@ -2,43 +2,47 @@
 using ManagedCropoutSampleProject.UI.Elements;
 using UnrealSharp;
 using UnrealSharp.Attributes;
-using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.AudioModulation;
 using UnrealSharp.CommonUI;
+using UnrealSharp.Core;
+using UnrealSharp.Core.Attributes;
 using UnrealSharp.Engine;
 using UnrealSharp.UMG;
 
 namespace ManagedCropoutSampleProject.UI;
 
-[UClass]
-public class UEndGameWidget : UCommonActivatableWidget
+[UClass, UMetaData("Test", "Test"), UMetaData("Tester")]
+public partial class UEndGameWidget : UCommonActivatableWidget
 {
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    protected UCommonTextBlock MainText { get; set; }
+    protected partial UCommonTextBlock MainText { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    protected UCropoutButton BTN_Retry { get; set; }
+    protected partial UCropoutButton BTN_Retry { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    protected UCropoutButton BTN_Continue { get; set; }
+    protected partial UCropoutButton BTN_Continue { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    protected UCropoutButton BTN_MainMenu { get; set; }
+    protected partial UCropoutButton BTN_MainMenu { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected FText WinText { get; set; }
+    protected partial FText WinText { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected FText LoseText { get; set; }
+    protected partial FText LoseText { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected TSoftObjectPtr<UWorld> MainMenuLevel { get; set; }
+    protected partial TSoftObjectPtr<UWorld> MainMenuLevel { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected TSoftObjectPtr<UWorld> VillageLevel { get; set; }
+    protected partial TSoftObjectPtr<UWorld> VillageLevel { get; set; }
 
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected USoundControlBus CropoutMusicBus { get; set; }
+    protected partial USoundControlBus CropoutMusicBus { get; set; }
+    
+    [UProperty(PropertyFlags.EditAnywhere)]
+    public partial bool CallSavjje { get; set; }
     
     private bool _isWin = false;
 
@@ -50,7 +54,7 @@ public class UEndGameWidget : UCommonActivatableWidget
         BTN_MainMenu.BindButtonClickedEvent(OnMainMenu);
     }
 
-    protected override void OnActivated()
+    public override void OnActivated()
     {
         WidgetLibrary.SetInputModeUIOnly(OwningPlayerController, BP_GetDesiredFocusTarget(), EMouseLockMode.DoNotLock);
         OwningPlayerPawn.DisableInput(OwningPlayerController);
@@ -58,7 +62,7 @@ public class UEndGameWidget : UCommonActivatableWidget
         base.OnActivated();
     }
 
-    protected override UWidget BP_GetDesiredFocusTarget()
+    public override UWidget BP_GetDesiredFocusTarget()
     {
         return BTN_Continue;
     }

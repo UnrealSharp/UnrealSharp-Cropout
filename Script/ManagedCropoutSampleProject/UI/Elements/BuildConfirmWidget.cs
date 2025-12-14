@@ -2,6 +2,7 @@
 using UnrealSharp;
 using UnrealSharp.Attributes;
 using UnrealSharp.CommonUI;
+using UnrealSharp.Core.Attributes;
 using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
 using UnrealSharp.SlateCore;
@@ -10,19 +11,19 @@ using UnrealSharp.UMG;
 namespace ManagedCropoutSampleProject.UI.Elements;
 
 [UClass]
-public class UBuildConfirmWidget : UCommonActivatableWidget
+public partial class UBuildConfirmWidget : UCommonActivatableWidget
 {
     [UProperty(PropertyFlags.BlueprintReadOnly), UMetaData("BindWidget")]
-    public UCropoutButton BTN_Place { get; set; }
+    public partial UCropoutButton BTN_Place { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), UMetaData("BindWidget")]
-    public UCropoutButton BTN_Rotate { get; set; }
+    public partial UCropoutButton BTN_Rotate { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), UMetaData("BindWidget")]
-    public UCropoutButton BTN_Cancel { get; set; }
+    public partial UCropoutButton BTN_Cancel { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), UMetaData("BindWidget")]
-    public UCommonBorder CommonBorder_1 { get; set; }
+    public partial UCommonBorder CommonBorder_1 { get; set; }
 
     private FVectorSpringState SpringState;
     ACropoutPlayer Player => OwningPlayerPawnAs<ACropoutPlayer>();
@@ -35,7 +36,7 @@ public class UBuildConfirmWidget : UCommonActivatableWidget
         base.Construct();
     }
 
-    protected override void OnActivated()
+    public override void OnActivated()
     {
         base.OnActivated();
 
@@ -84,12 +85,12 @@ public class UBuildConfirmWidget : UCommonActivatableWidget
     {
         ACropoutPlayer pawn = (ACropoutPlayer) OwningPlayerController.ControlledPawn;
         
-        if (pawn.spawn == null)
+        if (pawn.Spawn == null)
         {
             return FVector2D.Zero;
         }
         
-        UGameplayStatics.ProjectWorldToScreen(OwningPlayerController, pawn.spawn.ActorLocation, out FVector2D screenPosition, true);
+        UGameplayStatics.ProjectWorldToScreen(OwningPlayerController, pawn.Spawn.ActorLocation, out FVector2D screenPosition, true);
 
         double viewportScale = UWidgetLayoutLibrary.ViewportScale.ToDouble();
         FVector2D viewportSize = UWidgetLayoutLibrary.ViewportSize;

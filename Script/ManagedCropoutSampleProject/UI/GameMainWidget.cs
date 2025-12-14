@@ -1,28 +1,29 @@
 ﻿using ManagedCropoutSampleProject.Core;
 using ManagedCropoutSampleProject.Core.GameMode;
-using ManagedCropoutSampleProject.UI.Common;
 using ManagedCropoutSampleProject.UI.Elements;
 using UnrealSharp;
 using UnrealSharp.Attributes;
-using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.CommonUI;
+using UnrealSharp.Core.Attributes;
 using UnrealSharp.Engine;
 using UnrealSharp.UMG;
 
 namespace ManagedCropoutSampleProject.UI;
 
 [UClass]
-public class UGameMainWidget : UCommonActivatableWidget
+public partial class UGameMainWidget : UCommonActivatableWidget
 {
     [UProperty, BindWidget]
-    protected UCropoutButton BuildButton { get; set; }
+    protected partial UCropoutButton BuildButton { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected TSubclassOf<UCommonActivatableWidget> BuildWidgetClass { get; set; }
-
-    protected override void OnActivated()
+    protected partial TSubclassOf<UCommonActivatableWidget> BuildWidgetClass { get; set; }
+    
+    public override void OnActivated()
     {
         base.OnActivated();
+        
+        PrintString("GameMainWidget Activated");
         
         ACropoutPlayerController playerController = OwningPlayerControllerAs<ACropoutPlayerController>();
         SetInputMode(playerController.InputType);

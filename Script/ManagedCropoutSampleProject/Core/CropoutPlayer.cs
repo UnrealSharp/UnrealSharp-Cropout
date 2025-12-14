@@ -1,10 +1,11 @@
-﻿using ManagedCropoutSampleProject.Core.GameMode;
+﻿using ManagedCropoutSampleProject.AI;
+using ManagedCropoutSampleProject.Core.GameMode;
 using ManagedCropoutSampleProject.Core.Save;
 using ManagedCropoutSampleProject.Interactable;
-using ManagedCropoutSampleProject.Villagers;
 using UnrealSharp;
 using UnrealSharp.Attributes;
 using UnrealSharp.CommonUI;
+using UnrealSharp.Core;
 using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
 using UnrealSharp.EnhancedInput;
@@ -17,79 +18,84 @@ namespace ManagedCropoutSampleProject.Core;
 [UClass]
 public partial class ACropoutPlayer : APawn, IPlayer
 {
+    public ACropoutPlayer()
+    {
+        EdgeMoveDistance = 50.0f;
+    }
+    
     [UProperty(DefaultComponent = true, RootComponent = true)]
-    public USceneComponent Root { get; set; }
+    public partial USceneComponent Root { get; set; }
     
     [UProperty(DefaultComponent = true, AttachmentComponent = nameof(Root))]
-    public USpringArmComponent CameraBoom { get; set; }
+    public partial USpringArmComponent CameraBoom { get; set; }
     
     [UProperty(DefaultComponent = true, AttachmentComponent = nameof(CameraBoom))]
-    public UCameraComponent PlayerCamera { get; set; }
+    public partial UCameraComponent PlayerCamera { get; set; }
     
     [UProperty(DefaultComponent = true, AttachmentComponent = nameof(Root))]
-    public USphereComponent PlayerCollision { get; set; }
+    public partial USphereComponent PlayerCollision { get; set; }
     
     [UProperty(DefaultComponent = true, AttachmentComponent = nameof(Root))]
-    public UStaticMeshComponent CursorMesh { get; set; }
+    public partial UStaticMeshComponent CursorMesh { get; set; }
     
     [UProperty(DefaultComponent = true)]
-    public UFloatingPawnMovement PawnMovement { get; set; }
+    public partial UFloatingPawnMovement PawnMovement { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere, Category = "Camera")]
-    public UCurveFloat CameraZoomCurve { get; set; }
+    public partial UCurveFloat CameraZoomCurve { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere, Category = "Camera")]
-    public float EdgeMoveDistance { get; set; } = 50.0f;
+    public partial float EdgeMoveDistance { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere, Category = "Movement")]
-    public UInputAction MoveAction { get; set; }
+    public partial UInputAction MoveAction { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere, Category = "Movement")]
-    public UInputAction ZoomAction { get; set; }
+    public partial UInputAction ZoomAction { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere, Category = "Movement")]
-    public UInputAction SpinAction { get; set; }
+    public partial UInputAction SpinAction { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere, Category = "Movement")]
-    public UInputAction DragMoveAction { get; set; }
+    public partial UInputAction DragMoveAction { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere, Category = "Mapping Context")]
-    public UInputMappingContext DragMoveMappingContext { get; set; }
+    public partial UInputMappingContext DragMoveMappingContext { get; set; }
 
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Mapping Context")]
-    public UInputMappingContext BaseInputMappingContext { get; set; }
+    public partial UInputMappingContext BaseInputMappingContext { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Mapping Context")]
-    public UInputMappingContext VillagerModeMappingContext { get; set; }
+    public partial UInputMappingContext VillagerModeMappingContext { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Mapping Context")]
-    public UInputMappingContext BuildModeMappingContext { get; set; }
+    public partial UInputMappingContext BuildModeMappingContext { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere, Category = "Interaction")]
-    public UInputAction VillagerModeAction { get; set; }
+    public partial UInputAction VillagerModeAction { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere, Category = "Interaction")]
-    public UInputAction BuildMove { get; set; }
+    public partial UInputAction BuildMove { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly, Category = "Interaction")]
-    public AActor? HoveredActor { get; set; }
+    public partial AActor? HoveredActor { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly | PropertyFlags.EditDefaultsOnly, Category = "Interaction")]
-    public UNiagaraSystem? TargetEffect { get; set; }
+    public partial UNiagaraSystem? TargetEffect { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere)]
-    public UMaterialParameterCollection CropoutMaterialCollection { get; set; }
+    public partial UMaterialParameterCollection CropoutMaterialCollection { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    public UMaterialInterface PlaceableMaterial { get; set; }
+    public partial UMaterialInterface PlaceableMaterial { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    public UStaticMesh PlaceableOverlayMesh { get; set; }
+    public partial UStaticMesh PlaceableOverlayMesh { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly)]
-    private UStaticMeshComponent? SpawnOverlay { get; set; }
+    private partial UStaticMeshComponent? SpawnOverlay { get; set; }
     
-    APlayerController? PlayerController => (APlayerController) Controller;
+    APlayerController PlayerController => (APlayerController) Controller;
 
     private float _zoomValue = 0.5f;
     private float _zoomDirection;
@@ -99,20 +105,20 @@ public partial class ACropoutPlayer : APawn, IPlayer
 
     private TSubclassOf<AInteractable> _targetSpawnClass;
     private IDictionary<EResourceType, int>? _resourceCost;
-    public AInteractable? spawn;
+    public AInteractable? Spawn;
     
-    private bool canDrop;
+    private bool _canDrop;
 
     private AActor? _villagerAction;
     private AActor? _selected;
     
-    private UNiagaraComponent _targetEffectComponent;
-    private FTimerHandle updatePathHandle;
+    private UNiagaraComponent? _targetEffectComponent;
+    private FTimerHandle _updatePathHandle;
     
     private FTimerHandle _closestHoverCheckHandle;
-    private bool isInBuildMode = false;
+    private bool _isInBuildMode = false;
 
-    protected override void BeginPlay()
+    public override void BeginPlay()
     {
         UpdateZoom();
         SetupInput();
@@ -160,12 +166,12 @@ public partial class ACropoutPlayer : APawn, IPlayer
     [UFunction]
     void Build_Move_Completed(FInputActionValue value, float f, float arg3, UInputAction arg4)
     {
-        if (spawn == null)
+        if (Spawn == null)
         {
             return;
         }
         
-        spawn.SetActorLocation(ConvertToSteppedPos(spawn.ActorLocation), false, out _, false);
+        Spawn.SetActorLocation(ConvertToSteppedPos(Spawn.ActorLocation), false, out _, false);
     }
 
     [UFunction]
@@ -205,12 +211,17 @@ public partial class ACropoutPlayer : APawn, IPlayer
     {
         RemoveMappingContext(DragMoveMappingContext);
 
-        if (_villagerAction != null && _villagerAction.IsValid && _selected is IVillager villager)
+        if (_villagerAction != null && _villagerAction.IsValid() && _selected is IVillager villager)
         {
             villager.Action(_villagerAction);
             
-            SystemLibrary.ClearAndInvalidateTimerHandle(ref updatePathHandle);
-            _targetEffectComponent.DestroyComponent(this);
+            SystemLibrary.ClearAndInvalidateTimerHandle(ref _updatePathHandle);
+            
+            if (_targetEffectComponent != null)
+            {
+                _targetEffectComponent.DestroyComponent(this);
+            }
+            
             _selected = null;
         }
         
@@ -295,7 +306,7 @@ public partial class ACropoutPlayer : APawn, IPlayer
         }
         
         _targetEffectComponent = UNiagaraFunctionLibrary.SpawnSystemAttached(TargetEffect, RootComponent, FName.None, FVector.Zero, FRotator.ZeroRotator, EAttachLocation.SnapToTarget, false);
-        updatePathHandle = SystemLibrary.SetTimer(this, "UpdatePath", 0.01f, true);
+        _updatePathHandle = SystemLibrary.SetTimer(this, "UpdatePath", 0.01f, true);
     }
 
     [UFunction]
@@ -303,7 +314,7 @@ public partial class ACropoutPlayer : APawn, IPlayer
     {
         if (_selected == null)
         {
-            SystemLibrary.ClearAndInvalidateTimerHandle(ref updatePathHandle);
+            SystemLibrary.ClearAndInvalidateTimerHandle(ref _updatePathHandle);
             return;
         }
         
@@ -646,6 +657,12 @@ public partial class ACropoutPlayer : APawn, IPlayer
             return;
         }
         
+        if (Spawn == null)
+        {
+            LogCropout.LogError("Spawn is null when trying to create build overlay");
+            return;
+        }
+        
         GetActorBounds(false, out FVector origin, out FVector extent);
         FTransform buildTransform = new FTransform
         {
@@ -659,7 +676,7 @@ public partial class ACropoutPlayer : APawn, IPlayer
         SpawnOverlay.RelativeScale3D = new FVector(5.0f);
         SpawnOverlay.SetCollisionProfileName("NoCollision");
         
-        SpawnOverlay.AttachToComponent(spawn.Mesh, FName.None, EAttachmentRule.SnapToTarget,
+        SpawnOverlay.AttachToComponent(Spawn.Mesh, FName.None, EAttachmentRule.SnapToTarget,
             EAttachmentRule.KeepWorld, EAttachmentRule.KeepWorld, true);
         
         
@@ -668,7 +685,7 @@ public partial class ACropoutPlayer : APawn, IPlayer
 
     void UpdateBuildAsset()
     {
-        if (spawn == null)
+        if (Spawn == null)
         {
             return;
         }
@@ -679,29 +696,35 @@ public partial class ACropoutPlayer : APawn, IPlayer
         }
         
         FVector targetLocation = ConvertToSteppedPos(intersection);
-        FVector newLocation = MathLibrary.VInterpTo(spawn.ActorLocation, targetLocation, UGameplayStatics.WorldDeltaSeconds.ToFloat(), 10.0f);
-        spawn.SetActorLocation(newLocation, false, out _, false);
+        FVector newLocation = MathLibrary.VInterpTo(Spawn.ActorLocation, targetLocation, UGameplayStatics.WorldDeltaSeconds.ToFloat(), 10.0f);
+        Spawn.SetActorLocation(newLocation, false, out _, false);
         
-        spawn.GetOverlappingActors(out IList<AInteractable> overlappingInteractables);
-        canDrop = overlappingInteractables.Count == 0 && CornersInNav();
+        Spawn.GetOverlappingActors(out IList<AInteractable> overlappingInteractables);
+        _canDrop = overlappingInteractables.Count == 0 && CornersInNav();
 
         FLinearColor color;
         color.R = targetLocation.X.ToFloat();
         color.G = targetLocation.Y.ToFloat();
         color.B = targetLocation.Z.ToFloat();
-        color.A = canDrop ? 1.0f : 0.0f;
+        color.A = _canDrop ? 1.0f : 0.0f;
         MaterialLibrary.SetVectorParameterValue(CropoutMaterialCollection, "Target Position", color);
     }
 
     bool CornersInNav()
     {
+        if (Spawn == null)
+        {
+            LogCropout.LogError("Spawn is null when trying to check corners in nav");
+            return false;
+        }
+        
         bool MultiLineTrace(FVector start, FVector end, out IList<FHitResult> hitResults)
         {
             return SystemLibrary.MultiLineTraceByChannel(start, end, ETraceChannel.Visibility.ToQuery(), false, 
                 new List<AActor>(), EDrawDebugTrace.None, out hitResults, true);
         }
         
-        SystemLibrary.GetComponentBounds(spawn.Box, out FVector origin, out FVector extent, out float radius);
+        SystemLibrary.GetComponentBounds(Spawn.Box, out FVector origin, out FVector extent, out float radius);
         
         double multipliedX = extent.X * 1.05f;
         double multipliedY = extent.Y * 1.05f;
@@ -774,9 +797,9 @@ public partial class ACropoutPlayer : APawn, IPlayer
         _targetSpawnClass = targetClass;
         _resourceCost = resourceCost;
 
-        if (spawn != null && spawn.IsValid)
+        if (Spawn != null && Spawn.IsValid())
         {
-            spawn.DestroyActor();
+            Spawn.DestroyActor();
         }
         
         FTransform spawnTransform = new FTransform
@@ -784,19 +807,25 @@ public partial class ACropoutPlayer : APawn, IPlayer
             Location = ActorLocation
         };
         
-        spawn = SpawnActor(targetClass, spawnTransform);
-        spawn.PlacementMode();
+        Spawn = SpawnActor(targetClass, spawnTransform);
+        Spawn.PlacementMode();
         CreateBuildOverlay();
     }
 
     public void SpawnBuildTarget()
     {
-        if (!canDrop)
+        if (!_canDrop)
         {
             return;
         }
+        
+        if (Spawn == null)
+        {
+            LogCropout.LogError("Spawn is null when trying to spawn build target");
+            return;
+        }
 
-        AInteractable interactable = SpawnActor(_targetSpawnClass, spawn.ActorTransform);
+        AInteractable interactable = SpawnActor(_targetSpawnClass, Spawn.ActorTransform);
         interactable.SetProgressionState(0);
         RemoveResources();
         
@@ -807,27 +836,33 @@ public partial class ACropoutPlayer : APawn, IPlayer
 
     public void RotateSpawn()
     {
-        if (spawn == null)
+        if (Spawn == null)
         {
             return;
         }
         
-        spawn.SetActorRotation(spawn.ActorRotation + new FRotator(0.0f, 90.0f, 0.0f), false);
+        Spawn.SetActorRotation(Spawn.ActorRotation + new FRotator(0.0f, 90.0f, 0.0f), false);
     }
     
     public void DestroySpawn()
     {
-        if (spawn == null || SpawnOverlay == null)
+        if (Spawn == null || SpawnOverlay == null)
         {
             throw new NullReferenceException("Spawn or SpawnOverlay is null");
         }
         
-        spawn.DestroyActor();
+        Spawn.DestroyActor();
         SpawnOverlay.DestroyComponent(this);
     }
 
     private void RemoveResources()
     {
+        if (_resourceCost == null)
+        {
+            LogCropout.LogError("Resource cost is null when trying to remove resources");
+            return;
+        }
+        
         ACropoutGameMode gameMode = World.GameModeAs<ACropoutGameMode>();
         foreach (KeyValuePair<EResourceType, int> resourceCost in _resourceCost)
         {
@@ -853,7 +888,7 @@ public partial class ACropoutPlayer : APawn, IPlayer
 
     public void SwitchBuildMode(bool switchBuildMode)
     {
-        if (switchBuildMode == isInBuildMode)
+        if (switchBuildMode == _isInBuildMode)
         {
             return;
         }
@@ -869,7 +904,7 @@ public partial class ACropoutPlayer : APawn, IPlayer
             AddMappingContext(VillagerModeMappingContext);
         }
         
-        isInBuildMode = switchBuildMode;
+        _isInBuildMode = switchBuildMode;
     }
 
     public void AddUI(TSubclassOf<UCommonActivatableWidget> widget)

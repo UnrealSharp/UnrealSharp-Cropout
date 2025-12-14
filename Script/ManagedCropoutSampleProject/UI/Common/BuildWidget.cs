@@ -3,8 +3,9 @@ using ManagedCropoutSampleProject.Interactable;
 using ManagedCropoutSampleProject.UI.Elements;
 using UnrealSharp;
 using UnrealSharp.Attributes;
-using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.CommonUI;
+using UnrealSharp.Core.Attributes;
+using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
 using UnrealSharp.SlateCore;
 using UnrealSharp.UMG;
@@ -12,19 +13,19 @@ using UnrealSharp.UMG;
 namespace ManagedCropoutSampleProject.UI.Common;
 
 [UClass]
-public class UBuildWidget : UCommonActivatableWidget
+public partial class UBuildWidget : UCommonActivatableWidget
 {
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    protected UCropoutButton BTN_Back { get; set; }
+    protected partial UCropoutButton BTN_Back { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    protected UHorizontalBox BuildItemsContainer { get; set; }
+    protected partial UHorizontalBox BuildItemsContainer { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected UDataTable BuildItemsDataTable { get; set; }
+    protected partial UDataTable BuildItemsDataTable { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    protected TSubclassOf<UBuildItemWidget> BuildItemWidgetClass { get; set; }
+    protected partial TSubclassOf<UBuildItemWidget> BuildItemWidgetClass { get; set; }
 
     public override void Construct()
     {
@@ -38,7 +39,7 @@ public class UBuildWidget : UCommonActivatableWidget
         base.PreConstruct(isDesignTime);
     }
 
-    protected override void OnActivated()
+    public override void OnActivated()
     {
         WidgetLibrary.SetInputModeUIOnly(OwningPlayerController, null, EMouseLockMode.DoNotLock, false);
         BP_GetDesiredFocusTarget().SetFocus();
@@ -52,14 +53,14 @@ public class UBuildWidget : UCommonActivatableWidget
         base.OnActivated();
     }
 
-    protected override UWidget BP_GetDesiredFocusTarget()
+    public override UWidget BP_GetDesiredFocusTarget()
     {
         return BTN_Back;
     }
 
     private void PopulateContainer()
     {
-        if (!BuildItemsDataTable.IsValid)
+        if (!BuildItemsDataTable.IsValid())
         {
             return;
         }

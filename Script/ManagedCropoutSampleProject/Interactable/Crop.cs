@@ -1,14 +1,14 @@
 ﻿using ManagedCropoutSampleProject.Core.GameMode;
-using ManagedCropoutSampleProject.Core.Save;
 using UnrealSharp;
 using UnrealSharp.Attributes;
+using UnrealSharp.Core;
 using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
 
 namespace ManagedCropoutSampleProject.Interactable;
 
 [UClass]
-public class ACrop : AResource
+public partial class ACrop : AResource
 {
     public ACrop()
     {
@@ -17,7 +17,7 @@ public class ACrop : AResource
     }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    public float CooldownTime { get; set; }
+    public partial float CooldownTime { get; set; }
 
     public override void SetProgressionState(float state)
     {
@@ -103,7 +103,7 @@ public class ACrop : AResource
         UInteractableSettings settings = GetDefault<UInteractableSettings>();
         UCurveFloat curveFloat = await settings.CropPopCurve.LoadAsync();
         
-        TDelegate<OnTimelineFloat> onReceiveTimelineValue = new TDelegate<OnTimelineFloat>();
+        TDelegate<FOnTimelineFloat> onReceiveTimelineValue = new TDelegate<FOnTimelineFloat>();
         onReceiveTimelineValue.BindUFunction(this, nameof(OnPopTimelineFloat));
         
         Timeline.AddInterpFloat(curveFloat, onReceiveTimelineValue);

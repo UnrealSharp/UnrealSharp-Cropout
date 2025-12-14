@@ -6,7 +6,7 @@ using UnrealSharp.Engine;
 namespace ManagedCropoutSampleProject.AI;
 
 [UStruct]
-public struct FJobs
+public partial struct FJobs
 {
     [UProperty(PropertyFlags.EditDefaultsOnly | PropertyFlags.BlueprintReadOnly)]
     public TSoftObjectPtr<UBehaviorTree> BehaviorTree;

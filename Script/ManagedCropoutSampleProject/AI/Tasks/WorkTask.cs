@@ -1,6 +1,5 @@
 ﻿using ManagedCropoutSampleProject.Core.GameMode;
 using ManagedCropoutSampleProject.Interactable;
-using ManagedCropoutSampleProject.Villagers;
 using UnrealSharp;
 using UnrealSharp.AIModule;
 using UnrealSharp.Attributes;
@@ -10,24 +9,29 @@ using UnrealSharp.Engine;
 namespace ManagedCropoutSampleProject.AI.Tasks;
 
 [UClass]
-public class UWorkTask : UCropoutBaseTask
+public partial class UWorkTask : UCropoutBaseTask
 {
-    [UProperty(PropertyFlags.EditInstanceOnly)]
-    public FBlackboardKeySelector DelayKey { get; set; }
+    public UWorkTask()
+    {
+        DelayMultiplier = 1.0f;
+    }
     
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public FBlackboardKeySelector GiveTo { get; set; }
+    public partial FBlackboardKeySelector DelayKey { get; set; }
     
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public FBlackboardKeySelector TakeFrom { get; set; }
+    public partial FBlackboardKeySelector GiveTo { get; set; }
     
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public float DelayMultiplier { get; set; } = 1.0f;
+    public partial FBlackboardKeySelector TakeFrom { get; set; }
     
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    private AInteractable? Interactable { get; set; }
+    public partial float DelayMultiplier { get; set; }
     
-    protected override void ReceiveExecuteAI(AAIController ownerController, APawn controlledPawn)
+    [UProperty(PropertyFlags.EditInstanceOnly)]
+    private partial AInteractable? Interactable { get; set; }
+    
+    public override void ReceiveExecuteAI(AAIController ownerController, APawn controlledPawn)
     {
         AActor takeFromActor = UBTFunctionLibrary.GetBlackboardValueAsActor(this, TakeFrom);
         AActor giveToActor = UBTFunctionLibrary.GetBlackboardValueAsActor(this, GiveTo);
@@ -81,9 +85,9 @@ public class UWorkTask : UCropoutBaseTask
         FinishExecute(true);
     }
 
-    protected override void ReceiveAbortAI(AAIController ownerController, APawn controlledPawn)
+    public override void ReceiveAbortAI(AAIController ownerController, APawn controlledPawn)
     {
-        if (Interactable != null && Interactable.IsValid)
+        if (Interactable != null && Interactable.IsValid())
         {
             Interactable.StopWobble();
         }

@@ -6,7 +6,7 @@ using UnrealSharp.Engine;
 namespace ManagedCropoutSampleProject.Interactable;
 
 [UClass]
-public class AInteractable : AActor
+public partial class AInteractable : AActor
 {
     public AInteractable()
     {
@@ -16,31 +16,31 @@ public class AInteractable : AActor
     }
     
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Meshes")]
-    public TArray<UStaticMesh> MeshList { get; set; }
+    public partial TArray<UStaticMesh> MeshList { get; set; }
     
     [UProperty(DefaultComponent = true, RootComponent = true)]
-    public USceneComponent Scene { get; set; }
+    public partial USceneComponent Scene { get; set; }
     
     [UProperty(DefaultComponent = true, AttachmentComponent = "Scene")]
-    public UStaticMeshComponent Mesh { get; set; }
+    public partial UStaticMeshComponent Mesh { get; set; }
     
     [UProperty(DefaultComponent = true, AttachmentComponent = "Scene")]
-    public UBoxComponent Box { get; set; }
+    public partial UBoxComponent Box { get; set; }
     
     [UProperty(DefaultComponent = true)]
-    public UTimelineComponent Timeline { get; set; }
+    public partial UTimelineComponent Timeline { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
-    public float BoundGap { get; set; }
+    public partial float BoundGap { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Visuals")]
-    protected bool EnableGroundBlend { get; set; }
+    protected partial bool EnableGroundBlend { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Visuals")]
-    protected float OutlineDraw { get; set; }
+    protected partial float OutlineDraw { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Progression")]
-    public bool RequireBuild { get; set; }
+    public partial bool RequireBuild { get; set; }
 
     public float ProgressionState;
     
@@ -65,7 +65,7 @@ public class AInteractable : AActor
         Mesh.SetStaticMesh(newMesh);
     }
 
-    protected override void BeginPlay()
+    public override void BeginPlay()
     {
         FLatentActionInfo actionInfo = new FLatentActionInfo();
         actionInfo.CallbackTarget = this;
@@ -108,7 +108,7 @@ public class AInteractable : AActor
         FVector wobbleVector = wobbleLocation - ActorLocation;
         Mesh.SetVectorParameterValueOnMaterials("Wobble Vector", wobbleVector);
         
-        TDelegate<OnTimelineFloat> onReceiveTimelineValue = new TDelegate<OnTimelineFloat>();
+        TDelegate<FOnTimelineFloat> onReceiveTimelineValue = new TDelegate<FOnTimelineFloat>();
         onReceiveTimelineValue.BindUFunction(this, nameof(OnTimelineFloat));
         
         Timeline.AddInterpFloat(curveFloat, onReceiveTimelineValue);
@@ -141,7 +141,7 @@ public class AInteractable : AActor
         RemoveOverlappingInteractables();
     }
 
-    private async void SetupRenderTarget()
+    private void SetupRenderTarget()
     {
         /*if (!EnableGroundBlend)
         {

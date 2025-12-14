@@ -7,12 +7,12 @@ using UnrealSharp.Engine;
 namespace ManagedCropoutSampleProject.AI.Tasks;
 
 [UClass]
-public class UProgressConstructionTask : UCropoutBaseTask
+public partial class UProgressConstructionTask : UCropoutBaseTask
 {
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public FBlackboardKeySelector TargetBuild { get; set; }
+    public partial FBlackboardKeySelector TargetBuild { get; set; }
     
-    protected override async void ReceiveExecuteAI(AAIController ownerController, APawn controlledPawn)
+    public override async void ReceiveExecuteAI(AAIController ownerController, APawn controlledPawn)
     {
         ACropoutVillager villager = (ACropoutVillager) controlledPawn;
         villager.PlayWorkAnim(1.0f);

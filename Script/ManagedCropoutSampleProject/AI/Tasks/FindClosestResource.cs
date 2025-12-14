@@ -1,7 +1,8 @@
-﻿using System.ComponentModel;
-using UnrealSharp;
+﻿using UnrealSharp;
 using UnrealSharp.AIModule;
 using UnrealSharp.Attributes;
+using UnrealSharp.Core;
+using UnrealSharp.Core.Attributes;
 using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
 using UnrealSharp.NavigationSystem;
@@ -9,33 +10,39 @@ using UnrealSharp.NavigationSystem;
 namespace ManagedCropoutSampleProject.AI.Tasks;
 
 [UClass]
-public class UFindClosestResource : UCropoutBaseTask
+public partial class UFindClosestResource : UCropoutBaseTask
 {
+    public UFindClosestResource()
+    {
+        UseBlackBoardClass = true;
+        UseBlackBoardTag = true;
+    }
+    
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public FBlackboardKeySelector Target { get; set; }
+    public partial FBlackboardKeySelector Target { get; set; }
 
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public FBlackboardKeySelector NearestTo { get; set; }
+    public partial FBlackboardKeySelector NearestTo { get; set; }
     
     [UProperty(PropertyFlags.EditInstanceOnly)]
-    public FBlackboardKeySelector TargetClass { get; set; }
+    public partial FBlackboardKeySelector TargetClass { get; set; }
     
     [UProperty(PropertyFlags.EditInstanceOnly, Category = "Search Settings")]
-    public bool UseBlackBoardClass { get; set; } = true;
+    public partial bool UseBlackBoardClass { get; set; }
     
     [UProperty(PropertyFlags.EditInstanceOnly, Category = "Search Settings"), UMetaData("EditCondition", "UseBlackBoardClass")]
-    public TSubclassOf<AActor> ManualClass { get; set; }
+    public partial TSubclassOf<AActor> ManualClass { get; set; }
     
     [UProperty(PropertyFlags.EditInstanceOnly, Category = "Tag")]
-    public FName TagFiler { get; set; }
+    public partial FName TagFiler { get; set; }
     
     [UProperty(PropertyFlags.EditInstanceOnly, Category = "Tag")]
-    public FBlackboardKeySelector BlackBoardTag { get; set; }
+    public partial FBlackboardKeySelector BlackBoardTag { get; set; }
     
     [UProperty(PropertyFlags.EditInstanceOnly, Category = "Tag")]
-    bool UseBlackBoardTag { get; set; } = true;
+    partial bool UseBlackBoardTag { get; set; }
     
-    protected override void ReceiveExecute(AActor ownerActor)
+    public override void ReceiveExecute(AActor ownerActor)
     {
         AActor foundActor = UBTFunctionLibrary.GetBlackboardValueAsActor(this, Target);
 
@@ -50,7 +57,7 @@ public class UFindClosestResource : UCropoutBaseTask
         {
             TSubclassOf<UObject> foundClass = UBTFunctionLibrary.GetBlackboardValueAsClass(this, TargetClass);
 
-            if (!foundClass.Valid)
+            if (!foundClass.IsValid)
             {
                 FinishExecute(false);
                 return;

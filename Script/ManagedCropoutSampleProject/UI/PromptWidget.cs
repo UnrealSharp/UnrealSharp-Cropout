@@ -1,8 +1,9 @@
 ﻿using ManagedCropoutSampleProject.UI.Elements;
 using UnrealSharp;
 using UnrealSharp.Attributes;
-using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.CommonUI;
+using UnrealSharp.Core;
+using UnrealSharp.Core.Attributes;
 using UnrealSharp.UMG;
 
 namespace ManagedCropoutSampleProject.UI;
@@ -11,22 +12,22 @@ namespace ManagedCropoutSampleProject.UI;
 public delegate void FOnPromptResponse();
 
 [UClass]
-public class UPromptWidget : UCommonActivatableWidget
+public partial class UPromptWidget : UCommonActivatableWidget
 {
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    protected UCommonTextBlock Title { get; set; }
+    protected partial UCommonTextBlock Title { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    protected UCropoutButton BTN_Pos { get; set; }
+    protected partial UCropoutButton BTN_Pos { get; set; }
     
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
-    protected UCropoutButton BTN_Neg { get; set; }
+    protected partial UCropoutButton BTN_Neg { get; set; }
     
     [UProperty(PropertyFlags.BlueprintAssignable)]
-    protected TMulticastDelegate<FOnPromptResponse> OnConfirm { get; set; }
+    protected partial TMulticastDelegate<FOnPromptResponse> OnConfirm { get; set; }
     
     [UProperty(PropertyFlags.BlueprintAssignable)]
-    protected TMulticastDelegate<FOnPromptResponse> OnBack { get; set; }
+    protected partial TMulticastDelegate<FOnPromptResponse> OnBack { get; set; }
 
     public override void Construct()
     {
@@ -36,7 +37,7 @@ public class UPromptWidget : UCommonActivatableWidget
         BTN_Neg.BindButtonClickedEvent(OnClickNeg);
     }
 
-    protected override UWidget BP_GetDesiredFocusTarget()
+    public override UWidget BP_GetDesiredFocusTarget()
     {
         return BTN_Neg;
     }
