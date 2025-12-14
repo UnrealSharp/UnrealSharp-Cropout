@@ -2,6 +2,7 @@
 using UnrealSharp.AIModule;
 using UnrealSharp.Attributes;
 using UnrealSharp.Core;
+using UnrealSharp.Core.Attributes;
 using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
 using UnrealSharp.NavigationSystem;
@@ -41,7 +42,7 @@ public partial class UFindClosestResource : UCropoutBaseTask
     [UProperty(PropertyFlags.EditInstanceOnly, Category = "Tag")]
     partial bool UseBlackBoardTag { get; set; }
     
-    protected override void ReceiveExecute_Implementation(AActor ownerActor)
+    public override void ReceiveExecute(AActor ownerActor)
     {
         AActor foundActor = UBTFunctionLibrary.GetBlackboardValueAsActor(this, Target);
 
@@ -56,7 +57,7 @@ public partial class UFindClosestResource : UCropoutBaseTask
         {
             TSubclassOf<UObject> foundClass = UBTFunctionLibrary.GetBlackboardValueAsClass(this, TargetClass);
 
-            if (!foundClass.Valid)
+            if (!foundClass.IsValid)
             {
                 FinishExecute(false);
                 return;

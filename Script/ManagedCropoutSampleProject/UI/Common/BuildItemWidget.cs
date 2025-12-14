@@ -3,8 +3,8 @@ using ManagedCropoutSampleProject.Core.GameMode;
 using ManagedCropoutSampleProject.Interactable;
 using UnrealSharp;
 using UnrealSharp.Attributes;
-using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.CommonUI;
+using UnrealSharp.Core.Attributes;
 using UnrealSharp.Engine;
 using UnrealSharp.UMG;
 
@@ -58,16 +58,16 @@ public partial class UBuildItemWidget : UCommonButtonBase
         CheckIfItemEnabled();
     }
 
-    protected override void Construct_Implementation()
+    public override void Construct()
     {
         ACropoutGameMode gameMode = World.GameModeAs<ACropoutGameMode>();
         gameMode.OnResourceChanged += OnResourceChanged;
         CheckIfItemEnabled();
         
-        base.Construct_Implementation();
+        base.Construct();
     }
 
-    protected override void BP_OnClicked_Implementation()
+    public override void BP_OnClicked()
     {
         IPlayer pawnInterface = (IPlayer) OwningPlayerPawn;
         
@@ -80,21 +80,21 @@ public partial class UBuildItemWidget : UCommonButtonBase
         player.AddUI(ConfirmWidgetClass);
     }
 
-    protected override void BP_OnHovered_Implementation()
+    public override void BP_OnHovered()
     {
         BaseSize.MinDesiredHeight = 300.0f;
         PlayAnimation(Loop_Hover);
         PlayAnimation(Highlight_In);
         
-        base.BP_OnHovered_Implementation();
+        base.BP_OnHovered();
     }
 
-    protected override void BP_OnUnhovered_Implementation()
+    public override void BP_OnUnhovered()
     {
         BaseSize.MinDesiredHeight = 250.0f;
         StopAnimation(Loop_Hover);
         StopAnimation(Highlight_In);
-        base.BP_OnUnhovered_Implementation();
+        base.BP_OnUnhovered();
     }
 
     async void UpdateVisuals()

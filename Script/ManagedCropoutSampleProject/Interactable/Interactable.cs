@@ -65,19 +65,19 @@ public partial class AInteractable : AActor
         Mesh.SetStaticMesh(newMesh);
     }
 
-    protected override void BeginPlay_Implementation()
+    public override void BeginPlay()
     {
         FLatentActionInfo actionInfo = new FLatentActionInfo();
         actionInfo.CallbackTarget = this;
         actionInfo.ExecutionFunction = nameof(SetupInteractable);
         SystemLibrary.DelayUntilNextTick(actionInfo);
         
-        base.BeginPlay_Implementation();
+        base.BeginPlay();
     }
 
-    protected override void ConstructionScript_Implementation()
+    public override void ConstructionScript()
     {
-        base.ConstructionScript_Implementation();
+        base.ConstructionScript();
         
         // Creates a collision box around the bounds of the actor rounded to grid spacing. This is what is checked when placing actors to make sure they don't overlap.
         Mesh.GetLocalBounds(out FVector origin, out FVector boxExtent);
@@ -108,7 +108,7 @@ public partial class AInteractable : AActor
         FVector wobbleVector = wobbleLocation - ActorLocation;
         Mesh.SetVectorParameterValueOnMaterials("Wobble Vector", wobbleVector);
         
-        TDelegate<OnTimelineFloat> onReceiveTimelineValue = new TDelegate<OnTimelineFloat>();
+        TDelegate<FOnTimelineFloat> onReceiveTimelineValue = new TDelegate<FOnTimelineFloat>();
         onReceiveTimelineValue.BindUFunction(this, nameof(OnTimelineFloat));
         
         Timeline.AddInterpFloat(curveFloat, onReceiveTimelineValue);

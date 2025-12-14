@@ -2,10 +2,10 @@
 using ManagedCropoutSampleProject.UI.Elements;
 using UnrealSharp;
 using UnrealSharp.Attributes;
-using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.AudioModulation;
 using UnrealSharp.CommonUI;
 using UnrealSharp.Core;
+using UnrealSharp.Core.Attributes;
 using UnrealSharp.Engine;
 using UnrealSharp.UMG;
 
@@ -46,23 +46,23 @@ public partial class UEndGameWidget : UCommonActivatableWidget
     
     private bool _isWin = false;
 
-    protected override void Construct_Implementation()
+    public override void Construct()
     {
-        base.Construct_Implementation();
+        base.Construct();
         BTN_Continue.BindButtonClickedEvent(OnContinue);
         BTN_Retry.BindButtonClickedEvent(OnRetry);
         BTN_MainMenu.BindButtonClickedEvent(OnMainMenu);
     }
 
-    protected override void OnActivated_Implementation()
+    public override void OnActivated()
     {
         WidgetLibrary.SetInputModeUIOnly(OwningPlayerController, BP_GetDesiredFocusTarget(), EMouseLockMode.DoNotLock);
         OwningPlayerPawn.DisableInput(OwningPlayerController);
         UGameplayStatics.SetGamePaused(true);
-        base.OnActivated_Implementation();
+        base.OnActivated();
     }
 
-    protected override UWidget BP_GetDesiredFocusTarget_Implementation()
+    public override UWidget BP_GetDesiredFocusTarget()
     {
         return BTN_Continue;
     }

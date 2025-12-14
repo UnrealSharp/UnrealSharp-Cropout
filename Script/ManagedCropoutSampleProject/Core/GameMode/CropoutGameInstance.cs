@@ -47,7 +47,7 @@ public partial class UCropoutGameInstance : UGameInstance, IGameInstance, IPlaye
     private bool _musicPlaying;
     public float[] SoundMixes { get; } = [1.0f, 1.0f];
 
-    protected override void Init_Implementation()
+    public override void Init()
     {
         TransitionWidgetInstance = CreateWidget(TransitionWidget);
         LoadGame();

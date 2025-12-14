@@ -1,9 +1,8 @@
 ﻿using ManagedCropoutSampleProject.Core.GameMode;
-using UnrealSharp;
 using UnrealSharp.Attributes;
-using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.CommonUI;
 using UnrealSharp.Core;
+using UnrealSharp.Core.Attributes;
 using UnrealSharp.Engine;
 using UnrealSharp.UMG;
 
@@ -30,16 +29,16 @@ public partial class USliderWidget : UUserWidget
     [UProperty(PropertyFlags.BlueprintReadOnly), BindWidget]
     public partial USlider Slider { get; set; }
 
-    protected override void PreConstruct_Implementation(bool isDesignTime)
+    public override void PreConstruct(bool isDesignTime)
     {
-        base.PreConstruct_Implementation(isDesignTime);
+        base.PreConstruct(isDesignTime);
         MixDescriptor.Text = SoundClassTitle;
     }
 
-    protected override void Construct_Implementation()
+    public override void Construct()
     {
         Slider.OnValueChanged += OnSliderValueChanged;
-        base.Construct_Implementation();
+        base.Construct();
     }
     
     [UFunction]

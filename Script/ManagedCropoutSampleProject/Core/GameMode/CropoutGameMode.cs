@@ -58,9 +58,9 @@ public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
     private ATownHall? _townHall;
     private ASpawner? _spawner;
     
-    protected override void BeginPlay_Implementation()
+    public override void BeginPlay()
     {
-        base.BeginPlay_Implementation();
+        base.BeginPlay();
         CreateGameHud();
         
         UCropoutGameInstance gameInstance = World.GameInstanceAs<UCropoutGameInstance>();
@@ -253,7 +253,7 @@ public partial class ACropoutGameMode : AGameModeBase, IResourceInterface
 
     public void RemoveCurrentActiveWidget()
     {
-        if (GameWidget.IsValid)
+        if (GameWidget.IsValid())
         {
             GameWidget.PullCurrentStackItem();
         }

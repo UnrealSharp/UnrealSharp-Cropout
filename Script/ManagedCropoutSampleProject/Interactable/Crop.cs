@@ -25,9 +25,9 @@ public partial class ACrop : AResource
         SetReady();
     }
 
-    protected override void ConstructionScript_Implementation()
+    public override void ConstructionScript()
     {
-        base.ConstructionScript_Implementation();
+        base.ConstructionScript();
         
         List<FName> tags =
         [
@@ -103,7 +103,7 @@ public partial class ACrop : AResource
         UInteractableSettings settings = GetDefault<UInteractableSettings>();
         UCurveFloat curveFloat = await settings.CropPopCurve.LoadAsync();
         
-        TDelegate<OnTimelineFloat> onReceiveTimelineValue = new TDelegate<OnTimelineFloat>();
+        TDelegate<FOnTimelineFloat> onReceiveTimelineValue = new TDelegate<FOnTimelineFloat>();
         onReceiveTimelineValue.BindUFunction(this, nameof(OnPopTimelineFloat));
         
         Timeline.AddInterpFloat(curveFloat, onReceiveTimelineValue);

@@ -1,11 +1,10 @@
 ﻿using ManagedCropoutSampleProject.UI.Elements;
 using UnrealSharp;
 using UnrealSharp.Attributes;
-using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.CommonUI;
 using UnrealSharp.Core;
+using UnrealSharp.Core.Attributes;
 using UnrealSharp.UMG;
-using UnrealSharp.UnrealSharpCore;
 
 namespace ManagedCropoutSampleProject.UI;
 
@@ -30,15 +29,15 @@ public partial class UPromptWidget : UCommonActivatableWidget
     [UProperty(PropertyFlags.BlueprintAssignable)]
     protected partial TMulticastDelegate<FOnPromptResponse> OnBack { get; set; }
 
-    protected override void Construct_Implementation()
+    public override void Construct()
     {
-        base.Construct_Implementation();
+        base.Construct();
         
         BTN_Pos.BindButtonClickedEvent(OnClickPos);
         BTN_Neg.BindButtonClickedEvent(OnClickNeg);
     }
 
-    protected override UWidget BP_GetDesiredFocusTarget_Implementation()
+    public override UWidget BP_GetDesiredFocusTarget()
     {
         return BTN_Neg;
     }

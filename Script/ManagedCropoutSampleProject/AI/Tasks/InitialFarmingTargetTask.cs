@@ -22,7 +22,7 @@ public partial class UInitialFarmingTargetTask : UCropoutBaseTask
     [UProperty(PropertyFlags.EditInstanceOnly)]
     public partial FBlackboardKeySelector Key_TownHall { get; set; }
 
-    protected override void ReceiveExecuteAI_Implementation(AAIController ownerController, APawn controlledPawn)
+    public override void ReceiveExecuteAI(AAIController ownerController, APawn controlledPawn)
     {
         AActor resource = UBTFunctionLibrary.GetBlackboardValueAsActor(this, Key_Resource);
 

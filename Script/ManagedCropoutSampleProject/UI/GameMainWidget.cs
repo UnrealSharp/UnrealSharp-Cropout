@@ -3,8 +3,8 @@ using ManagedCropoutSampleProject.Core.GameMode;
 using ManagedCropoutSampleProject.UI.Elements;
 using UnrealSharp;
 using UnrealSharp.Attributes;
-using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.CommonUI;
+using UnrealSharp.Core.Attributes;
 using UnrealSharp.Engine;
 using UnrealSharp.UMG;
 
@@ -19,9 +19,10 @@ public partial class UGameMainWidget : UCommonActivatableWidget
     [UProperty(PropertyFlags.EditDefaultsOnly)]
     protected partial TSubclassOf<UCommonActivatableWidget> BuildWidgetClass { get; set; }
     
-    protected override void OnActivated_Implementation()
+    public override void OnActivated()
     {
-        base.OnActivated_Implementation();
+        base.OnActivated();
+        
         PrintString("GameMainWidget Activated");
         
         ACropoutPlayerController playerController = OwningPlayerControllerAs<ACropoutPlayerController>();

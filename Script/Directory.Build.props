@@ -1,5 +1,0 @@
-<Project>
-  <PropertyGroup>
-    <OutputPath>$(SolutionDir)..\Binaries\Managed\</OutputPath>
-  </PropertyGroup>
-</Project>

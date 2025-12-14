@@ -9,7 +9,7 @@ namespace ManagedCropoutSampleProject.AI.EQS;
 [UClass]
 public partial class UTargetTownHallQuery : UEnvQueryContext_BlueprintBase
 {
-    protected override void ProvideSingleLocation_Implementation(UObject querierObject, AActor querierActor, out FVector resultingLocation)
+    public override void ProvideSingleLocation(UObject querierObject, AActor querierActor, out FVector resultingLocation)
     {
         ATownHall townHall = UGameplayStatics.GetActorOfClass<ATownHall>();
         

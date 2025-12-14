@@ -71,7 +71,7 @@ public partial class ACropoutVillager : APawn, IVillager, IResourceInterface
     [UProperty(PropertyFlags.BlueprintReadOnly)]
     public partial EResourceType VillagerPath { get; set; }
 
-    protected override void BeginPlay_Implementation()
+    public override void BeginPlay()
     {
         FVector offset = new FVector(0.0f, 0.0f, Capsule.ScaledCapsuleHalfHeight);
         AddActorWorldOffset(offset, false, out _, false);
@@ -81,15 +81,15 @@ public partial class ACropoutVillager : APawn, IVillager, IResourceInterface
         ChangeJob("Idle");
         AssignDefaultHat();
         
-        base.BeginPlay_Implementation();
+        base.BeginPlay();
     }
 
-    protected override void ConstructionScript_Implementation()
+    public override void ConstructionScript()
     {
         SkeletalMesh.SetCustomPrimitiveDataFloat(0, MathLibrary.RandomFloat().ToFloat());
         SkeletalMesh.SetCustomPrimitiveDataFloat(1, MathLibrary.RandomFloat().ToFloat());
         
-        base.ConstructionScript_Implementation();
+        base.ConstructionScript();
     }
 
     // This is where villagers are assigned new jobs.
@@ -97,7 +97,7 @@ public partial class ACropoutVillager : APawn, IVillager, IResourceInterface
     // Read the Tag from the target and try to change jobs based on that tag name.
     public void Action(AActor? actor)
     {
-        if (actor == null || !actor.IsValid)
+        if (actor == null || !actor.IsValid())
         {
             return;
         }

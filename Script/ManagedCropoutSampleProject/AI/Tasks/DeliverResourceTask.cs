@@ -16,7 +16,7 @@ public partial class UDeliverResourceTask : UCropoutBaseTask
     [UProperty(PropertyFlags.EditInstanceOnly)]
     public partial FBlackboardKeySelector TakeFrom { get; set; }
     
-    protected override async void ReceiveExecuteAI_Implementation(AAIController ownerController, APawn controlledPawn)
+    public override async void ReceiveExecuteAI(AAIController ownerController, APawn controlledPawn)
     {
         AActor takeFromActor = UBTFunctionLibrary.GetBlackboardValueAsActor(this, TakeFrom);
         AActor giveToActor = UBTFunctionLibrary.GetBlackboardValueAsActor(this, GiveTo);

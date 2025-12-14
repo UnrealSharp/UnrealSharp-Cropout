@@ -15,7 +15,7 @@ public partial class UTransferResourceTask : UCropoutBaseTask
     [UProperty(PropertyFlags.EditInstanceOnly)]
     public partial FBlackboardKeySelector TakeFrom { get; set; }
 
-    protected override void ReceiveExecute_Implementation(AActor ownerActor)
+    public override void ReceiveExecute(AActor ownerActor)
     {
         AActor takeFromActor = UBTFunctionLibrary.GetBlackboardValueAsActor(this, TakeFrom);
         AActor giveToActor = UBTFunctionLibrary.GetBlackboardValueAsActor(this, GiveTo);

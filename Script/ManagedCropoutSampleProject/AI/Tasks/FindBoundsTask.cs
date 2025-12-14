@@ -17,7 +17,7 @@ public partial class UFindBoundsTask : UCropoutBaseTask
     [UProperty(PropertyFlags.EditInstanceOnly)]
     public partial FBlackboardKeySelector BlackBoardBounds { get; set; }
     
-    protected override void ReceiveExecute_Implementation(AActor ownerActor)
+    public override void ReceiveExecute(AActor ownerActor)
     {
         AActor target = UBTFunctionLibrary.GetBlackboardValueAsActor(this, Target);
 

@@ -2,6 +2,7 @@
 using UnrealSharp;
 using UnrealSharp.Attributes;
 using UnrealSharp.CommonUI;
+using UnrealSharp.Core.Attributes;
 using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
 using UnrealSharp.SlateCore;
@@ -27,17 +28,17 @@ public partial class UBuildConfirmWidget : UCommonActivatableWidget
     private FVectorSpringState SpringState;
     ACropoutPlayer Player => OwningPlayerPawnAs<ACropoutPlayer>();
 
-    protected override void Construct_Implementation()
+    public override void Construct()
     {
         BTN_Place.BindButtonClickedEvent(OnClickPlace);
         BTN_Cancel.BindButtonClickedEvent(OnClickCancel);
         BTN_Rotate.BindButtonClickedEvent(OnClickRotate);
-        base.Construct_Implementation();
+        base.Construct();
     }
 
-    protected override void OnActivated_Implementation()
+    public override void OnActivated()
     {
-        base.OnActivated_Implementation();
+        base.OnActivated();
 
         ACropoutPlayerController playerController = OwningPlayerAs<ACropoutPlayerController>();
         playerController.OnNewInput(playerController.InputType);
@@ -63,9 +64,9 @@ public partial class UBuildConfirmWidget : UCommonActivatableWidget
         player.SpawnBuildTarget();
     }
 
-    protected override void Tick_Implementation(FGeometry myGeometry, float deltaTime)
+    public override void Tick(FGeometry myGeometry, float deltaTime)
     {
-        base.Tick_Implementation(myGeometry, deltaTime);
+        base.Tick(myGeometry, deltaTime);
 
         FVector2D current2D = CommonBorder_1.Transform.Translation;
         FVector current = new FVector(current2D.X, current2D.Y, 0.0f);

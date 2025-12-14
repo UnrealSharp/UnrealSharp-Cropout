@@ -1,5 +1,6 @@
 ﻿using ManagedCropoutSampleProject.Core.GameMode;
 using UnrealSharp.Attributes;
+using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
 
 namespace ManagedCropoutSampleProject.Interactable;
@@ -40,7 +41,7 @@ public partial class ABuilding : AInteractable
         
         UStaticMesh newMesh = MeshList[newStage];
         
-        if (newMesh is { IsValid: true })
+        if (newMesh.IsValid())
         {
             Mesh.SetStaticMesh(newMesh);
         }

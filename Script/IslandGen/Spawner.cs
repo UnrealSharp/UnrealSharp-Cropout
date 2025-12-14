@@ -82,9 +82,10 @@ public partial class ASpawner : AActor
 
     public FOnSpawningCompleted? spawningCompleted;
 
-    protected override void BeginPlay_Implementation()
+    public override void BeginPlay()
     {
-        base.BeginPlay_Implementation();
+        base.BeginPlay();
+        
         StartLoadingActors();
     }
 

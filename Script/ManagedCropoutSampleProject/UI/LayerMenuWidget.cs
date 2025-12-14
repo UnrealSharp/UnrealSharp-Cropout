@@ -1,7 +1,7 @@
 ﻿using UnrealSharp;
 using UnrealSharp.Attributes;
-using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.CommonUI;
+using UnrealSharp.Core.Attributes;
 
 namespace ManagedCropoutSampleProject.UI;
 
@@ -17,9 +17,9 @@ public partial class ULayerMenuWidget : UCommonActivatableWidget
     [UProperty(PropertyFlags.EditDefaultsOnly)]
     protected partial TSubclassOf<UMainMenuWidget> MainMenuWidgethhasfssssasfaClass { get; set; }
 
-    protected override void OnActivated_Implementation()
+    public override void OnActivated()
     {
-        base.OnActivated_Implementation();
+        base.OnActivated();
         
         UMainMenuWidget widget = MainStack.PushWidget(MainMenuWidgetClass);
         widget.InitializeFrom(MainStack);

@@ -118,19 +118,19 @@ public partial class ACropoutPlayer : APawn, IPlayer
     private FTimerHandle _closestHoverCheckHandle;
     private bool _isInBuildMode = false;
 
-    protected override void BeginPlay_Implementation()
+    public override void BeginPlay()
     {
         UpdateZoom();
         SetupInput();
         SystemLibrary.SetTimer(this, "UpdateMovement", 0.01f, true);
-        base.BeginPlay_Implementation();
+        base.BeginPlay();
     }
 
-    protected override void Possessed_Implementation(AController newController)
+    public override void Possessed(AController newController)
     {
         ACropoutPlayerController newPlayerController = (ACropoutPlayerController) newController;
         newPlayerController.OnKeySwitch += OnKeySwitch;
-        base.Possessed_Implementation(newController);
+        base.Possessed(newController);
     }
 
     private void SetupInput()
@@ -211,7 +211,7 @@ public partial class ACropoutPlayer : APawn, IPlayer
     {
         RemoveMappingContext(DragMoveMappingContext);
 
-        if (_villagerAction != null && _villagerAction.IsValid && _selected is IVillager villager)
+        if (_villagerAction != null && _villagerAction.IsValid() && _selected is IVillager villager)
         {
             villager.Action(_villagerAction);
             
@@ -333,7 +333,7 @@ public partial class ACropoutPlayer : APawn, IPlayer
         UNiagaraDataInterfaceArrayFunctionLibrary.NiagaraSetVectorArray(_targetEffectComponent, "TargetPath", pathPoints);
     }
 
-    protected override void ActorBeginOverlap_Implementation(AActor otherActor)
+    public override void ActorBeginOverlap(AActor otherActor)
     {
         if (HoveredActor is null)
         {
@@ -341,10 +341,10 @@ public partial class ACropoutPlayer : APawn, IPlayer
         }
 
         _closestHoverCheckHandle = SystemLibrary.SetTimer(this, "ClosestHoverCheck", 0.01f, true);
-        base.ActorBeginOverlap_Implementation(otherActor);
+        base.ActorBeginOverlap(otherActor);
     }
 
-    protected override void ActorEndOverlap_Implementation(AActor otherActor)
+    public override void ActorEndOverlap(AActor otherActor)
     {
          GetOverlappingActors<AActor>(out var overlappingActors);
 
@@ -353,7 +353,7 @@ public partial class ACropoutPlayer : APawn, IPlayer
             HoveredActor = null;
         }
 
-        base.ActorEndOverlap_Implementation(otherActor);
+        base.ActorEndOverlap(otherActor);
     }
 
     [UFunction]
@@ -797,7 +797,7 @@ public partial class ACropoutPlayer : APawn, IPlayer
         _targetSpawnClass = targetClass;
         _resourceCost = resourceCost;
 
-        if (Spawn != null && Spawn.IsValid)
+        if (Spawn != null && Spawn.IsValid())
         {
             Spawn.DestroyActor();
         }

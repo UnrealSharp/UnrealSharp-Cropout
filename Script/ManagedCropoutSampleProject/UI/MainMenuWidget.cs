@@ -2,9 +2,9 @@
 using ManagedCropoutSampleProject.UI.Elements;
 using UnrealSharp;
 using UnrealSharp.Attributes;
-using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.CommonUI;
 using UnrealSharp.Core;
+using UnrealSharp.Core.Attributes;
 using UnrealSharp.Engine;
 using UnrealSharp.UMG;
 
@@ -40,9 +40,9 @@ public partial class UMainMenuWidget : UCommonActivatableWidget
     private bool _hasSave;
     private UCommonActivatableWidgetStack? _stack;
     
-    protected override void OnActivated_Implementation()
+    public override void OnActivated()
     {
-        base.OnActivated_Implementation();
+        base.OnActivated();
         
         BP_GetDesiredFocusTarget().SetFocus();
 
@@ -55,14 +55,14 @@ public partial class UMainMenuWidget : UCommonActivatableWidget
         BTN_Donate.Visibility = isIOSOrAndroid ? ESlateVisibility.Visible : ESlateVisibility.Collapsed;
     }
 
-    protected override UWidget BP_GetDesiredFocusTarget_Implementation()
+    public override UWidget BP_GetDesiredFocusTarget()
     {
         return _hasSave ? BTN_Continue : BTN_NewGame;
     }
 
-    protected override void Construct_Implementation()
+    public override void Construct()
     {
-        base.Construct_Implementation();
+        base.Construct();
         BTN_Continue.BindButtonClickedEvent(OnClickContinue);
         BTN_NewGame.BindButtonClickedEvent(OnClickNewGame);
         BTN_Quit.BindButtonClickedEvent(OnClickQuit);

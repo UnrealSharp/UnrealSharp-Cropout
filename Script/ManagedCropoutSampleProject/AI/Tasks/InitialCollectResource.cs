@@ -28,7 +28,7 @@ public partial class UInitialCollectResource : UCropoutBaseTask
     [UProperty(PropertyFlags.EditInstanceOnly)]
     public partial TSubclassOf<AInteractable> TownHallClass { get; set; }
 
-    protected override void ReceiveExecuteAI_Implementation(AAIController ownerController, APawn controlledPawn)
+    public override void ReceiveExecuteAI(AAIController ownerController, APawn controlledPawn)
     {
         if (controlledPawn.Tags.Count == 0) 
         {

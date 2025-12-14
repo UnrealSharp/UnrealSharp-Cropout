@@ -15,7 +15,7 @@ public partial class UFarmingTask : UCropoutBaseTask
 
     private FName _tagState;
 
-    protected override async void ReceiveExecuteAI_Implementation(AAIController ownerController, APawn controlledPawn)
+    public override async void ReceiveExecuteAI(AAIController ownerController, APawn controlledPawn)
     {
         AActor cropActor = UBTFunctionLibrary.GetBlackboardValueAsActor(this, Crop);
         

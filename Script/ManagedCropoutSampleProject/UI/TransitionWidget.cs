@@ -1,5 +1,5 @@
 ﻿using UnrealSharp.Attributes;
-using UnrealSharp.Attributes.MetaTags;
+using UnrealSharp.Core.Attributes;
 using UnrealSharp.Engine;
 using UnrealSharp.UMG;
 

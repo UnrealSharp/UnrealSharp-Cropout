@@ -32,9 +32,9 @@ public partial class AMainMenuGameMode : AGameModeBase
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Music")]
     protected partial USoundBase MainMenuMusic { get; set; }
 
-    protected override void BeginPlay_Implementation()
+    public override void BeginPlay()
     {
-        base.BeginPlay_Implementation();
+        base.BeginPlay();
         
         UCropoutGameInstance gameInstance = (UCropoutGameInstance) World.GameInstance;
         gameInstance.Transition(ETransitionType.Out);

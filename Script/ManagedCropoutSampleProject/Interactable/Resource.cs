@@ -29,9 +29,9 @@ public partial class AResource : AInteractable, IResourceInterface
     [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Resource Visuals")]
     protected partial bool UseRandomMesh { get; set; }
 
-    protected override void ConstructionScript_Implementation()
+    public override void ConstructionScript()
     {
-        base.ConstructionScript_Implementation();
+        base.ConstructionScript();
         
         Tags.Add(ResourceType.ToString());
         

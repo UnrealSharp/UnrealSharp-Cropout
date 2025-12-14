@@ -1,5 +1,4 @@
-﻿using UnrealSharp;
-using UnrealSharp.AIModule;
+﻿using UnrealSharp.AIModule;
 using UnrealSharp.Attributes;
 using UnrealSharp.Core;
 using UnrealSharp.CoreUObject;
@@ -18,7 +17,7 @@ public partial class UCollectionTargetQuery : UEnvQueryContext_BlueprintBase
     [UProperty(PropertyFlags.EditDefaultsOnly)]
     public partial FName KeyName { get; set; }
 
-    protected override void ProvideSingleLocation_Implementation(UObject querierObject, AActor querierActor, out FVector resultingLocation)
+    public override void ProvideSingleLocation(UObject querierObject, AActor querierActor, out FVector resultingLocation)
     {
         AAIController controller = AIHelperLibrary.GetAIController(querierActor);
         UBlackboardComponent blackboard = AIHelperLibrary.GetBlackboard(controller);

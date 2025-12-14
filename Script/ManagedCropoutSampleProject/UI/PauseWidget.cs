@@ -3,8 +3,8 @@ using ManagedCropoutSampleProject.Core.Save;
 using ManagedCropoutSampleProject.UI.Elements;
 using UnrealSharp;
 using UnrealSharp.Attributes;
-using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.CommonUI;
+using UnrealSharp.Core.Attributes;
 using UnrealSharp.Engine;
 using UnrealSharp.UMG;
 
@@ -31,9 +31,9 @@ public partial class UPauseWidget : UCommonActivatableWidget
     [UProperty(PropertyFlags.EditDefaultsOnly)]
     public partial TSoftObjectPtr<UWorld> MainMenuLevel { get; set; }
 
-    protected override void Construct_Implementation()
+    public override void Construct()
     {
-        base.Construct_Implementation();
+        base.Construct();
         
         BTN_Resume.BindButtonClickedEvent(OnResume);
         BTN_Restart.BindButtonClickedEvent(OnRestart);
@@ -43,9 +43,9 @@ public partial class UPauseWidget : UCommonActivatableWidget
         Slider_SFX.UpdateSlider();
     }
 
-    protected override void OnActivated_Implementation()
+    public override void OnActivated()
     {
-        base.OnActivated_Implementation();
+        base.OnActivated();
         
         WidgetLibrary.SetInputModeUIOnly(OwningPlayerController, BP_GetDesiredFocusTarget(), EMouseLockMode.DoNotLock);
         UGameplayStatics.SetGamePaused(true);

@@ -41,9 +41,9 @@ public partial class ACropoutPlayerController : APlayerController
         }
     }
 
-    protected override void BeginPlay_Implementation()
+    public override void BeginPlay()
     {
-        base.BeginPlay_Implementation();
+        base.BeginPlay();
         SetupInput();
     }
     

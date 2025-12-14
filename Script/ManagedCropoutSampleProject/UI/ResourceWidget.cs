@@ -2,8 +2,8 @@
 using ManagedCropoutSampleProject.Interactable;
 using UnrealSharp;
 using UnrealSharp.Attributes;
-using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.CommonUI;
+using UnrealSharp.Core.Attributes;
 using UnrealSharp.Engine;
 using UnrealSharp.UMG;
 
@@ -36,14 +36,14 @@ public partial class UResourceWidget : UUserWidget
         ResourceValue.Text = "0";
     }
 
-    protected override void PreConstruct_Implementation(bool isDesignTime)
+    public override void PreConstruct(bool isDesignTime)
     {
         TSoftObjectPtr<UTexture2D> icon = ResourceIcons[_resourceType];
         ResourceIcon.SetBrushFromLazyTexture(icon);
-        base.PreConstruct_Implementation(isDesignTime);
+        base.PreConstruct(isDesignTime);
     }
 
-    protected override void Construct_Implementation()
+    public override void Construct()
     {
         IResourceInterface resourceInterface = (IResourceInterface) World.GameMode;
 
@@ -53,15 +53,15 @@ public partial class UResourceWidget : UUserWidget
             ResourceValue.Text = _currentResourceValue.ToString();
         }
         
-        base.Construct_Implementation();
+        base.Construct();
     }
 
-    protected override void OnInitialized_Implementation()
+    public override void OnInitialized()
     {
         ACropoutGameMode gameMode = World.GameModeAs<ACropoutGameMode>();
         gameMode.OnResourceChanged += OnResourceChanged;
         
-        base.OnInitialized_Implementation();
+        base.OnInitialized();
     }
     
     [UFunction]

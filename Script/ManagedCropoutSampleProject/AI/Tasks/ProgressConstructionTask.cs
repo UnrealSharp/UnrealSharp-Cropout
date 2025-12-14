@@ -12,7 +12,7 @@ public partial class UProgressConstructionTask : UCropoutBaseTask
     [UProperty(PropertyFlags.EditInstanceOnly)]
     public partial FBlackboardKeySelector TargetBuild { get; set; }
     
-    protected override async void ReceiveExecuteAI_Implementation(AAIController ownerController, APawn controlledPawn)
+    public override async void ReceiveExecuteAI(AAIController ownerController, APawn controlledPawn)
     {
         ACropoutVillager villager = (ACropoutVillager) controlledPawn;
         villager.PlayWorkAnim(1.0f);

@@ -3,6 +3,7 @@ using ManagedCropoutSampleProject.Interactable;
 using UnrealSharp;
 using UnrealSharp.AIModule;
 using UnrealSharp.Attributes;
+using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
 
 namespace ManagedCropoutSampleProject.AI.Tasks;
@@ -30,7 +31,7 @@ public partial class UWorkTask : UCropoutBaseTask
     [UProperty(PropertyFlags.EditInstanceOnly)]
     private partial AInteractable? Interactable { get; set; }
     
-    protected override void ReceiveExecuteAI_Implementation(AAIController ownerController, APawn controlledPawn)
+    public override void ReceiveExecuteAI(AAIController ownerController, APawn controlledPawn)
     {
         AActor takeFromActor = UBTFunctionLibrary.GetBlackboardValueAsActor(this, TakeFrom);
         AActor giveToActor = UBTFunctionLibrary.GetBlackboardValueAsActor(this, GiveTo);
@@ -84,13 +85,13 @@ public partial class UWorkTask : UCropoutBaseTask
         FinishExecute(true);
     }
 
-    protected override void ReceiveAbortAI_Implementation(AAIController ownerController, APawn controlledPawn)
+    public override void ReceiveAbortAI(AAIController ownerController, APawn controlledPawn)
     {
-        if (Interactable != null && Interactable.IsValid)
+        if (Interactable != null && Interactable.IsValid())
         {
             Interactable.StopWobble();
         }
 
-        base.ReceiveAbortAI_Implementation(ownerController, controlledPawn);
+        base.ReceiveAbortAI(ownerController, controlledPawn);
     }
 }

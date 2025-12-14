@@ -3,8 +3,9 @@ using ManagedCropoutSampleProject.Interactable;
 using ManagedCropoutSampleProject.UI.Elements;
 using UnrealSharp;
 using UnrealSharp.Attributes;
-using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.CommonUI;
+using UnrealSharp.Core.Attributes;
+using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
 using UnrealSharp.SlateCore;
 using UnrealSharp.UMG;
@@ -26,19 +27,19 @@ public partial class UBuildWidget : UCommonActivatableWidget
     [UProperty(PropertyFlags.EditDefaultsOnly)]
     protected partial TSubclassOf<UBuildItemWidget> BuildItemWidgetClass { get; set; }
 
-    protected override void Construct_Implementation()
+    public override void Construct()
     {
         BTN_Back.BindButtonClickedEvent(OnBack);
-        base.Construct_Implementation();
+        base.Construct();
     }
 
-    protected override void PreConstruct_Implementation(bool isDesignTime)
+    public override void PreConstruct(bool isDesignTime)
     {
         PopulateContainer();
-        base.PreConstruct_Implementation(isDesignTime);
+        base.PreConstruct(isDesignTime);
     }
 
-    protected override void OnActivated_Implementation()
+    public override void OnActivated()
     {
         WidgetLibrary.SetInputModeUIOnly(OwningPlayerController, null, EMouseLockMode.DoNotLock, false);
         BP_GetDesiredFocusTarget().SetFocus();
@@ -49,17 +50,17 @@ public partial class UBuildWidget : UCommonActivatableWidget
         
         playerPawn.SwitchBuildMode(true);
         
-        base.OnActivated_Implementation();
+        base.OnActivated();
     }
 
-    protected override UWidget BP_GetDesiredFocusTarget_Implementation()
+    public override UWidget BP_GetDesiredFocusTarget()
     {
         return BTN_Back;
     }
 
     private void PopulateContainer()
     {
-        if (!BuildItemsDataTable.IsValid)
+        if (!BuildItemsDataTable.IsValid())
         {
             return;
         }

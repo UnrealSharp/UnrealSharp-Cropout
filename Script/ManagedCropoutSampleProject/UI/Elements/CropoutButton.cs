@@ -1,7 +1,7 @@
-﻿using UnrealSharp;
-using UnrealSharp.Attributes;
+﻿using UnrealSharp.Attributes;
 using UnrealSharp.CommonUI;
 using UnrealSharp.Core;
+using UnrealSharp.Core.Attributes;
 using UnrealSharp.Engine;
 using UnrealSharp.UMG;
 
@@ -22,9 +22,9 @@ public partial class UCropoutButton : UCommonButtonBase
     [UProperty(PropertyFlags.EditAnywhere)]
     public partial FText ButtonText { get; set; }
 
-    protected override void PreConstruct_Implementation(bool isDesignTime)
+    public override void PreConstruct(bool isDesignTime)
     {
-        base.PreConstruct_Implementation(isDesignTime);
+        base.PreConstruct(isDesignTime);
         
         ButtonTitle.Text = ButtonText;
 
@@ -43,7 +43,7 @@ public partial class UCropoutButton : UCommonButtonBase
         GamepadIcon.InputAction = TriggeringInputAction;
     }
     
-    public void BindButtonClickedEvent(CommonButtonBaseClicked onButtonBaseClicked)
+    public void BindButtonClickedEvent(FCommonButtonBaseClicked onButtonBaseClicked)
     {
         OnButtonBaseClicked += onButtonBaseClicked;
     }

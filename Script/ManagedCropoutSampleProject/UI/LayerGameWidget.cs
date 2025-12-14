@@ -4,8 +4,8 @@ using ManagedCropoutSampleProject.Interactable;
 using ManagedCropoutSampleProject.UI.Elements;
 using UnrealSharp;
 using UnrealSharp.Attributes;
-using UnrealSharp.Attributes.MetaTags;
 using UnrealSharp.CommonUI;
+using UnrealSharp.Core.Attributes;
 using UnrealSharp.Engine;
 using UnrealSharp.UMG;
 
@@ -41,18 +41,18 @@ public partial class ULayerGameWidget : UCommonActivatableWidget
     private EResourceType _currentResourceType = EResourceType.Food;
     private FTimerHandle _addResourceTimer;
 
-    protected override void Construct_Implementation()
+    public override void Construct()
     {
         InitializeWidget();
         BTN_Pause.BindButtonClickedEvent(OnPaused);
         
-        base.Construct_Implementation();
+        base.Construct();
     }
 
-    protected override void OnInitialized_Implementation()
+    public override void OnInitialized()
     {
         InitializeWidget();
-        base.OnInitialized_Implementation();
+        base.OnInitialized();
     }
 
     public void EndGame(bool win)
@@ -113,7 +113,7 @@ public partial class ULayerGameWidget : UCommonActivatableWidget
     [UFunction]
     void AddResource()
     {
-        if (!ResourceWidgetClass.Valid)
+        if (!ResourceWidgetClass.IsValid)
         {
             throw new System.Exception("ResourceWidgetClass is not valid");
         }
