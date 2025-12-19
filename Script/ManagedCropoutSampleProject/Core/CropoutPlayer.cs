@@ -1,4 +1,5 @@
-﻿using ManagedCropoutSampleProject.AI;
+﻿using System.ComponentModel;
+using ManagedCropoutSampleProject.AI;
 using ManagedCropoutSampleProject.Core.GameMode;
 using ManagedCropoutSampleProject.Core.Save;
 using ManagedCropoutSampleProject.Interactable;
@@ -41,46 +42,46 @@ public partial class ACropoutPlayer : APawn, IPlayer
     [UProperty(DefaultComponent = true)]
     public partial UFloatingPawnMovement PawnMovement { get; set; }
     
-    [UProperty(PropertyFlags.EditAnywhere, Category = "Camera")]
+    [UProperty(PropertyFlags.EditAnywhere), Category("Camera")]
     public partial UCurveFloat CameraZoomCurve { get; set; }
     
-    [UProperty(PropertyFlags.EditAnywhere, Category = "Camera")]
+    [UProperty(PropertyFlags.EditAnywhere), Category("Camera")]
     public partial float EdgeMoveDistance { get; set; }
     
-    [UProperty(PropertyFlags.EditAnywhere, Category = "Movement")]
+    [UProperty(PropertyFlags.EditAnywhere), Category("Movement")]
     public partial UInputAction MoveAction { get; set; }
     
-    [UProperty(PropertyFlags.EditAnywhere, Category = "Movement")]
+    [UProperty(PropertyFlags.EditAnywhere), Category("Movement")]
     public partial UInputAction ZoomAction { get; set; }
     
-    [UProperty(PropertyFlags.EditAnywhere, Category = "Movement")]
+    [UProperty(PropertyFlags.EditAnywhere), Category("Movement")]
     public partial UInputAction SpinAction { get; set; }
     
-    [UProperty(PropertyFlags.EditAnywhere, Category = "Movement")]
+    [UProperty(PropertyFlags.EditAnywhere), Category("Movement")]
     public partial UInputAction DragMoveAction { get; set; }
     
-    [UProperty(PropertyFlags.EditAnywhere, Category = "Mapping Context")]
+    [UProperty(PropertyFlags.EditAnywhere), Category("Mapping Context")]
     public partial UInputMappingContext DragMoveMappingContext { get; set; }
 
-    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Mapping Context")]
+    [UProperty(PropertyFlags.EditDefaultsOnly), Category("Mapping Context")]
     public partial UInputMappingContext BaseInputMappingContext { get; set; }
     
-    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Mapping Context")]
+    [UProperty(PropertyFlags.EditDefaultsOnly), Category("Mapping Context")]
     public partial UInputMappingContext VillagerModeMappingContext { get; set; }
     
-    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Mapping Context")]
+    [UProperty(PropertyFlags.EditDefaultsOnly), Category("Mapping Context")]
     public partial UInputMappingContext BuildModeMappingContext { get; set; }
     
-    [UProperty(PropertyFlags.EditAnywhere, Category = "Interaction")]
+    [UProperty(PropertyFlags.EditAnywhere), Category("Interaction")]
     public partial UInputAction VillagerModeAction { get; set; }
     
-    [UProperty(PropertyFlags.EditAnywhere, Category = "Interaction")]
+    [UProperty(PropertyFlags.EditAnywhere), Category("Interaction")]
     public partial UInputAction BuildMove { get; set; }
     
-    [UProperty(PropertyFlags.BlueprintReadOnly, Category = "Interaction")]
+    [UProperty(PropertyFlags.BlueprintReadOnly), Category("Interaction")]
     public partial AActor? HoveredActor { get; set; }
     
-    [UProperty(PropertyFlags.BlueprintReadOnly | PropertyFlags.EditDefaultsOnly, Category = "Interaction")]
+    [UProperty(PropertyFlags.BlueprintReadOnly | PropertyFlags.EditDefaultsOnly), Category("Interaction")]
     public partial UNiagaraSystem? TargetEffect { get; set; }
     
     [UProperty(PropertyFlags.EditAnywhere)]

@@ -1,4 +1,5 @@
-﻿using ManagedCropoutSampleProject.Interactable;
+﻿using System.ComponentModel;
+using ManagedCropoutSampleProject.Interactable;
 using ManagedCropoutSampleProject.Interactable.Buildings;
 using UnrealSharp.AIModule;
 using UnrealSharp.Attributes;
@@ -10,10 +11,10 @@ namespace ManagedCropoutSampleProject.AI.Tasks;
 [UClass]
 public partial class UInitialFarmingTargetTask : UCropoutBaseTask
 {
-    [UProperty(PropertyFlags.EditInstanceOnly, Category = "Target Classes")]
+    [UProperty(PropertyFlags.EditInstanceOnly), Category("Target Classes")]
     public partial FBlackboardKeySelector Key_ResourceClass { get; set; }
     
-    [UProperty(PropertyFlags.EditInstanceOnly, Category = "Target Classes")]
+    [UProperty(PropertyFlags.EditInstanceOnly), Category("Target Classes")]
     public partial FBlackboardKeySelector Key_CollectionClass { get; set; }
     
     [UProperty(PropertyFlags.EditInstanceOnly)]

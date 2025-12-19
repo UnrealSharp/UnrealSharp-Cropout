@@ -1,4 +1,5 @@
-﻿using ManagedCropoutSampleProject.Core.GameMode;
+﻿using System.ComponentModel;
+using ManagedCropoutSampleProject.Core.GameMode;
 using UnrealSharp.Attributes;
 using UnrealSharp.Engine;
 
@@ -14,19 +15,19 @@ public partial class AResource : AInteractable, IResourceInterface
         CollectionValue = 10;
     }
     
-    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Resource Properties")]
+    [UProperty(PropertyFlags.EditDefaultsOnly), Category("Resource Properties")]
     public partial EResourceType ResourceType { get; set; }
     
-    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Resource Properties")]
+    [UProperty(PropertyFlags.EditDefaultsOnly), Category("Resource Properties")]
     protected partial int ResourceAmount { get; set; }
     
-    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Resource Properties")]
+    [UProperty(PropertyFlags.EditDefaultsOnly), Category("Resource Properties")]
     protected partial float CollectionTime { get; set; }
     
-    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Resource Properties")]
+    [UProperty(PropertyFlags.EditDefaultsOnly), Category("Resource Properties")]
     protected partial int CollectionValue { get; set; }
     
-    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Resource Visuals")]
+    [UProperty(PropertyFlags.EditDefaultsOnly), Category("Resource Properties")]
     protected partial bool UseRandomMesh { get; set; }
 
     public override void ConstructionScript()

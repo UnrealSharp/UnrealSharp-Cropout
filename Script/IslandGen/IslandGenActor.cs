@@ -1,4 +1,5 @@
-﻿using UnrealSharp;
+﻿using System.ComponentModel;
+using UnrealSharp;
 using UnrealSharp.Attributes;
 using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
@@ -18,25 +19,25 @@ public partial class AIslandGenActor : ADynamicMeshActor
         IslandSize = new(800.0f, 5000.0f);
     }
     
-    [UProperty(PropertyFlags.EditAnywhere, Category = "Island Generation")]
+    [UProperty(PropertyFlags.EditAnywhere), Category("Island Generation")]
     public partial FRandomStream Seed { get; set; }
     
-    [UProperty(PropertyFlags.EditAnywhere, Category = "Island Generation")]
+    [UProperty(PropertyFlags.EditAnywhere), Category("Island Generation")]
     public partial float MaxSpawnDistance { get; set; }
     
-    [UProperty(PropertyFlags.EditAnywhere | PropertyFlags.BlueprintReadOnly, Category = "Island Generation")]
+    [UProperty(PropertyFlags.EditAnywhere | PropertyFlags.BlueprintReadOnly), Category("Island Generation")]
     public partial int Islands { get; set; }
     
-    [UProperty(PropertyFlags.EditAnywhere, Category = "Island Generation")]
+    [UProperty(PropertyFlags.EditAnywhere), Category("Island Generation")]
     private partial UDynamicMesh DynamicMesh { get; set; }
     
-    [UProperty(PropertyFlags.EditAnywhere, Category = "Island Generation")]
+    [UProperty(PropertyFlags.EditAnywhere), Category("Island Generation")]
     private partial IList<FVector> SpawnPoints { get; set; }
     
-    [UProperty(PropertyFlags.EditAnywhere, Category = "Island Generation")]
+    [UProperty(PropertyFlags.EditAnywhere), Category("Island Generation")]
     private partial float Radius { get; set; }
     
-    [UProperty(PropertyFlags.EditAnywhere, Category = "Island Generation")]
+    [UProperty(PropertyFlags.EditAnywhere), Category("Island Generation")]
     public partial FVector2D IslandSize { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
@@ -51,7 +52,7 @@ public partial class AIslandGenActor : ADynamicMeshActor
         CreateIsland(true);
     }
 
-    [UFunction(CallInEditor = true, Category = "Island Generation")]
+    [UFunction(CallInEditor = true), Category("Island Generation")]
     public void GenerateIsland()
     {
         CreateIsland(false);
