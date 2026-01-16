@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using ManagedCropoutSampleProject.AI;
+﻿using ManagedCropoutSampleProject.AI;
 using ManagedCropoutSampleProject.Core.GameMode;
 using ManagedCropoutSampleProject.Core.Save;
 using ManagedCropoutSampleProject.Interactable;

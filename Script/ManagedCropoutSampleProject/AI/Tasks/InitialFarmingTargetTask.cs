@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using ManagedCropoutSampleProject.Interactable;
+﻿using ManagedCropoutSampleProject.Interactable;
 using ManagedCropoutSampleProject.Interactable.Buildings;
 using UnrealSharp.AIModule;
 using UnrealSharp.Attributes;
