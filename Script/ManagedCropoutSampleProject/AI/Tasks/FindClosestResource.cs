@@ -27,19 +27,19 @@ public partial class UFindClosestResource : UCropoutBaseTask
     [UProperty(PropertyFlags.EditInstanceOnly)]
     public partial FBlackboardKeySelector TargetClass { get; set; }
     
-    [UProperty(PropertyFlags.EditInstanceOnly, Category = "Search Settings")]
+    [UProperty(PropertyFlags.EditInstanceOnly), Category("Search Settings")]
     public partial bool UseBlackBoardClass { get; set; }
     
-    [UProperty(PropertyFlags.EditInstanceOnly, Category = "Search Settings"), UMetaData("EditCondition", "UseBlackBoardClass")]
+    [UProperty(PropertyFlags.EditInstanceOnly), Category("Search Settings"), UMetaData("EditCondition", "UseBlackBoardClass")]
     public partial TSubclassOf<AActor> ManualClass { get; set; }
     
-    [UProperty(PropertyFlags.EditInstanceOnly, Category = "Tag")]
+    [UProperty(PropertyFlags.EditInstanceOnly), Category("Tag")]
     public partial FName TagFiler { get; set; }
     
-    [UProperty(PropertyFlags.EditInstanceOnly, Category = "Tag")]
+    [UProperty(PropertyFlags.EditInstanceOnly), Category("Tag")]
     public partial FBlackboardKeySelector BlackBoardTag { get; set; }
     
-    [UProperty(PropertyFlags.EditInstanceOnly, Category = "Tag")]
+    [UProperty(PropertyFlags.EditInstanceOnly), Category("Tag")]
     partial bool UseBlackBoardTag { get; set; }
     
     public override void ReceiveExecute(AActor ownerActor)

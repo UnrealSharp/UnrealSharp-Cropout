@@ -3,6 +3,7 @@ using ManagedCropoutSampleProject.UI;
 using UnrealSharp;
 using UnrealSharp.Attributes;
 using UnrealSharp.AudioModulation;
+using UnrealSharp.Core.Attributes;
 using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
 
@@ -11,25 +12,25 @@ namespace ManagedCropoutSampleProject.Core.GameMode;
 [UClass]
 public partial class AMainMenuGameMode : AGameModeBase
 {
-    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Main Menu")]
+    [UProperty(PropertyFlags.EditDefaultsOnly), Category("Main Menu")]
     protected partial TSubclassOf<ULayerMenuWidget> MainMenuWidgetClass { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
     protected partial UTextureRenderTarget2D RenderTarget { get; set; }
     
-    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Music")]
+    [UProperty(PropertyFlags.EditDefaultsOnly), Category("Music")]
     protected partial USoundControlBus PianoBus { get; set; }
     
-    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Music")]
+    [UProperty(PropertyFlags.EditDefaultsOnly), Category("Music")]
     protected partial USoundControlBus MusicPercBus { get; set; }
     
-    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Music")]
+    [UProperty(PropertyFlags.EditDefaultsOnly), Category("Music")]
     protected partial USoundControlBus StringsDelayBus { get; set; }
     
-    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Music")]
+    [UProperty(PropertyFlags.EditDefaultsOnly), Category("Music")]
     protected partial USoundControlBus MusicWinLoseBus { get; set; }
     
-    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Music")]
+    [UProperty(PropertyFlags.EditDefaultsOnly), Category("Music")]
     protected partial USoundBase MainMenuMusic { get; set; }
 
     public override void BeginPlay()

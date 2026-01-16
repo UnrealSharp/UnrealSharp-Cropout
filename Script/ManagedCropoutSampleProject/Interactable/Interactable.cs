@@ -1,5 +1,6 @@
 ﻿using UnrealSharp;
 using UnrealSharp.Attributes;
+using UnrealSharp.Core.Attributes;
 using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
 
@@ -15,7 +16,7 @@ public partial class AInteractable : AActor
         EnableGroundBlend = true;
     }
     
-    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Meshes")]
+    [UProperty(PropertyFlags.EditDefaultsOnly), Category("Meshes")]
     public partial TArray<UStaticMesh> MeshList { get; set; }
     
     [UProperty(DefaultComponent = true, RootComponent = true)]
@@ -33,13 +34,13 @@ public partial class AInteractable : AActor
     [UProperty(PropertyFlags.EditDefaultsOnly)]
     public partial float BoundGap { get; set; }
     
-    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Visuals")]
+    [UProperty(PropertyFlags.EditDefaultsOnly), Category("Visuals")]
     protected partial bool EnableGroundBlend { get; set; }
     
-    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Visuals")]
+    [UProperty(PropertyFlags.EditDefaultsOnly), Category("Visuals")]
     protected partial float OutlineDraw { get; set; }
     
-    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Progression")]
+    [UProperty(PropertyFlags.EditDefaultsOnly), Category("Progression")]
     public partial bool RequireBuild { get; set; }
 
     public float ProgressionState;

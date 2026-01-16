@@ -5,7 +5,7 @@ using UnrealSharp.Engine;
 namespace ManagedCropoutSampleProject.AI;
 
 [UInterface]
-public interface IVillager
+public partial interface IVillager
 {
     [UFunction(FunctionFlags.BlueprintCallable)]
     public void Action(AActor? actor);

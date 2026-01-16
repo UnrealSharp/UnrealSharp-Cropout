@@ -3,7 +3,7 @@
 namespace ManagedCropoutSampleProject.Core.Save;
 
 [UInterface]
-public interface IGameInstance
+public partial interface IGameInstance
 {
     [UFunction(FunctionFlags.BlueprintCallable)]
     public void UpdateAllVillagers();

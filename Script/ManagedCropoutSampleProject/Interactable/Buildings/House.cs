@@ -1,5 +1,6 @@
 ﻿using ManagedCropoutSampleProject.Core.GameMode;
 using UnrealSharp.Attributes;
+using UnrealSharp.Core.Attributes;
 
 namespace ManagedCropoutSampleProject.Interactable.Buildings;
 
@@ -11,7 +12,7 @@ public partial class AHouse : ABuilding
         VillagerCapacity = 2;
     }
     
-    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "House Properties")]
+    [UProperty(PropertyFlags.EditDefaultsOnly), Category("House Properties")]
     public partial int VillagerCapacity { get; set; }
     
     private bool _hasSpawnedVillagers = false;

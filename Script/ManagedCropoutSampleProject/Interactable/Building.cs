@@ -1,5 +1,6 @@
 ﻿using ManagedCropoutSampleProject.Core.GameMode;
 using UnrealSharp.Attributes;
+using UnrealSharp.Core.Attributes;
 using UnrealSharp.CoreUObject;
 using UnrealSharp.Engine;
 
@@ -14,7 +15,7 @@ public partial class ABuilding : AInteractable
         BuildDifficulty = 1.0f;
     }
     
-    [UProperty(PropertyFlags.EditDefaultsOnly, Category = "Build")]
+    [UProperty(PropertyFlags.EditDefaultsOnly), Category("Build")]
     public partial int CurrentStage { get; set; }
     
     [UProperty(PropertyFlags.EditDefaultsOnly)]
